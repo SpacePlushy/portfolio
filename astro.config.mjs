@@ -17,6 +17,9 @@ export default defineConfig({
   },
 
   adapter: vercel({
+    // Enable Edge Functions for global distribution
+    edgeMiddleware: true,
+    functionPerRoute: true,
     // Enable ISR for better performance
     isr: {
       // Cache pages for 1 hour after first request
