@@ -284,3 +284,81 @@ Prevents 404 spam in console from Chrome DevTools requests.
 3. **Deployment**: Framework detection can be cached - always verify and manually override if needed
 4. **Component Architecture**: Astro components using shadcn/ui React components is a powerful pattern
 5. **Simplicity Wins**: The setup complexity pays off in development speed and final performance
+
+## Server-Side Rendering (SSR) with Vercel
+
+### 🚀 Implementation Steps
+
+#### 1. **Install Vercel Adapter**
+```bash
+npx astro add vercel --yes
+```
+- Automatically installs `@astrojs/vercel`
+- Updates `astro.config.mjs` with adapter import
+
+#### 2. **Configure for SSR**
+```javascript
+// astro.config.mjs
+export default defineConfig({
+  output: 'server', // Enable SSR mode
+  adapter: vercel({
+    // Enable ISR for better performance
+    isr: {
+      // Cache pages for 1 hour after first request
+      expiration: 60 * 60,
+    },
+    // Enable Vercel Image Optimization
+    imageService: true,
+    devImageService: 'sharp',
+  })
+});
+```
+
+### 🎯 Benefits of SSR Implementation
+
+#### **Performance Benefits**
+- **ISR (Incremental Static Regeneration)**: Pages cached after first request
+- **Dynamic Content**: Can fetch fresh data on each request when needed
+- **Vercel Image Optimization**: Automatic image optimization on the fly
+- **Edge Functions**: Middleware runs at edge locations for lowest latency
+
+#### **Developer Benefits**
+- **Flexibility**: Mix static and dynamic content as needed
+- **No Build Times**: Content updates without rebuilds
+- **API Routes**: Can create dynamic API endpoints
+- **Session Management**: Support for user sessions and authentication
+
+### 📊 Static vs SSR Trade-offs
+
+| Feature | Static (Previous) | SSR (Current) |
+|---------|------------------|---------------|
+| **First Load** | Instant (pre-built) | Fast (ISR cache) |
+| **Dynamic Data** | Build-time only | Real-time possible |
+| **Build Time** | Longer (all pages) | Shorter (on-demand) |
+| **Hosting Cost** | Minimal | Slightly higher |
+| **Complexity** | Simple | More options |
+
+### 🔧 ISR Configuration Explained
+```javascript
+isr: {
+  expiration: 60 * 60, // 1 hour cache
+}
+```
+- First visitor triggers page generation
+- Page cached for 1 hour
+- Subsequent visitors get cached version
+- After 1 hour, next visitor triggers regeneration
+- Best of both worlds: Static performance + dynamic capability
+
+### 💡 When to Use SSR
+- **User-specific content**: Dashboards, profiles
+- **Frequently updated data**: News, prices
+- **API integrations**: Real-time data fetching
+- **Large sites**: Avoid building thousands of pages
+
+### 🏆 Our Portfolio with SSR
+Even though our portfolio is mostly static content, SSR provides:
+1. **Future flexibility** for dynamic features
+2. **Faster deploys** (no pre-building all pages)
+3. **A/B testing capability** without rebuilds
+4. **Potential for personalization** later
