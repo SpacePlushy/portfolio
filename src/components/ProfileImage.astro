@@ -16,13 +16,11 @@ const { className = "", priority = false } = Astro.props;
     alt="Frank Palmisano - Software Engineer & Customer Service Expert"
     widths={[96, 192, 256, 384]}
     sizes="(max-width: 640px) 96px, (max-width: 768px) 128px, (max-width: 1024px) 192px, 256px"
-    layout="constrained"
     width={256}
     height={256}
     quality="mid"
     formats={['avif', 'webp']}
-    loading={priority ? "eager" : "lazy"}
-    fetchpriority={priority ? "high" : "auto"}
+    priority={priority}
     class="w-full h-full object-cover"
   />
 </div>
