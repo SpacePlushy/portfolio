@@ -15,21 +15,33 @@ This is an Astro project created from the "basics" starter template. Astro is a 
 | `npm run preview` | Preview production build locally |
 | `npm run astro` | Run Astro CLI commands (e.g., `npm run astro add tailwind`) |
 
-## Important: Use Astro CLI for All Changes
+## Important: Use CLI Tools for All Changes
 
-**ALWAYS use the Astro CLI for making changes to this project.** The Astro CLI ensures proper configuration, dependency management, and compatibility.
+**ALWAYS use CLI tools when available for making changes to this project.** CLIs ensure proper configuration, dependency management, and compatibility. Only use manual configuration when no CLI exists.
 
-### Adding Integrations
-Use `npm run astro add <integration>` instead of manual installation:
-- `npm run astro add tailwind` - Add Tailwind CSS
-- `npm run astro add react` - Add React support  
-- `npm run astro add vue` - Add Vue support
-- `npm run astro add svelte` - Add Svelte support
-- `npm run astro add solid-js` - Add Solid.js support
-- `npm run astro add preact` - Add Preact support
-- `npm run astro add mdx` - Add MDX support
-- `npm run astro add sitemap` - Add sitemap generation
-- `npm run astro add partytown` - Add Partytown for third-party scripts
+### CLI Tool Priority Order
+
+1. **Astro CLI** - Use for all Astro integrations:
+   - `npx astro add react --yes` - Add React support
+   - `npx astro add tailwind --yes` - Add Tailwind CSS  
+   - `npx astro add vue --yes` - Add Vue support
+   - `npx astro add svelte --yes` - Add Svelte support
+   - `npx astro add solid-js --yes` - Add Solid.js support
+   - `npx astro add preact --yes` - Add Preact support
+   - `npx astro add mdx --yes` - Add MDX support
+   - `npx astro add sitemap --yes` - Add sitemap generation
+   - `npx astro add partytown --yes` - Add Partytown for third-party scripts
+   - **Always use `--yes` flag** to ensure config updates properly
+
+2. **Component Library CLIs** - Use after Astro setup:
+   - `npx shadcn@latest init` - Initialize shadcn/ui
+   - `npx shadcn@latest add <component>` - Add shadcn components
+   - Other component library CLIs as needed
+
+3. **Manual Configuration** - Only when no CLI exists:
+   - TypeScript path aliases in `tsconfig.json`
+   - Global CSS imports in Layout files
+   - Custom webpack/vite configurations
 
 ### Other CLI Commands
 - `npm run astro check` - Check for TypeScript and configuration errors
@@ -39,34 +51,43 @@ Use `npm run astro add <integration>` instead of manual installation:
 - `npm run astro telemetry` - Configure telemetry settings
 
 ### When Making Changes
-1. **Always test with `npm run dev`** after making changes
-2. **Run `npm run build`** to verify production builds work
-3. **Use `npm run astro check`** to catch TypeScript/configuration issues
-4. **Let Astro CLI modify `astro.config.mjs`** - don't edit manually unless necessary
+1. **Check for CLI tools first** - Never manually configure what a CLI can handle
+2. **Always test with `npm run dev`** after making changes
+3. **Run `npm run build`** to verify production builds work
+4. **Use `npm run astro check`** to catch TypeScript/configuration issues
+5. **Let CLIs modify config files** - Only edit manually when absolutely necessary
 
-### Adding shadcn/ui Components
-For UI component libraries like shadcn/ui, you need **both CLIs**:
+### Complete shadcn/ui Setup Example
 
-**Step 1: Use Astro CLI for framework setup**
+**Step 1: Use Astro CLI for framework setup (with --yes flag)**
 ```bash
-npm run astro add react    # Add React support
-npm run astro add tailwind # Add Tailwind CSS
+npx astro add react --yes     # Add React support
+npx astro add tailwind --yes  # Add Tailwind CSS
 ```
 
-**Step 2: Use shadcn CLI for component setup**
+**Step 2: Manual configuration (no CLI available)**
+```json
+// Add to tsconfig.json compilerOptions:
+"baseUrl": ".",
+"paths": {
+  "@/*": ["./src/*"]
+}
+```
+```astro
+// Add to Layout.astro frontmatter:
+import '../styles/global.css'
+```
+
+**Step 3: Use shadcn CLI for components**
 ```bash
-npx shadcn@latest init     # Initialize shadcn/ui
+npx shadcn@latest init        # Initialize shadcn/ui
 npx shadcn@latest add button card dialog  # Add components
 ```
 
-**Why both CLIs are needed:**
-- Astro CLI only handles official Astro integrations
-- shadcn CLI manages component architecture and copies source code
-- No way to avoid the shadcn CLI for shadcn/ui projects
-
-**Important for Astro + shadcn/ui:**
-- Use `client:load` directive on shadcn components in `.astro` files
-- Consider wrapping multiple shadcn components in a single React component to avoid island communication issues
+**Important Notes:**
+- **Always use CLIs when available** - Manual config only for path aliases and CSS imports
+- Use `client:load` directive on interactive shadcn components in `.astro` files
+- Prefer keeping components as `.astro` files that import shadcn components
 
 ## Architecture Overview
 

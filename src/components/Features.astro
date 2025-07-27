@@ -1,127 +1,107 @@
 ---
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+
+const features = [
+  {
+    icon: "🚀",
+    title: "Lightning Fast",
+    description: "Get instant AI assistance without leaving your terminal. Claude Code integrates seamlessly with your existing workflow.",
+    badges: ["CLI", "Integration"]
+  },
+  {
+    icon: "🧠",
+    title: "Intelligent Code Analysis",
+    description: "Advanced reasoning capabilities help you understand, debug, and optimize your code with contextual insights.",
+    badges: ["AI", "Analysis"]
+  },
+  {
+    icon: "🔧",
+    title: "Multi-Language Support",
+    description: "Works with Python, JavaScript, TypeScript, Rust, Go, and many more programming languages out of the box.",
+    badges: ["Languages", "Universal"]
+  },
+  {
+    icon: "🛡️",
+    title: "Privacy Focused",
+    description: "Your code stays secure with Anthropic's privacy-first approach. No training on your data without explicit consent.",
+    badges: ["Privacy", "Secure"]
+  },
+  {
+    icon: "⚡",
+    title: "Real-time Collaboration",
+    description: "Get suggestions, reviews, and improvements as you type. Like having an AI pair programmer always available.",
+    badges: ["Real-time", "Collaboration"]
+  },
+  {
+    icon: "📚",
+    title: "Extensive Documentation",
+    description: "Comprehensive guides, examples, and best practices to help you get the most out of Claude Code.",
+    badges: ["Docs", "Learning"]
+  }
+];
 ---
 
-<section class="features">
-	<div class="features-content">
-		<h2>Why Choose Claude Code?</h2>
-		<div class="features-grid">
-			<div class="feature-card">
-				<div class="feature-icon">🚀</div>
-				<h3>Lightning Fast</h3>
-				<p>Get instant AI assistance without leaving your terminal. Claude Code integrates seamlessly with your existing workflow.</p>
+<section class="container mx-auto px-4 py-16 lg:py-24">
+	<div class="text-center space-y-4 mb-16">
+		<Badge variant="outline" className="w-fit mx-auto">
+			✨ Features
+		</Badge>
+		<h2 class="text-3xl lg:text-5xl font-bold tracking-tight">
+			Why Choose Claude Code?
+		</h2>
+		<p class="text-xl text-muted-foreground max-w-2xl mx-auto">
+			Built for developers who want AI assistance without compromising on control, 
+			privacy, or performance.
+		</p>
+	</div>
+
+	<div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+		{features.map((feature, index) => (
+			<Card className="border border-border/50 hover:border-border transition-colors duration-200 group" client:load>
+				<CardHeader className="space-y-4">
+					<div class="text-4xl">{feature.icon}</div>
+					<div class="space-y-2">
+						<CardTitle className="text-xl group-hover:text-primary transition-colors duration-200">
+							{feature.title}
+						</CardTitle>
+						<div class="flex flex-wrap gap-1">
+							{feature.badges.map((badge, badgeIndex) => (
+								<Badge key={badgeIndex} variant="secondary" className="text-xs">
+									{badge}
+								</Badge>
+							))}
+						</div>
+					</div>
+				</CardHeader>
+				<CardContent>
+					<CardDescription className="text-base leading-relaxed">
+						{feature.description}
+					</CardDescription>
+				</CardContent>
+			</Card>
+		))}
+	</div>
+
+	<!-- Stats Section -->
+	<div class="mt-16 pt-16 border-t border-border/50">
+		<div class="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+			<div class="space-y-2">
+				<div class="text-3xl font-bold text-primary">50K+</div>
+				<div class="text-sm text-muted-foreground">Active Developers</div>
 			</div>
-			<div class="feature-card">
-				<div class="feature-icon">🧠</div>
-				<h3>Intelligent Code Analysis</h3>
-				<p>Advanced reasoning capabilities help you understand, debug, and optimize your code with contextual insights.</p>
+			<div class="space-y-2">
+				<div class="text-3xl font-bold text-primary">1M+</div>
+				<div class="text-sm text-muted-foreground">Code Generations</div>
 			</div>
-			<div class="feature-card">
-				<div class="feature-icon">🔧</div>
-				<h3>Multi-Language Support</h3>
-				<p>Works with Python, JavaScript, TypeScript, Rust, Go, and many more programming languages out of the box.</p>
+			<div class="space-y-2">
+				<div class="text-3xl font-bold text-primary">20+</div>
+				<div class="text-sm text-muted-foreground">Languages Supported</div>
 			</div>
-			<div class="feature-card">
-				<div class="feature-icon">🛡️</div>
-				<h3>Privacy Focused</h3>
-				<p>Your code stays secure with Anthropic's privacy-first approach. No training on your data without explicit consent.</p>
-			</div>
-			<div class="feature-card">
-				<div class="feature-icon">⚡</div>
-				<h3>Real-time Collaboration</h3>
-				<p>Get suggestions, reviews, and improvements as you type. Like having an AI pair programmer always available.</p>
-			</div>
-			<div class="feature-card">
-				<div class="feature-icon">📚</div>
-				<h3>Extensive Documentation</h3>
-				<p>Comprehensive guides, examples, and best practices to help you get the most out of Claude Code.</p>
+			<div class="space-y-2">
+				<div class="text-3xl font-bold text-primary">99.9%</div>
+				<div class="text-sm text-muted-foreground">Uptime</div>
 			</div>
 		</div>
 	</div>
 </section>
-
-<style>
-	.features {
-		padding: 4rem 2rem;
-		background: rgba(255, 255, 255, 0.05);
-		backdrop-filter: blur(10px);
-		margin: 2rem;
-		border-radius: 20px;
-		border: 1px solid rgba(255, 255, 255, 0.1);
-	}
-
-	.features-content {
-		max-width: 1200px;
-		margin: 0 auto;
-	}
-
-	h2 {
-		text-align: center;
-		font-size: 2.5rem;
-		font-weight: 700;
-		margin: 0 0 3rem 0;
-		background: linear-gradient(135deg, #ffffff 0%, #f0f9ff 100%);
-		-webkit-background-clip: text;
-		-webkit-text-fill-color: transparent;
-		background-clip: text;
-	}
-
-	.features-grid {
-		display: grid;
-		grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-		gap: 2rem;
-	}
-
-	.feature-card {
-		background: rgba(255, 255, 255, 0.1);
-		padding: 2rem;
-		border-radius: 16px;
-		border: 1px solid rgba(255, 255, 255, 0.2);
-		transition: all 0.3s ease;
-		backdrop-filter: blur(10px);
-	}
-
-	.feature-card:hover {
-		transform: translateY(-5px);
-		background: rgba(255, 255, 255, 0.15);
-		box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
-	}
-
-	.feature-icon {
-		font-size: 2.5rem;
-		margin-bottom: 1rem;
-		display: block;
-	}
-
-	.feature-card h3 {
-		color: #ffffff;
-		font-size: 1.25rem;
-		font-weight: 600;
-		margin: 0 0 1rem 0;
-	}
-
-	.feature-card p {
-		color: #cbd5e1;
-		line-height: 1.6;
-		margin: 0;
-	}
-
-	@media (max-width: 768px) {
-		.features {
-			margin: 1rem;
-			padding: 2rem 1.5rem;
-		}
-
-		h2 {
-			font-size: 2rem;
-		}
-
-		.features-grid {
-			grid-template-columns: 1fr;
-			gap: 1.5rem;
-		}
-
-		.feature-card {
-			padding: 1.5rem;
-		}
-	}
-</style>

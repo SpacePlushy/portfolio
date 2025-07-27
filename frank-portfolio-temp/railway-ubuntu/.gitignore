@@ -1,0 +1,10 @@
+# Railway
+.railway/
+
+# System files
+.DS_Store
+*.log
+
+# IDE
+.vscode/
+.idea/

@@ -1,0 +1,84 @@
+---
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+
+const achievements = [
+  {
+    title: "NASA Orion Spacecraft Contributor",
+    description: "Lead developer for mission-critical life support software",
+    impact: "Advancing human spaceflight capabilities for deep space exploration",
+    icon: "🚀"
+  },
+  {
+    title: "99% Customer Satisfaction",
+    description: "Achieved and maintained exceptional CSAT rating at Apple",
+    impact: "Built lasting customer loyalty and trust through excellence",
+    icon: "⭐"
+  },
+  {
+    title: "Apple Top 4% Nationally",
+    description: "Ranked in the top 4% of Customer Service Advisors nationwide",
+    impact: "Consistently exceeded performance metrics and quality standards",
+    icon: "🏆"
+  },
+  {
+    title: "$2.4M Cost Savings",
+    description: "Architected virtualization solution for hardware testing",
+    impact: "Reduced testing infrastructure costs by 75% while improving efficiency",
+    icon: "💰"
+  },
+  {
+    title: "16 Outstanding Service Awards",
+    description: "Received 16 Outstanding Customer Service Awards at Apple",
+    impact: "Recognized for exceptional dedication to customer success",
+    icon: "🏅"
+  },
+  {
+    title: "Knowledge Base Contributor",
+    description: "Authored 30+ articles that reduced average handle time by 12%",
+    impact: "Improved team efficiency and first-contact resolution rates",
+    icon: "📚"
+  }
+];
+---
+
+<section class="container mx-auto px-4 py-16" id="achievements">
+	<div class="max-w-6xl mx-auto space-y-12">
+		<div class="text-center space-y-4">
+			<Badge variant="outline" className="text-sm">
+				Achievements
+			</Badge>
+			<h2 class="text-3xl md:text-4xl font-bold">
+				Notable Accomplishments
+			</h2>
+			<p class="text-lg text-muted-foreground max-w-3xl mx-auto">
+				Key milestones and achievements that demonstrate my commitment to excellence in both technical and customer-facing roles.
+			</p>
+		</div>
+
+		<div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+			{achievements.map((achievement, index) => (
+				<Card key={index} className="hover:shadow-lg transition-all duration-300 group dark:border-muted dark:hover:border-primary/20 dark:hover:shadow-xl dark:hover:shadow-primary/5" client:load>
+					<CardHeader className="space-y-3">
+						<div class="text-4xl">{achievement.icon}</div>
+						<CardTitle className="text-lg group-hover:text-primary transition-colors">
+							{achievement.title}
+						</CardTitle>
+					</CardHeader>
+					<CardContent className="space-y-3">
+						<CardDescription className="text-base">
+							{achievement.description}
+						</CardDescription>
+						{achievement.impact && (
+							<div class="pt-2 border-t">
+								<p class="text-sm text-muted-foreground italic">
+									Impact: {achievement.impact}
+								</p>
+							</div>
+						)}
+					</CardContent>
+				</Card>
+			))}
+		</div>
+	</div>
+</section>

@@ -1,10 +1,28 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import Navbar from '../components/Navbar.astro';
 import Hero from '../components/Hero.astro';
-import Features from '../components/Features.astro';
+import PortfolioSelection from '../components/PortfolioSelection.astro';
+import AboutSection from '../components/AboutSection.astro';
+import ExperienceSection from '../components/ExperienceSection.astro';
+import SkillsSection from '../components/SkillsSection.astro';
+import AchievementsSection from '../components/AchievementsSection.astro';
+import EducationSection from '../components/EducationSection.astro';
+import ContactSection from '../components/ContactSection.astro';
 ---
 
 <Layout>
-	<Hero />
-	<Features />
+	<Navbar />
+	<main>
+		<Hero />
+		<div id="portfolio-selection">
+			<PortfolioSelection />
+		</div>
+		<AboutSection />
+		<ExperienceSection />
+		<SkillsSection />
+		<AchievementsSection />
+		<EducationSection />
+		<ContactSection />
+	</main>
 </Layout>

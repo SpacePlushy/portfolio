@@ -1,0 +1,98 @@
+---
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+
+const experiences = [
+  {
+    title: "Software Engineer II",
+    company: "Honeywell",
+    period: "May 2018 - June 2024",
+    location: "Phoenix, Arizona",
+    description: [
+      "Lead developer for NASA Orion spacecraft life support software",
+      "Architected real-time embedded systems for critical spacecraft operations",
+      "Developed virtualization solutions saving $2.4M in testing infrastructure",
+      "Mentored junior engineers and led code review sessions"
+    ],
+    technologies: ["C++", "Python", "RTOS", "Virtualization", "Embedded Systems"]
+  },
+  {
+    title: "Customer Service Advisor",
+    company: "Apple",
+    period: "June 2014 - December 2014",
+    location: "(Remote) Phoenix, Arizona",
+    description: [
+      "Handled 75–90 daily contacts via phone and chat, sustaining a 99% CSAT",
+      "Ranked in Apple's top 4% nationally and earned 16 Outstanding Customer Service Awards",
+      "Guided customers through AppleCare coverage and educated on self-service options",
+      "Authored 30+ knowledge-base articles that cut average handle time 12%"
+    ],
+    technologies: ["Customer Support", "Technical Writing", "Problem Solving"]
+  },
+  {
+    title: "Delivery Partner",
+    company: "Amazon",
+    period: "February 2023 - Present",
+    location: "Phoenix, Arizona",
+    description: [
+      "Completed 1,400+ deliveries with a 4.97-star rating and 99% on-time rate",
+      "Resolved real-time customer issues maintaining < 1% complaint rate",
+      "Demonstrated empathy and clear communication with diverse customers"
+    ],
+    technologies: ["Customer Service", "Time Management", "Problem Resolution"]
+  }
+];
+---
+
+<section class="container mx-auto px-4 py-16" id="experience">
+	<div class="max-w-6xl mx-auto space-y-12">
+		<div class="text-center space-y-4">
+			<Badge variant="outline" className="text-sm">
+				Experience
+			</Badge>
+			<h2 class="text-3xl md:text-4xl font-bold">
+				Professional Journey
+			</h2>
+			<p class="text-lg text-muted-foreground max-w-3xl mx-auto">
+				From NASA spacecraft development to customer service excellence, my career spans both technical innovation and human connection.
+			</p>
+		</div>
+
+		<div class="flex flex-col gap-6">
+			{experiences.map((exp, index) => (
+				<Card className="hover:shadow-lg transition-shadow duration-300 dark:border-muted dark:hover:border-primary/20 dark:hover:shadow-xl dark:hover:shadow-primary/5" client:load>
+					<CardHeader>
+						<div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+							<div>
+								<CardTitle className="text-xl">{exp.title}</CardTitle>
+								<CardDescription className="text-base mt-1">
+									{exp.company} • {exp.location}
+								</CardDescription>
+							</div>
+							<Badge variant="secondary" className="w-fit">
+								{exp.period}
+							</Badge>
+						</div>
+					</CardHeader>
+					<CardContent className="space-y-4">
+						<ul class="space-y-2">
+							{exp.description.map((item, i) => (
+								<li key={i} class="flex items-start">
+									<span class="text-primary mr-2 mt-1">•</span>
+									<span class="text-muted-foreground">{item}</span>
+								</li>
+							))}
+						</ul>
+						<div class="flex flex-wrap gap-2 pt-2">
+							{exp.technologies.map((tech, i) => (
+								<Badge key={i} variant="outline" className="text-xs">
+									{tech}
+								</Badge>
+							))}
+						</div>
+					</CardContent>
+				</Card>
+			))}
+		</div>
+	</div>
+</section>

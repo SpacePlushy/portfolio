@@ -1,0 +1,64 @@
+---
+import { Button } from "@/components/ui/button";
+import ThemeToggle from "@/components/ThemeToggle.astro";
+---
+
+<nav class="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 dark:border-muted">
+	<div class="container mx-auto px-4">
+		<div class="flex h-16 items-center justify-between">
+			<div class="flex items-center space-x-4">
+				<a href="/" class="text-xl font-bold">
+					Frank Palmisano
+				</a>
+			</div>
+			
+			<div class="hidden md:flex items-center space-x-1">
+				<a 
+					href="#about"
+					class="inline-flex h-10 w-max items-center justify-center rounded-md bg-background px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none"
+				>
+					About
+				</a>
+				<a 
+					href="#experience"
+					class="inline-flex h-10 w-max items-center justify-center rounded-md bg-background px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none"
+				>
+					Experience
+				</a>
+				<a 
+					href="#skills"
+					class="inline-flex h-10 w-max items-center justify-center rounded-md bg-background px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none"
+				>
+					Skills
+				</a>
+				<a 
+					href="#achievements"
+					class="inline-flex h-10 w-max items-center justify-center rounded-md bg-background px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none"
+				>
+					Achievements
+				</a>
+				<a 
+					href="#education"
+					class="inline-flex h-10 w-max items-center justify-center rounded-md bg-background px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none"
+				>
+					Education
+				</a>
+				<a 
+					href="#contact"
+					class="inline-flex h-10 w-max items-center justify-center rounded-md bg-background px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none"
+				>
+					Contact
+				</a>
+			</div>
+
+			<div class="flex items-center space-x-4">
+				<ThemeToggle />
+				<Button variant="outline" size="sm" asChild client:load>
+					<a href="https://linkedin.com/in/frankpalmisano" target="_blank" rel="noopener noreferrer">
+						LinkedIn
+					</a>
+				</Button>
+			</div>
+		</div>
+	</div>
+</nav>

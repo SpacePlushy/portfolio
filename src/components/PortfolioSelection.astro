@@ -1,0 +1,113 @@
+---
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+---
+
+<section class="container mx-auto px-4 py-12">
+	<div class="max-w-6xl mx-auto space-y-12">
+		<div class="text-center space-y-4">
+			<Badge variant="secondary" className="text-lg px-4 py-1">
+				Choose Your Journey
+			</Badge>
+			<h1 class="text-4xl md:text-6xl font-bold tracking-tight">
+				Welcome to My Portfolio
+			</h1>
+			<p class="text-xl text-muted-foreground max-w-3xl mx-auto">
+				I'm Frank Palmisano, a versatile professional with expertise spanning software engineering and customer service excellence. 
+				Select below to explore my journey in your area of interest.
+			</p>
+		</div>
+
+		<div class="grid md:grid-cols-2 gap-8">
+			<Card className="group hover:shadow-xl transition-all duration-300 border-2 hover:border-primary/50 dark:border-muted dark:hover:border-primary/30 dark:hover:shadow-2xl dark:hover:shadow-primary/5" client:load>
+				<CardHeader className="space-y-4">
+					<div class="w-16 h-16 rounded-lg bg-blue-500/10 flex items-center justify-center">
+						<svg class="w-8 h-8 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path>
+						</svg>
+					</div>
+					<div>
+						<CardTitle className="text-2xl">Software Engineer</CardTitle>
+						<CardDescription className="text-base mt-2">
+							Explore my technical journey
+						</CardDescription>
+					</div>
+				</CardHeader>
+				<CardContent className="space-y-6">
+					<div class="space-y-3">
+						<div class="flex items-center space-x-2">
+							<div class="w-2 h-2 bg-blue-500 rounded-full"></div>
+							<span class="text-sm">NASA Orion Spacecraft Contributor</span>
+						</div>
+						<div class="flex items-center space-x-2">
+							<div class="w-2 h-2 bg-blue-500 rounded-full"></div>
+							<span class="text-sm">Embedded Systems & Virtualization Expert</span>
+						</div>
+						<div class="flex items-center space-x-2">
+							<div class="w-2 h-2 bg-blue-500 rounded-full"></div>
+							<span class="text-sm">$2.4M Cost Savings Through Innovation</span>
+						</div>
+					</div>
+					<div class="flex flex-wrap gap-2">
+						<Badge variant="secondary">Python</Badge>
+						<Badge variant="secondary">C++</Badge>
+						<Badge variant="secondary">TypeScript</Badge>
+						<Badge variant="secondary">Embedded Systems</Badge>
+					</div>
+					<Button className="w-full group-hover:bg-primary group-hover:text-primary-foreground transition-colors" variant="outline" size="lg" asChild>
+						<a href="/software-engineer">View Technical Portfolio →</a>
+					</Button>
+				</CardContent>
+			</Card>
+
+			<Card className="group hover:shadow-xl transition-all duration-300 border-2 hover:border-primary/50 dark:border-muted dark:hover:border-primary/30 dark:hover:shadow-2xl dark:hover:shadow-primary/5" client:load>
+				<CardHeader className="space-y-4">
+					<div class="w-16 h-16 rounded-lg bg-green-500/10 flex items-center justify-center">
+						<svg class="w-8 h-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+						</svg>
+					</div>
+					<div>
+						<CardTitle className="text-2xl">Customer Service Representative</CardTitle>
+						<CardDescription className="text-base mt-2">
+							Discover my service excellence
+						</CardDescription>
+					</div>
+				</CardHeader>
+				<CardContent className="space-y-6">
+					<div class="space-y-3">
+						<div class="flex items-center space-x-2">
+							<div class="w-2 h-2 bg-green-500 rounded-full"></div>
+							<span class="text-sm">99% Customer Satisfaction Rating</span>
+						</div>
+						<div class="flex items-center space-x-2">
+							<div class="w-2 h-2 bg-green-500 rounded-full"></div>
+							<span class="text-sm">Apple's Top 4% Nationally</span>
+						</div>
+						<div class="flex items-center space-x-2">
+							<div class="w-2 h-2 bg-green-500 rounded-full"></div>
+							<span class="text-sm">16 Outstanding Service Awards</span>
+						</div>
+					</div>
+					<div class="flex flex-wrap gap-2">
+						<Badge variant="secondary">HIPAA Certified</Badge>
+						<Badge variant="secondary">Salesforce</Badge>
+						<Badge variant="secondary">Zendesk</Badge>
+						<Badge variant="secondary">First-Contact Resolution</Badge>
+					</div>
+					<Button className="w-full group-hover:bg-primary group-hover:text-primary-foreground transition-colors" variant="outline" size="lg" asChild>
+						<a href="/customer-service">View Service Portfolio →</a>
+					</Button>
+				</CardContent>
+			</Card>
+		</div>
+
+		<div class="text-center">
+			<p class="text-muted-foreground mb-4">Not sure which to explore?</p>
+			<Button variant="outline" size="lg" asChild>
+				<a href="#about">Learn More About Me ↓</a>
+			</Button>
+		</div>
+	</div>
+</section>

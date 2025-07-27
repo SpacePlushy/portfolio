@@ -1,3 +1,7 @@
+---
+import '../styles/global.css'
+---
+
 <!doctype html>
 <html lang="en">
 	<head>
@@ -5,21 +9,25 @@
 		<meta name="viewport" content="width=device-width" />
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 		<meta name="generator" content={Astro.generator} />
-		<title>Claude Code - AI-Powered Development</title>
+		<title>Frank Palmisano - Professional Portfolio</title>
+		<meta name="description" content="Versatile professional with expertise in both software engineering and customer service excellence. Explore my diverse skill set and achievements." />
+		<script is:inline>
+			const theme = (() => {
+				if (typeof localStorage !== 'undefined' && localStorage.getItem('theme')) {
+					return localStorage.getItem('theme');
+				}
+				if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+					return 'dark';
+				}
+				return 'light';
+			})();
+			
+			if (theme === 'dark') {
+				document.documentElement.classList.add('dark');
+			}
+		</script>
 	</head>
 	<body>
 		<slot />
 	</body>
 </html>
-
-<style>
-	html,
-	body {
-		margin: 0;
-		width: 100%;
-		height: 100%;
-		font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
-		background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-		color: #333;
-	}
-</style>
