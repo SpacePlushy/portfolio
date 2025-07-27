@@ -1,0 +1,28 @@
+---
+import { getImage } from 'astro:assets';
+import frankHeadshot from '../assets/frank-headshot.png';
+
+// Generate multiple favicon sizes
+const favicon32 = await getImage({ src: frankHeadshot, width: 32, height: 32, format: 'png' });
+const favicon16 = await getImage({ src: frankHeadshot, width: 16, height: 16, format: 'png' });
+const favicon180 = await getImage({ src: frankHeadshot, width: 180, height: 180, format: 'png' }); // Apple touch icon
+const favicon192 = await getImage({ src: frankHeadshot, width: 192, height: 192, format: 'png' }); // Android
+const favicon512 = await getImage({ src: frankHeadshot, width: 512, height: 512, format: 'png' }); // PWA
+---
+
+<!-- Standard favicons -->
+<link rel="icon" type="image/png" sizes="32x32" href={favicon32.src} />
+<link rel="icon" type="image/png" sizes="16x16" href={favicon16.src} />
+
+<!-- Apple Touch Icon -->
+<link rel="apple-touch-icon" sizes="180x180" href={favicon180.src} />
+
+<!-- Android/Chrome -->
+<link rel="icon" type="image/png" sizes="192x192" href={favicon192.src} />
+<link rel="icon" type="image/png" sizes="512x512" href={favicon512.src} />
+
+<!-- Theme color for mobile browsers -->
+<meta name="theme-color" content="#1e40af" />
+
+<!-- Web App Manifest -->
+<link rel="manifest" href="/manifest.json" />
