@@ -1,0 +1,17 @@
+---
+// BotID Protection Component for Astro
+---
+
+<script is:inline>
+  // BotID protection initialization
+  // This runs on the client side for all visitors
+  if (typeof window !== 'undefined') {
+    import('botid').then(({ initBotId }) => {
+      initBotId({
+        protect: true
+      });
+    }).catch(err => {
+      console.error('Failed to initialize BotID:', err);
+    });
+  }
+</script>

@@ -1,0 +1,124 @@
+---
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+---
+
+<Card className="hover:shadow-lg transition-all duration-200 dark:border-muted dark:hover:border-primary/20 dark:hover:shadow-xl dark:hover:shadow-primary/5" client:load>
+	<CardHeader>
+		<CardTitle>Send a Message</CardTitle>
+		<CardDescription>Fill out the form below and I'll get back to you as soon as possible.</CardDescription>
+	</CardHeader>
+	<CardContent>
+		<form id="contact-form" class="space-y-4">
+			<div class="space-y-2">
+				<Label htmlFor="name">Name</Label>
+				<Input 
+					id="name" 
+					name="name" 
+					type="text" 
+					placeholder="Your name" 
+					required 
+					client:load
+				/>
+			</div>
+			
+			<div class="space-y-2">
+				<Label htmlFor="email">Email</Label>
+				<Input 
+					id="email" 
+					name="email" 
+					type="email" 
+					placeholder="your@email.com" 
+					required 
+					client:load
+				/>
+			</div>
+			
+			<div class="space-y-2">
+				<Label htmlFor="message">Message</Label>
+				<Textarea 
+					id="message" 
+					name="message" 
+					placeholder="Your message..." 
+					rows={5} 
+					required 
+					client:load
+				/>
+			</div>
+			
+			<Button type="submit" className="w-full" client:load>
+				Send Message
+			</Button>
+			
+			<div id="form-message" class="text-center text-sm"></div>
+		</form>
+	</CardContent>
+</Card>
+
+<script>
+	const form = document.getElementById('contact-form') as HTMLFormElement;
+	const messageDiv = document.getElementById('form-message') as HTMLDivElement;
+	
+	form?.addEventListener('submit', async (e) => {
+		e.preventDefault();
+		
+		// Get form data
+		const formData = new FormData(form);
+		const data = {
+			name: formData.get('name'),
+			email: formData.get('email'),
+			message: formData.get('message')
+		};
+		
+		// Clear previous messages
+		messageDiv.textContent = '';
+		messageDiv.className = 'text-center text-sm';
+		
+		try {
+			// Show loading state
+			const submitButton = form.querySelector('button[type="submit"]') as HTMLButtonElement;
+			const originalText = submitButton.textContent;
+			submitButton.disabled = true;
+			submitButton.textContent = 'Sending...';
+			
+			// Send request
+			const response = await fetch('/api/contact', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify(data)
+			});
+			
+			const result = await response.json();
+			
+			if (response.ok) {
+				// Success
+				messageDiv.textContent = result.message || 'Message sent successfully!';
+				messageDiv.className = 'text-center text-sm text-green-600 dark:text-green-400';
+				form.reset();
+			} else {
+				// Error
+				messageDiv.textContent = result.error || 'Failed to send message. Please try again.';
+				messageDiv.className = 'text-center text-sm text-red-600 dark:text-red-400';
+			}
+			
+			// Reset button
+			submitButton.disabled = false;
+			submitButton.textContent = originalText || 'Send Message';
+			
+		} catch (error) {
+			console.error('Form submission error:', error);
+			messageDiv.textContent = 'An error occurred. Please try again later.';
+			messageDiv.className = 'text-center text-sm text-red-600 dark:text-red-400';
+			
+			// Reset button
+			const submitButton = form.querySelector('button[type="submit"]') as HTMLButtonElement;
+			submitButton.disabled = false;
+			submitButton.textContent = 'Send Message';
+		}
+	});
+</script>
