@@ -75,7 +75,7 @@ const getLevelColor = (level: string) => {
 
 		<div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
 			{skillCategories.map((category, index) => (
-				<Card key={index} className="hover:shadow-lg transition-shadow duration-300 dark:border-muted dark:hover:border-primary/20 dark:hover:shadow-xl dark:hover:shadow-primary/5" client:load>
+				<Card key={index} className="hover:shadow-lg transition-all duration-200 dark:border-muted dark:hover:border-primary/20 dark:hover:shadow-xl dark:hover:shadow-primary/5" client:load>
 					<CardHeader>
 						<CardTitle className="text-lg">{category.name}</CardTitle>
 					</CardHeader>

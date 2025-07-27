@@ -115,6 +115,10 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground transition-colors duration-200;
+  }
+  /* Ensure smooth theme transitions */
+  html {
+    @apply transition-colors duration-200;
   }
 }

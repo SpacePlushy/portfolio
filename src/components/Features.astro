@@ -58,11 +58,11 @@ const features = [
 
 	<div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
 		{features.map((feature, index) => (
-			<Card className="border border-border/50 hover:border-border transition-colors duration-200 group" client:load>
+			<Card className="border border-border/50 hover:border-border transition-all duration-200 group" client:load>
 				<CardHeader className="space-y-4">
 					<div class="text-4xl">{feature.icon}</div>
 					<div class="space-y-2">
-						<CardTitle className="text-xl group-hover:text-primary transition-colors duration-200">
+						<CardTitle className="text-xl group-hover:text-primary transition-all duration-200">
 							{feature.title}
 						</CardTitle>
 						<div class="flex flex-wrap gap-1">
