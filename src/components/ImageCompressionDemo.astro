@@ -1,0 +1,88 @@
+---
+// This component demonstrates the actual compression
+---
+
+<div class="bg-muted/30 rounded-lg p-6 space-y-4">
+  <h3 class="font-semibold text-lg mb-4">🔍 How Your Image Gets Compressed</h3>
+  
+  <div class="space-y-6">
+    <!-- Original File -->
+    <div class="flex items-center justify-between p-4 bg-red-500/10 rounded-lg">
+      <div>
+        <p class="font-semibold">Original PNG</p>
+        <p class="text-sm text-muted-foreground">Full quality, all pixels</p>
+      </div>
+      <div class="text-right">
+        <p class="text-2xl font-bold">~800KB</p>
+        <p class="text-xs text-muted-foreground">2000x2000px</p>
+      </div>
+    </div>
+
+    <!-- Arrow -->
+    <div class="text-center text-2xl">↓</div>
+
+    <!-- Processing Steps -->
+    <div class="grid gap-3">
+      <div class="flex items-center gap-3 p-3 bg-yellow-500/10 rounded">
+        <span class="text-2xl">📐</span>
+        <div class="flex-1">
+          <p class="font-medium">Resize to 256x256</p>
+          <p class="text-xs text-muted-foreground">87% fewer pixels to store</p>
+        </div>
+        <span class="text-green-600 font-semibold">-87%</span>
+      </div>
+
+      <div class="flex items-center gap-3 p-3 bg-yellow-500/10 rounded">
+        <span class="text-2xl">🎨</span>
+        <div class="flex-1">
+          <p class="font-medium">Convert PNG → AVIF</p>
+          <p class="text-xs text-muted-foreground">Modern compression algorithm</p>
+        </div>
+        <span class="text-green-600 font-semibold">-70%</span>
+      </div>
+
+      <div class="flex items-center gap-3 p-3 bg-yellow-500/10 rounded">
+        <span class="text-2xl">🔧</span>
+        <div class="flex-1">
+          <p class="font-medium">Quality 85%</p>
+          <p class="text-xs text-muted-foreground">Removes invisible details</p>
+        </div>
+        <span class="text-green-600 font-semibold">-15%</span>
+      </div>
+
+      <div class="flex items-center gap-3 p-3 bg-yellow-500/10 rounded">
+        <span class="text-2xl">🗑️</span>
+        <div class="flex-1">
+          <p class="font-medium">Strip Metadata</p>
+          <p class="text-xs text-muted-foreground">Remove EXIF, color profiles</p>
+        </div>
+        <span class="text-green-600 font-semibold">-5%</span>
+      </div>
+    </div>
+
+    <!-- Arrow -->
+    <div class="text-center text-2xl">↓</div>
+
+    <!-- Final Result -->
+    <div class="flex items-center justify-between p-4 bg-green-500/10 rounded-lg">
+      <div>
+        <p class="font-semibold">Optimized AVIF</p>
+        <p class="text-sm text-muted-foreground">Visually identical</p>
+      </div>
+      <div class="text-right">
+        <p class="text-2xl font-bold text-green-600">~45KB</p>
+        <p class="text-xs text-muted-foreground">256x256px</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="mt-6 p-4 bg-blue-500/10 rounded-lg">
+    <h4 class="font-semibold mb-2">🧙 The Magic Part:</h4>
+    <ul class="space-y-1 text-sm text-muted-foreground">
+      <li>• This happens <strong>on-demand</strong> at Vercel's edge servers</li>
+      <li>• First visitor triggers optimization, others get cached version</li>
+      <li>• Different sizes/formats generated as needed</li>
+      <li>• Original file never sent to browsers</li>
+    </ul>
+  </div>
+</div>
