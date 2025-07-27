@@ -34,9 +34,9 @@ export default defineConfig({
       minimumCacheTTL: 60,
       dangerouslyAllowSVG: true,
     },
-    // Enable Vercel Web Analytics
+    // Enable Vercel Web Analytics only in production
     webAnalytics: {
-      enabled: true
+      enabled: process.env.NODE_ENV === 'production'
     }
   })
 });
