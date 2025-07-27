@@ -1,0 +1,230 @@
+---
+---
+
+<section class="hero">
+	<div class="hero-content">
+		<div class="hero-text">
+			<h1>Claude Code</h1>
+			<p class="tagline">AI-Powered Development Experience</p>
+			<p class="description">
+				Claude Code is Anthropic's official CLI that brings Claude's intelligence directly to your development workflow. 
+				Write, debug, and enhance code with AI assistance in your terminal.
+			</p>
+			<div class="cta-buttons">
+				<a href="https://claude.ai/code" class="btn btn-primary">Get Started</a>
+				<a href="https://docs.anthropic.com/en/docs/claude-code" class="btn btn-secondary">Documentation</a>
+			</div>
+		</div>
+		<div class="hero-visual">
+			<div class="terminal">
+				<div class="terminal-header">
+					<div class="terminal-buttons">
+						<span class="btn-close"></span>
+						<span class="btn-minimize"></span>
+						<span class="btn-maximize"></span>
+					</div>
+					<div class="terminal-title">Terminal</div>
+				</div>
+				<div class="terminal-body">
+					<div class="terminal-line">
+						<span class="prompt">$</span> claude-code "Add a login component"
+					</div>
+					<div class="terminal-line response">
+						<span class="ai-indicator">✨</span> Creating login component with TypeScript...
+					</div>
+					<div class="terminal-line response">
+						<span class="ai-indicator">📝</span> Added authentication hooks
+					</div>
+					<div class="terminal-line response">
+						<span class="ai-indicator">🎨</span> Styled with Tailwind CSS
+					</div>
+					<div class="terminal-cursor">_</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</section>
+
+<style>
+	.hero {
+		min-height: 90vh;
+		display: flex;
+		align-items: center;
+		padding: 2rem;
+		background: rgba(255, 255, 255, 0.1);
+		backdrop-filter: blur(10px);
+		margin: 2rem;
+		border-radius: 20px;
+		border: 1px solid rgba(255, 255, 255, 0.2);
+	}
+
+	.hero-content {
+		max-width: 1200px;
+		margin: 0 auto;
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		gap: 4rem;
+		align-items: center;
+	}
+
+	.hero-text h1 {
+		font-size: 4rem;
+		font-weight: 700;
+		margin: 0 0 1rem 0;
+		background: linear-gradient(135deg, #ffffff 0%, #f0f9ff 100%);
+		-webkit-background-clip: text;
+		-webkit-text-fill-color: transparent;
+		background-clip: text;
+	}
+
+	.tagline {
+		font-size: 1.5rem;
+		color: #e2e8f0;
+		margin: 0 0 1.5rem 0;
+		font-weight: 500;
+	}
+
+	.description {
+		font-size: 1.1rem;
+		line-height: 1.6;
+		color: #cbd5e1;
+		margin: 0 0 2rem 0;
+	}
+
+	.cta-buttons {
+		display: flex;
+		gap: 1rem;
+	}
+
+	.btn {
+		padding: 1rem 2rem;
+		border-radius: 12px;
+		text-decoration: none;
+		font-weight: 600;
+		transition: all 0.3s ease;
+		display: inline-block;
+	}
+
+	.btn-primary {
+		background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+		color: white;
+		box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+	}
+
+	.btn-primary:hover {
+		transform: translateY(-2px);
+		box-shadow: 0 8px 25px rgba(59, 130, 246, 0.6);
+	}
+
+	.btn-secondary {
+		background: rgba(255, 255, 255, 0.1);
+		color: white;
+		border: 1px solid rgba(255, 255, 255, 0.3);
+	}
+
+	.btn-secondary:hover {
+		background: rgba(255, 255, 255, 0.2);
+		transform: translateY(-2px);
+	}
+
+	.terminal {
+		background: #1e293b;
+		border-radius: 12px;
+		overflow: hidden;
+		box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+		border: 1px solid #334155;
+	}
+
+	.terminal-header {
+		background: #334155;
+		padding: 1rem;
+		display: flex;
+		align-items: center;
+		gap: 1rem;
+	}
+
+	.terminal-buttons {
+		display: flex;
+		gap: 0.5rem;
+	}
+
+	.terminal-buttons span {
+		width: 12px;
+		height: 12px;
+		border-radius: 50%;
+	}
+
+	.btn-close { background: #ef4444; }
+	.btn-minimize { background: #f59e0b; }
+	.btn-maximize { background: #10b981; }
+
+	.terminal-title {
+		color: #94a3b8;
+		font-size: 0.9rem;
+		font-weight: 500;
+	}
+
+	.terminal-body {
+		padding: 1.5rem;
+		font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+		font-size: 0.9rem;
+	}
+
+	.terminal-line {
+		margin: 0.5rem 0;
+		color: #e2e8f0;
+	}
+
+	.prompt {
+		color: #3b82f6;
+		font-weight: bold;
+		margin-right: 0.5rem;
+	}
+
+	.response {
+		color: #94a3b8;
+		padding-left: 1rem;
+	}
+
+	.ai-indicator {
+		margin-right: 0.5rem;
+	}
+
+	.terminal-cursor {
+		display: inline-block;
+		background: #3b82f6;
+		color: #3b82f6;
+		animation: blink 1s infinite;
+		margin-left: 0.25rem;
+	}
+
+	@keyframes blink {
+		0%, 50% { opacity: 1; }
+		51%, 100% { opacity: 0; }
+	}
+
+	@media (max-width: 768px) {
+		.hero {
+			margin: 1rem;
+			padding: 1.5rem;
+			min-height: auto;
+		}
+
+		.hero-content {
+			grid-template-columns: 1fr;
+			gap: 2rem;
+		}
+
+		.hero-text h1 {
+			font-size: 2.5rem;
+		}
+
+		.cta-buttons {
+			flex-direction: column;
+		}
+
+		.terminal {
+			order: -1;
+		}
+	}
+</style>
