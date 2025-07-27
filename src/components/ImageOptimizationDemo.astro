@@ -1,0 +1,41 @@
+---
+// This component demonstrates Vercel Image Optimization features
+---
+
+<div class="container mx-auto px-4 py-8 space-y-8">
+  <h2 class="text-2xl font-bold">How Vercel Image Optimization Works</h2>
+  
+  <div class="grid md:grid-cols-2 gap-8">
+    <div class="space-y-4">
+      <h3 class="text-xl font-semibold">Without Optimization</h3>
+      <ul class="space-y-2 text-muted-foreground">
+        <li>• Original PNG: ~500KB</li>
+        <li>• No responsive sizing</li>
+        <li>• Single format for all browsers</li>
+        <li>• Loads immediately (blocks render)</li>
+      </ul>
+    </div>
+    
+    <div class="space-y-4">
+      <h3 class="text-xl font-semibold text-green-600 dark:text-green-400">With Vercel Optimization</h3>
+      <ul class="space-y-2 text-muted-foreground">
+        <li>• WebP/AVIF: ~150KB (70% smaller!)</li>
+        <li>• Multiple sizes generated</li>
+        <li>• Modern format for modern browsers</li>
+        <li>• Lazy loading below the fold</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="bg-muted/50 rounded-lg p-6 space-y-4">
+    <h3 class="font-semibold">What Happens Behind the Scenes:</h3>
+    <ol class="list-decimal list-inside space-y-2 text-sm text-muted-foreground">
+      <li>You upload image.png to your project</li>
+      <li>Astro's Image component requests it</li>
+      <li>Vercel intercepts the request</li>
+      <li>Optimizes on-the-fly: format, size, quality</li>
+      <li>Caches result at edge locations</li>
+      <li>Serves optimized version to users</li>
+    </ol>
+  </div>
+</div>
