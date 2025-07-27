@@ -30,6 +30,10 @@ export default defineConfig({
       formats: ['image/avif', 'image/webp'],
       minimumCacheTTL: 60,
       dangerouslyAllowSVG: true,
+    },
+    // Enable Vercel Web Analytics
+    webAnalytics: {
+      enabled: true
     }
   })
 });
