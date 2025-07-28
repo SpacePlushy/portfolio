@@ -26,8 +26,13 @@ import Favicon from '@/components/Favicon.astro'
 				return 'light';
 			})();
 			
+			// Apply the theme immediately
+			const element = document.documentElement;
+			element.classList.remove('dark', 'red');
 			if (theme === 'dark') {
-				document.documentElement.classList.add('dark');
+				element.classList.add('dark');
+			} else if (theme === 'red') {
+				element.classList.add('red');
 			}
 		</script>
 	</head>
