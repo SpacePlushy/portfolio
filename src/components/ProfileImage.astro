@@ -5,9 +5,10 @@ import frankHeadshot from '../assets/frank-headshot.png';
 interface Props {
   className?: string;
   priority?: boolean;
+  loading?: 'lazy' | 'eager';
 }
 
-const { className = "", priority = false } = Astro.props;
+const { className = "", priority = false, loading = 'lazy' } = Astro.props;
 ---
 
 <div class={`relative overflow-hidden rounded-full ${className}`}>
@@ -21,7 +22,9 @@ const { className = "", priority = false } = Astro.props;
     quality="mid"
     formats={['avif', 'webp']}
     priority={priority}
+    loading={loading}
     class="w-full h-full object-cover"
+    decoding="async"
   />
 </div>
 
