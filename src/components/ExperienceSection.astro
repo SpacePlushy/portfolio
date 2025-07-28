@@ -59,7 +59,7 @@ const experiences = [
 		</div>
 
 		<div class="flex flex-col gap-6">
-			{experiences.map((exp, index) => (
+			{experiences.map((exp) => (
 				<Card className="hover:shadow-lg transition-all duration-200 dark:border-muted dark:hover:border-primary/20 dark:hover:shadow-xl dark:hover:shadow-primary/5" client:load>
 					<CardHeader>
 						<div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
@@ -76,8 +76,8 @@ const experiences = [
 					</CardHeader>
 					<CardContent className="space-y-4">
 						<ul class="space-y-2">
-							{exp.description.map((item, i) => (
-								<li key={i} class="flex items-start">
+							{exp.description.map((item) => (
+								<li class="flex items-start">
 									<span class="text-primary mr-2 mt-1">•</span>
 									<span class="text-muted-foreground">{item}</span>
 								</li>

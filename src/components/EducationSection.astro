@@ -62,8 +62,8 @@ const certifications = [
 						{edu.highlights && (
 							<CardContent>
 								<ul class="space-y-1">
-									{edu.highlights.map((highlight, i) => (
-										<li key={i} class="flex items-start">
+									{edu.highlights.map((highlight) => (
+										<li class="flex items-start">
 											<span class="text-primary mr-2">•</span>
 											<span class="text-sm text-muted-foreground">{highlight}</span>
 										</li>

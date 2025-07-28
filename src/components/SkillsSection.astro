@@ -2,7 +2,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
-const levelOrder = { "Expert": 1, "Advanced": 2, "Intermediate": 3 };
+const levelOrder: Record<string, number> = { "Expert": 1, "Advanced": 2, "Intermediate": 3 };
 
 const skillCategories = [
   {
@@ -74,15 +74,15 @@ const getLevelColor = (level: string) => {
 		</div>
 
 		<div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-			{skillCategories.map((category, index) => (
-				<Card key={index} className="hover:shadow-lg transition-all duration-200 dark:border-muted dark:hover:border-primary/20 dark:hover:shadow-xl dark:hover:shadow-primary/5" client:load>
+			{skillCategories.map((category) => (
+				<Card className="hover:shadow-lg transition-all duration-200 dark:border-muted dark:hover:border-primary/20 dark:hover:shadow-xl dark:hover:shadow-primary/5" client:load>
 					<CardHeader>
 						<CardTitle className="text-lg">{category.name}</CardTitle>
 					</CardHeader>
 					<CardContent>
 						<div class="space-y-3">
-							{category.items.map((skill, i) => (
-								<div key={i} class="flex items-center justify-between">
+							{category.items.map((skill) => (
+								<div class="flex items-center justify-between">
 									<span class="text-sm font-medium">{skill.name}</span>
 									<Badge 
 										variant="outline" 
