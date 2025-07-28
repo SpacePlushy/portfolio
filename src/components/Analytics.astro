@@ -5,8 +5,12 @@
 <script>
   // Only load analytics in production
   if (import.meta.env.PROD) {
-    import('@vercel/analytics').then(({ inject }) => {
-      inject();
-    });
+    import('@vercel/analytics')
+      .then(({ inject }) => {
+        inject();
+      })
+      .catch((error) => {
+        console.error('Failed to load Vercel Analytics:', error);
+      });
   }
 </script>
