@@ -355,7 +355,7 @@ function validateTokenSignature(token: string, data: any): boolean {
   // using HMAC-SHA256 with a server-side secret key
   
   // Basic validation for now
-  return token && token.length >= 32 && /^[a-f0-9]+$/.test(token);
+  return !!(token && token.length >= 32 && /^[a-f0-9]+$/.test(token));
 }
 
 /**
