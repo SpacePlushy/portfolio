@@ -9,7 +9,8 @@ import vercel from '@astrojs/vercel';
 
 // https://astro.build/config
 export default defineConfig({
-  output: 'static',
+  // Use server output to enable API routes and middleware
+  output: 'server',
   integrations: [react()],
 
   vite: {
@@ -17,8 +18,10 @@ export default defineConfig({
   },
 
   adapter: vercel({
-    // Use static output for better performance
-    // Static pages are served from edge globally
+    // Enable ISR for static pages with API functionality
+    isr: { 
+      expiration: 60 * 60, // 1 hour cache for static content
+    },
     // Enable Vercel Image Optimization
     imageService: true,
     devImageService: 'sharp',

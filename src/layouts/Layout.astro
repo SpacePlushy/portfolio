@@ -2,6 +2,7 @@
 import '../styles/global.css'
 import Analytics from '@/components/Analytics.astro'
 import Favicon from '@/components/Favicon.astro'
+import BotIdProtection from '@/components/BotIdProtection.tsx'
 ---
 
 <!doctype html>
@@ -34,5 +35,6 @@ import Favicon from '@/components/Favicon.astro'
 	<body>
 		<slot />
 		<Analytics />
+		<BotIdProtection client:load />
 	</body>
 </html>
