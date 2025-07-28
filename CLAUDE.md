@@ -5,11 +5,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Project Overview
 
 This is a professional portfolio website for Frank Palmisano built with Astro, featuring:
-- Server-side rendering (SSR) with Vercel adapter
+- Server-side rendering (SSR) with Vercel adapter and ISR caching
 - Dual portfolio paths (Software Engineer & Customer Service Representative)
 - Dark/light theme support
 - Vercel Analytics integration
-- BotID protection for API endpoints
+- **Comprehensive security system** with bot protection and API security
+- **Secure API endpoints** with input validation and rate limiting
+- **Security middleware** with XSS protection and monitoring
 - Responsive design with Tailwind CSS
 - UI components from shadcn/ui
 
@@ -76,11 +78,24 @@ This is a professional portfolio website for Frank Palmisano built with Astro, f
 - **Tailwind CSS v4** - Utility-first CSS framework
 - **TypeScript** - Type safety throughout the project
 
+### Security Technologies
+- **BotID** - Bot detection and protection
+- **Zod** - Runtime type validation for API inputs
+- **Security Headers** - XSS and clickjacking protection
+- **Content Security Policy** - Script and resource restrictions
+
 ### Key Integrations
 - **@astrojs/vercel** - SSR adapter with ISR and image optimization
 - **@vercel/analytics** - Web analytics tracking
 - **botid** - Bot protection for API endpoints
 - **shadcn/ui** - Component library built on Radix UI
+
+### Security Features
+- **Bot Protection**: Client and server-side validation
+- **API Security**: Input validation, rate limiting, error handling
+- **XSS Protection**: Security headers and Content Security Policy
+- **Environment Security**: Safe handling of secrets and public variables
+- **Request Monitoring**: Comprehensive logging and suspicious activity detection
 
 ### Project Structure
 ```
@@ -88,13 +103,19 @@ src/
 ├── assets/           # Images and static assets
 ├── components/       # Astro and React components
 │   ├── ui/          # shadcn/ui components
+│   ├── BotIdProtection.tsx  # Client-side bot detection
 │   └── *.astro      # Portfolio section components
-├── layouts/         # Page layouts
+├── layouts/         # Page layouts with security features
+├── lib/             # Utility libraries
+│   ├── bot-protection.ts    # Security utilities
+│   └── utils.ts     # General utilities
 ├── pages/           # File-based routing
-│   ├── api/         # API endpoints
+│   ├── api/         # Secure API endpoints
+│   │   ├── contact.js   # Contact form with validation
+│   │   └── health.js    # System health check
 │   └── *.astro      # Page routes
 ├── styles/          # Global styles
-└── middleware.js    # Request middleware (BotID protection)
+└── middleware.js    # Security middleware with bot protection
 ```
 
 ### Architecture Patterns
@@ -109,19 +130,36 @@ src/
 ```javascript
 // astro.config.mjs
 export default defineConfig({
-  output: 'server',
+  output: 'server', // Enable SSR for security features
   adapter: vercel({
-    isr: { expiration: 60 * 60 }, // 1 hour cache
+    isr: { expiration: 60 * 60 }, // 1 hour cache for static content
     imageService: true,
     webAnalytics: { enabled: true }
   })
 });
 ```
 
-#### Bot Protection
-- Client-side: `initBotId()` in BotIDProtection component
-- Server-side: Middleware checks API routes with `checkBotId()`
-- vercel.json configures required rewrites for production
+#### Security Architecture
+The portfolio implements a comprehensive security system:
+
+**Client-Side Protection:**
+- `BotIdProtection` component initializes bot detection
+- Token generation with cryptographic randomness
+- Browser environment validation and fingerprinting
+- Session-based token storage (cleared on tab close)
+
+**Server-Side Validation:**
+- Middleware intercepts all API requests
+- `checkBotId()` validates tokens and detects suspicious patterns
+- Rate limiting and IP-based monitoring
+- Request consistency validation (User-Agent, Origin headers)
+
+**API Security:**
+- Zod schema validation for all inputs
+- Honeypot fields for spam detection
+- Request size limits and content-type validation
+- Comprehensive error handling without information leakage
+- Security logging for monitoring and analysis
 
 ### Performance Optimizations
 - **Image Optimization**: Vercel automatically optimizes images on-demand
@@ -135,6 +173,42 @@ export default defineConfig({
 3. **Apply client directives strategically** - only for interactive components
 4. **Test bot protection locally** by checking middleware logs
 5. **Verify SSR behavior** with `npm run build && npm run preview`
+6. **Never commit secrets** - use environment variables for sensitive data
+7. **Validate all API inputs** - use Zod schemas for runtime validation
+8. **Test security features** - verify bot detection and rate limiting
+9. **Monitor security logs** - check for suspicious patterns and attacks
+
+### Security Guidelines
+
+#### Environment Variables
+- **Public variables** (safe for client exposure): Start with `PUBLIC_`
+- **Secret variables** (server-only): Never expose to client-side code
+- **Development**: Use `.env.local` (excluded from git)
+- **Production**: Configure in Vercel dashboard
+
+#### API Endpoint Security
+When creating new API endpoints:
+```javascript
+export async function POST({ request, locals }) {
+  // 1. Check bot protection
+  if (locals?.botCheck?.status === 'likely_bot') {
+    return new Response('Forbidden', { status: 403 });
+  }
+  
+  // 2. Validate input with Zod
+  const schema = z.object({ /* define schema */ });
+  const result = schema.safeParse(await request.json());
+  
+  // 3. Handle errors securely
+  return createErrorResponse('Generic error', 'ERROR_CODE', 500);
+}
+```
+
+#### Component Security
+- Use `client:load` only when necessary for interactivity
+- Store sensitive data in server-side sessions, not client storage
+- Validate all props and user inputs
+- Escape output when rendering dynamic content
 
 ### Deployment Notes
 - Deploys automatically to Vercel on push to main branch
@@ -151,20 +225,48 @@ npx shadcn@latest add dialog
 # import { Dialog } from "@/components/ui/dialog";
 ```
 
-#### Creating a New API Endpoint
+#### Creating a New Secure API Endpoint
 ```javascript
 // src/pages/api/endpoint.js
+import { z } from 'zod';
+
+const InputSchema = z.object({
+  // Define validation schema
+});
+
 export async function POST({ request, locals }) {
-  // BotID check already done in middleware
+  // Security checks
   if (locals.botCheck?.status === 'likely_bot') {
     return new Response('Forbidden', { status: 403 });
   }
-  // Handle request...
+  
+  // Input validation
+  const result = InputSchema.safeParse(await request.json());
+  if (!result.success) {
+    return new Response('Invalid input', { status: 400 });
+  }
+  
+  // Process request...
 }
 ```
 
-#### Adding a New Page Section
-1. Create component in `src/components/SectionName.astro`
-2. Import and use in relevant page files
-3. Ensure proper styling with Tailwind classes
-4. Add appropriate client directives if interactive
+#### Adding Security Headers
+Security headers are automatically added by middleware, but you can customize them:
+```javascript
+// In middleware.js, modify securityHeaders object
+const securityHeaders = {
+  'X-Content-Type-Options': 'nosniff',
+  'X-Frame-Options': 'SAMEORIGIN',
+  // Add custom headers here
+};
+```
+
+#### Testing Bot Protection
+```bash
+# Test API without bot protection headers
+curl -X POST http://localhost:4321/api/contact \
+  -H "Content-Type: application/json" \
+  -d '{"test":"data"}'
+
+# Should return 403 Forbidden
+```
