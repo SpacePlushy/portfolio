@@ -1,0 +1,12 @@
+---
+interface Props {
+  className?: string;
+}
+
+const { className = "" } = Astro.props;
+---
+
+<div class={`relative h-px w-full ${className}`}>
+  <div class="absolute inset-0 bg-gradient-to-r from-transparent via-border to-transparent"></div>
+  <div class="absolute inset-0 bg-gradient-to-r from-transparent via-primary/20 to-transparent blur-sm"></div>
+</div>

@@ -10,7 +10,7 @@ interface Props {
 const { className = "", priority = false } = Astro.props;
 ---
 
-<div class={`relative overflow-hidden rounded-full ${className}`}>
+<div class={`relative overflow-hidden rounded-full ${className} animate-fade-in-scale`}>
   <Image 
     src={frankHeadshot}
     alt="Frank Palmisano - Software Engineer & Customer Service Expert"
@@ -21,7 +21,7 @@ const { className = "", priority = false } = Astro.props;
     quality="mid"
     formats={['avif', 'webp']}
     priority={priority}
-    class="w-full h-full object-cover"
+    class="w-full h-full object-cover transition-transform duration-300 hover:scale-110"
   />
 </div>
 

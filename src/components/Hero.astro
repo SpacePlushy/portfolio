@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import ProfileImage from "./ProfileImage.astro";
 ---
 
-<section class="container mx-auto px-4 py-12 lg:py-16" id="hero">
+<section class="container mx-auto px-4 py-16 lg:py-20" id="hero">
 	<div class="max-w-6xl mx-auto">
 		<div class="text-center space-y-8">
 			<ProfileImage className="w-32 h-32 mx-auto mb-6 ring-4 ring-primary/20" priority={true} />
@@ -12,10 +12,10 @@ import ProfileImage from "./ProfileImage.astro";
 				<Badge variant="secondary" className="text-lg px-4 py-1">
 					Welcome to My Portfolio
 				</Badge>
-				<h1 class="text-4xl lg:text-7xl font-bold tracking-tight">
+				<h1 class="text-5xl lg:text-6xl font-bold tracking-tight bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent">
 					Frank Palmisano
 				</h1>
-				<p class="text-2xl lg:text-3xl text-muted-foreground font-light">
+				<p class="text-xl lg:text-2xl text-muted-foreground font-medium">
 					Customer Service Excellence • Software Engineering • Problem Solving
 				</p>
 			</div>
@@ -29,30 +29,30 @@ import ProfileImage from "./ProfileImage.astro";
 			</div>
 
 			<div class="flex flex-col sm:flex-row gap-4 justify-center">
-				<Button size="lg" className="text-lg px-8" variant="default" asChild client:load>
+				<Button size="lg" className="text-lg px-8 bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary shadow-lg hover:shadow-xl transition-all duration-300" variant="default" asChild client:load>
 					<a href="#portfolio-selection">
 						Explore My Work
 					</a>
 				</Button>
-				<Button size="lg" className="text-lg px-8" variant="outline" asChild client:load>
+				<Button size="lg" className="text-lg px-8 hover:bg-accent hover:text-accent-foreground hover:border-accent transition-all duration-300" variant="outline" asChild client:load>
 					<a href="#contact">
 						Get In Touch
 					</a>
 				</Button>
 			</div>
 			
-			<div class="flex flex-wrap items-center justify-center gap-8 text-sm">
-				<div class="flex items-center space-x-2">
-					<div class="w-2 h-2 bg-blue-500 rounded-full"></div>
-					<span>NASA Orion Spacecraft</span>
+			<div class="flex flex-wrap items-center justify-center gap-8 text-sm animate-fade-in-up" style="animation-delay: 0.3s">
+				<div class="flex items-center space-x-2 hover:scale-105 transition-transform">
+					<div class="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+					<span class="font-medium">NASA Orion Spacecraft</span>
 				</div>
-				<div class="flex items-center space-x-2">
-					<div class="w-2 h-2 bg-green-500 rounded-full"></div>
-					<span>99% Customer Satisfaction</span>
+				<div class="flex items-center space-x-2 hover:scale-105 transition-transform">
+					<div class="w-2 h-2 bg-green-500 rounded-full animate-pulse" style="animation-delay: 0.5s"></div>
+					<span class="font-medium">99% Customer Satisfaction</span>
 				</div>
-				<div class="flex items-center space-x-2">
-					<div class="w-2 h-2 bg-purple-500 rounded-full"></div>
-					<span>Top 4% Nationally</span>
+				<div class="flex items-center space-x-2 hover:scale-105 transition-transform">
+					<div class="w-2 h-2 bg-accent rounded-full animate-pulse" style="animation-delay: 1s"></div>
+					<span class="font-medium">Top 4% Nationally</span>
 				</div>
 			</div>
 		</div>

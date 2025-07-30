@@ -9,20 +9,28 @@ import SkillsSection from '../components/SkillsSection.astro';
 import AchievementsSection from '../components/AchievementsSection.astro';
 import EducationSection from '../components/EducationSection.astro';
 import ContactSection from '../components/ContactSection.astro';
+import SectionDivider from '../components/SectionDivider.astro';
 ---
 
 <Layout>
 	<Navbar />
 	<main>
 		<Hero />
+		<SectionDivider className="my-8" />
 		<div id="portfolio-selection">
 			<PortfolioSelection />
 		</div>
+		<SectionDivider className="my-8" />
 		<AboutSection />
+		<SectionDivider className="my-8" />
 		<ExperienceSection />
+		<SectionDivider className="my-8" />
 		<SkillsSection />
+		<SectionDivider className="my-8" />
 		<AchievementsSection />
+		<SectionDivider className="my-8" />
 		<EducationSection />
+		<SectionDivider className="my-8" />
 		<ContactSection />
 	</main>
 </Layout>

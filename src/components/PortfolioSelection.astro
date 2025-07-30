@@ -5,13 +5,13 @@ import { Button } from "@/components/ui/button";
 import { Code2, Users } from "lucide-react";
 ---
 
-<section class="container mx-auto px-4 py-12">
+<section class="container mx-auto px-4 py-16 animate-fade-in-up">
 	<div class="max-w-6xl mx-auto space-y-12">
 		<div class="text-center space-y-4">
 			<Badge variant="secondary" className="text-lg px-4 py-1">
 				Choose Your Journey
 			</Badge>
-			<h1 class="text-4xl md:text-6xl font-bold tracking-tight">
+			<h1 class="text-4xl md:text-5xl font-bold tracking-tight bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent">
 				Welcome to My Portfolio
 			</h1>
 			<p class="text-xl text-muted-foreground max-w-3xl mx-auto">
@@ -22,10 +22,10 @@ import { Code2, Users } from "lucide-react";
 
 		<div class="grid md:grid-cols-2 gap-8">
 			<a href="/software-engineer" class="block">
-				<Card className="group hover:shadow-xl transition-all duration-200 border-2 hover:border-primary/50 dark:border-muted dark:hover:border-primary/30 dark:hover:shadow-2xl dark:hover:shadow-primary/5 cursor-pointer h-full" client:load>
+				<Card className="group hover:shadow-xl transition-all duration-300 border-2 hover:border-primary/50 dark:border-muted dark:hover:border-primary/30 dark:hover:shadow-2xl dark:hover:shadow-primary/10 cursor-pointer h-full hover:scale-[1.02] bg-card/50 backdrop-blur-sm" client:load>
 					<CardHeader className="space-y-4">
-						<div class="w-16 h-16 rounded-lg bg-blue-500/10 flex items-center justify-center">
-							<Code2 className="w-8 h-8 text-blue-500" />
+						<div class="w-16 h-16 rounded-lg bg-gradient-to-br from-blue-500/20 to-blue-600/10 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+							<Code2 className="w-8 h-8 text-blue-500 group-hover:text-blue-400 transition-colors" />
 						</div>
 						<div>
 							<CardTitle className="text-2xl">Software Engineer</CardTitle>
@@ -56,7 +56,7 @@ import { Code2, Users } from "lucide-react";
 							<Badge variant="secondary">Embedded Systems</Badge>
 						</div>
 						<div class="w-full">
-							<Button className="w-full group-hover:bg-primary group-hover:text-primary-foreground transition-colors" variant="outline" size="lg">
+							<Button className="w-full group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-300 group-hover:shadow-md" variant="outline" size="lg">
 								View Technical Portfolio →
 							</Button>
 						</div>
@@ -65,10 +65,10 @@ import { Code2, Users } from "lucide-react";
 			</a>
 
 			<a href="/customer-service" class="block">
-				<Card className="group hover:shadow-xl transition-all duration-200 border-2 hover:border-primary/50 dark:border-muted dark:hover:border-primary/30 dark:hover:shadow-2xl dark:hover:shadow-primary/5 cursor-pointer h-full" client:load>
+				<Card className="group hover:shadow-xl transition-all duration-300 border-2 hover:border-primary/50 dark:border-muted dark:hover:border-primary/30 dark:hover:shadow-2xl dark:hover:shadow-primary/10 cursor-pointer h-full hover:scale-[1.02] bg-card/50 backdrop-blur-sm" client:load>
 					<CardHeader className="space-y-4">
-						<div class="w-16 h-16 rounded-lg bg-green-500/10 flex items-center justify-center">
-							<Users className="w-8 h-8 text-green-500" />
+						<div class="w-16 h-16 rounded-lg bg-gradient-to-br from-green-500/20 to-green-600/10 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+							<Users className="w-8 h-8 text-green-500 group-hover:text-green-400 transition-colors" />
 						</div>
 						<div>
 							<CardTitle className="text-2xl">Customer Service Representative</CardTitle>
@@ -99,7 +99,7 @@ import { Code2, Users } from "lucide-react";
 							<Badge variant="secondary">First-Contact Resolution</Badge>
 						</div>
 						<div class="w-full">
-							<Button className="w-full group-hover:bg-primary group-hover:text-primary-foreground transition-colors" variant="outline" size="lg">
+							<Button className="w-full group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-300 group-hover:shadow-md" variant="outline" size="lg">
 								View Service Portfolio →
 							</Button>
 						</div>

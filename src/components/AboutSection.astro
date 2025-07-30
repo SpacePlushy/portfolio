@@ -3,13 +3,13 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 ---
 
-<section class="container mx-auto px-4 py-16" id="about">
+<section class="container mx-auto px-4 py-16 animate-fade-in-up" id="about">
 	<div class="max-w-6xl mx-auto space-y-12">
 		<div class="text-center space-y-4">
-			<Badge variant="outline" className="text-sm">
+			<Badge variant="outline" className="text-sm bg-accent/10 border-accent/30">
 				About Me
 			</Badge>
-			<h2 class="text-3xl md:text-4xl font-bold">
+			<h2 class="text-3xl md:text-4xl font-bold bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent">
 				Bridging Technical Excellence with Human Connection
 			</h2>
 		</div>
@@ -30,7 +30,7 @@ import { Badge } from "@/components/ui/badge";
 			</div>
 
 			<div class="space-y-4">
-				<Card className="hover:shadow-lg transition-all duration-200 dark:border-muted dark:hover:border-primary/20 dark:hover:shadow-xl dark:hover:shadow-primary/5" client:load>
+				<Card className="hover:shadow-lg transition-all duration-300 dark:border-muted dark:hover:border-primary/20 dark:hover:shadow-xl dark:hover:shadow-primary/5 bg-gradient-to-br from-card to-accent/5 hover:scale-[1.02]" client:load>
 					<CardContent className="p-6 space-y-4">
 						<h3 class="font-semibold text-lg">Quick Stats</h3>
 						<div class="space-y-3">
@@ -57,27 +57,27 @@ import { Badge } from "@/components/ui/badge";
 		</div>
 
 		<div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-			<Card className="text-center hover:shadow-lg transition-all duration-200 dark:border-muted dark:hover:border-primary/20 dark:hover:shadow-xl dark:hover:shadow-primary/5" client:load>
+			<Card className="text-center hover:shadow-lg transition-all duration-300 dark:border-muted dark:hover:border-primary/20 dark:hover:shadow-xl dark:hover:shadow-primary/5 hover:scale-105 group" client:load>
 				<CardContent className="p-6">
-					<div class="text-3xl font-bold text-primary mb-2">10+</div>
+					<div class="text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent mb-2 group-hover:scale-110 transition-transform">10+</div>
 					<p class="text-sm text-muted-foreground">Years Experience</p>
 				</CardContent>
 			</Card>
-			<Card className="text-center hover:shadow-lg transition-all duration-200 dark:border-muted dark:hover:border-primary/20 dark:hover:shadow-xl dark:hover:shadow-primary/5" client:load>
+			<Card className="text-center hover:shadow-lg transition-all duration-300 dark:border-muted dark:hover:border-primary/20 dark:hover:shadow-xl dark:hover:shadow-primary/5 hover:scale-105 group" client:load>
 				<CardContent className="p-6">
-					<div class="text-3xl font-bold text-primary mb-2">NASA</div>
+					<div class="text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent mb-2 group-hover:scale-110 transition-transform">NASA</div>
 					<p class="text-sm text-muted-foreground">Orion Spacecraft</p>
 				</CardContent>
 			</Card>
-			<Card className="text-center hover:shadow-lg transition-all duration-200 dark:border-muted dark:hover:border-primary/20 dark:hover:shadow-xl dark:hover:shadow-primary/5" client:load>
+			<Card className="text-center hover:shadow-lg transition-all duration-300 dark:border-muted dark:hover:border-primary/20 dark:hover:shadow-xl dark:hover:shadow-primary/5 hover:scale-105 group" client:load>
 				<CardContent className="p-6">
-					<div class="text-3xl font-bold text-primary mb-2">99%</div>
+					<div class="text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent mb-2 group-hover:scale-110 transition-transform">99%</div>
 					<p class="text-sm text-muted-foreground">Customer Satisfaction</p>
 				</CardContent>
 			</Card>
-			<Card className="text-center hover:shadow-lg transition-all duration-200 dark:border-muted dark:hover:border-primary/20 dark:hover:shadow-xl dark:hover:shadow-primary/5" client:load>
+			<Card className="text-center hover:shadow-lg transition-all duration-300 dark:border-muted dark:hover:border-primary/20 dark:hover:shadow-xl dark:hover:shadow-primary/5 hover:scale-105 group" client:load>
 				<CardContent className="p-6">
-					<div class="text-3xl font-bold text-primary mb-2">Top 4%</div>
+					<div class="text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent mb-2 group-hover:scale-110 transition-transform">Top 4%</div>
 					<p class="text-sm text-muted-foreground">Industry Recognition</p>
 				</CardContent>
 			</Card>
