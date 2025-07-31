@@ -9,17 +9,15 @@ import vercel from '@astrojs/vercel';
 
 // https://astro.build/config
 export default defineConfig({
-  output: 'static',
+  output: 'server',
   integrations: [react()],
 
   vite: {
-    plugins: [tailwindcss()]
+    plugins: [tailwindcss()],
   },
 
   adapter: vercel({
-    // Use static output for better performance
-    // Static pages are served from edge globally
-    // Enable Vercel Image Optimization
+    isr: { expiration: 60 * 60 }, // 1 hour cache
     imageService: true,
     devImageService: 'sharp',
     imagesConfig: {
@@ -28,9 +26,6 @@ export default defineConfig({
       minimumCacheTTL: 60,
       dangerouslyAllowSVG: true,
     },
-    // Enable Vercel Web Analytics only in production
-    webAnalytics: {
-      enabled: process.env.NODE_ENV === 'production'
-    }
-  })
+    webAnalytics: { enabled: true },
+  }),
 });

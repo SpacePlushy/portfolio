@@ -1,38 +1,49 @@
 ---
-import '../styles/global.css'
-import Analytics from '@/components/Analytics.astro'
-import Favicon from '@/components/Favicon.astro'
+import '../styles/global.css';
+import Analytics from '@/components/Analytics.astro';
+import Favicon from '@/components/Favicon.astro';
 ---
 
 <!doctype html>
 <html lang="en">
-	<head>
-		<meta charset="UTF-8" />
-		<meta name="viewport" content="width=device-width" />
-		<Favicon />
-		<link rel="preconnect" href="https://fonts.googleapis.com" />
-		<link rel="dns-prefetch" href="https://fonts.googleapis.com" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Frank Palmisano - Professional Portfolio</title>
-		<meta name="description" content="Versatile professional with expertise in both software engineering and customer service excellence. Explore my diverse skill set and achievements." />
-		<script is:inline>
-			const theme = (() => {
-				if (typeof localStorage !== 'undefined' && localStorage.getItem('theme')) {
-					return localStorage.getItem('theme');
-				}
-				if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-					return 'dark';
-				}
-				return 'light';
-			})();
-			
-			if (theme === 'dark') {
-				document.documentElement.classList.add('dark');
-			}
-		</script>
-	</head>
-	<body>
-		<slot />
-		<Analytics />
-	</body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <Favicon />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
+    <meta name="generator" content={Astro.generator} />
+    <title>Frank Palmisano - Professional Portfolio</title>
+    <meta
+      name="description"
+      content="Versatile professional with expertise in both software engineering and customer service excellence. Explore my diverse skill set and achievements."
+    />
+    <script is:inline>
+      // Theme initialization using ThemeService logic
+      const theme = (() => {
+        if (typeof localStorage !== 'undefined' && localStorage.getItem('theme')) {
+          return localStorage.getItem('theme');
+        }
+        if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+          return 'dark';
+        }
+        return 'light';
+      })();
+
+      if (theme === 'dark') {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+
+      // Persist the resolved theme
+      if (typeof localStorage !== 'undefined') {
+        localStorage.setItem('theme', theme);
+      }
+    </script>
+  </head>
+  <body>
+    <slot />
+    <Analytics />
+  </body>
 </html>
