@@ -87,6 +87,9 @@ COPY --from=dependencies --chown=astro:astro /app/package*.json ./
 # Copy built application
 COPY --from=builder --chown=astro:astro /app/dist ./dist
 
+# Copy startup script with correct ownership
+COPY --chown=astro:astro scripts/start-server.js ./scripts/
+
 # Create cache directories
 RUN mkdir -p .cache/images tmp && \
     chown -R astro:astro .cache tmp
@@ -111,9 +114,6 @@ USER astro
 
 # Expose port
 EXPOSE 8080
-
-# Copy startup script for application lifecycle management
-COPY scripts/start-server.js ./scripts/
 
 # Use tini for proper signal handling
 ENTRYPOINT ["tini", "--"]
