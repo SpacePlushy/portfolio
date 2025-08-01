@@ -26,7 +26,7 @@ services:
     source_dir: /
     github:
       repo: SpacePlushy/portfolio
-      branch: main
+      branch: build-fixes
       deploy_on_push: true
     dockerfile_path: Dockerfile
     
@@ -79,7 +79,7 @@ static_sites:
     source_dir: /public
     github:
       repo: SpacePlushy/portfolio
-      branch: main
+      branch: build-fixes
       deploy_on_push: true
     
     routes:
