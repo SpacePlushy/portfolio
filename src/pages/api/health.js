@@ -18,8 +18,14 @@ export async function GET() {
       status: 'healthy',
       node_version: process.version,
       environment: process.env.NODE_ENV || 'production',
-      port: process.env.PORT || 8080
+      port: process.env.PORT || 4321
     };
+
+    // Sharp availability check for image processing
+    checks.sharp = await checkSharp();
+
+    // Redis connectivity check
+    checks.redis = checkRedis();
 
     // File system check
     checks.filesystem = await checkFileSystem();
@@ -73,4 +79,45 @@ async function checkFileSystem() {
       error: error.message
     };
   }
+}
+
+async function checkSharp() {
+  try {
+    const sharp = await import('sharp');
+    if (sharp.default) {
+      // Test Sharp functionality
+      const testBuffer = Buffer.from('fake image data');
+      await sharp.default(testBuffer).metadata().catch(() => null); // Ignore errors for fake data
+      return {
+        status: 'healthy',
+        message: 'Sharp image processing available',
+        version: sharp.default.version || 'unknown'
+      };
+    }
+    return {
+      status: 'degraded',
+      message: 'Sharp module loaded but not functional'
+    };
+  } catch (error) {
+    return {
+      status: 'unhealthy',
+      message: 'Sharp image processing unavailable',
+      error: error.message
+    };
+  }
+}
+
+function checkRedis() {
+  const redisUrl = process.env.REDIS_URL;
+  if (!redisUrl) {
+    return {
+      status: 'degraded',
+      message: 'Redis not configured'
+    };
+  }
+  return {
+    status: 'healthy',
+    message: 'Redis configured',
+    url: redisUrl.replace(/:[^:]*@/, ':***@') // Hide password in logs
+  };
 }

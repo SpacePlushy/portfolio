@@ -3,8 +3,9 @@
  * Provides mocks, helpers, and common test setup functions
  */
 
-import { render, RenderOptions } from '@testing-library/react';
-import { ReactElement, ReactNode } from 'react';
+import { render, type RenderOptions } from '@testing-library/react';
+import type { ReactElement, ReactNode } from 'react';
+import { vi } from 'vitest';
 import type {
   ImageOptimizationParams,
   OptimizedImageData,
@@ -92,7 +93,7 @@ export const mockIntersectionObserver = () => {
   // Store original to restore later
   const originalIntersectionObserver = global.IntersectionObserver;
 
-  global.IntersectionObserver = vi.fn().mockImplementation((callback) => {
+  global.IntersectionObserver = vi.fn().mockImplementation((callback: IntersectionObserverCallback) => {
     // Mock triggering intersection
     const mockTriggerIntersection = (isIntersecting: boolean = true) => {
       callback?.(

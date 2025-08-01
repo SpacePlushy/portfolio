@@ -3,13 +3,14 @@
  * Offloads CPU-intensive image processing to prevent main thread blocking
  */
 
-const { Worker, isMainThread, parentPort, workerData } = require('worker_threads');
-const sharp = require('sharp');
+import { Worker, isMainThread, parentPort, workerData } from 'worker_threads';
+import { cpus } from 'os';
+import sharp from 'sharp';
 
 if (isMainThread) {
-  // Main thread - Worker management
-  module.exports = class ImageProcessorPool {
-    constructor(poolSize = require('os').cpus().length) {
+  // Main thread - Simplified version for production compatibility
+  class ImageProcessorPool {
+    constructor(poolSize = cpus().length) {
       this.poolSize = poolSize;
       this.workers = [];
       this.queue = [];
@@ -213,7 +214,9 @@ if (isMainThread) {
       this.queue = [];
       this.isInitialized = false;
     }
-  };
+  }
+
+  export default ImageProcessorPool;
 
 } else {
   // Worker thread - Image processing

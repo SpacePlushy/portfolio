@@ -17,8 +17,7 @@ import {
   generateSizesAttribute, 
   buildOptimizedImageUrl,
   generateBlurPlaceholder,
-  getOptimalFormat,
-  detectBrowserCapabilities
+  getOptimalFormat
 } from '../utils/image';
 
 export interface Props extends OptimizedImageProps {}
@@ -102,8 +101,8 @@ const imageStyle = {
   }),
 };
 
-// Error handling - fallback image
-const fallbackImage = fallbackSrc || src;
+// Error handling - fallback image (for future use)
+// const fallbackImage = fallbackSrc || src;
 ---
 
 <!-- Picture element for modern format support -->

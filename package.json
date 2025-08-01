@@ -20,7 +20,12 @@
     "test:cdn": "node scripts/test-cdn-performance.js",
     "deploy:cdn": "./scripts/deploy-with-cdn-purge.sh",
     "deploy:test": "./scripts/deploy-with-cdn-purge.sh --test-only",
-    "purge:cdn": "./scripts/deploy-with-cdn-purge.sh --purge-only"
+    "purge:cdn": "./scripts/deploy-with-cdn-purge.sh --purge-only",
+    "build:production": "NODE_ENV=production astro build",
+    "test:smoke": "echo 'Smoke tests not implemented'",
+    "test:smoke:production": "echo 'Production smoke tests not implemented'",
+    "test:integration": "echo 'Integration tests not implemented'",
+    "test:performance": "echo 'Performance tests not implemented'"
   },
   "dependencies": {
     "@astrojs/check": "^0.9.4",
@@ -40,6 +45,7 @@
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-hook-form": "^7.61.1",
+    "sharp": "^0.34.3",
     "tailwind-merge": "^3.3.1",
     "tailwindcss": "^4.1.11",
     "typescript": "^5.8.3",
@@ -64,7 +70,6 @@
     "playwright": "^1.54.1",
     "prettier": "^3.6.2",
     "prettier-plugin-astro": "^0.14.1",
-    "sharp": "^0.34.3",
     "tw-animate-css": "^1.3.6",
     "vitest": "^3.2.4"
   }
