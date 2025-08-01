@@ -1,0 +1,375 @@
+{
+  "dashboard": {
+    "id": null,
+    "title": "Portfolio Deployment Health & Lifecycle",
+    "tags": ["portfolio", "deployment", "health", "lifecycle"],
+    "style": "dark",
+    "timezone": "browser",
+    "refresh": "10s",
+    "schemaVersion": 30,
+    "version": 2,
+    "time": {
+      "from": "now-30m",
+      "to": "now"
+    },
+    "timepicker": {
+      "refresh_intervals": ["5s", "10s", "30s", "1m", "5m"]
+    },
+    "templating": {
+      "list": [
+        {
+          "name": "environment",
+          "type": "custom",
+          "options": [
+            {"text": "Production", "value": "production"},
+            {"text": "Staging", "value": "staging"}
+          ],
+          "current": {"text": "Production", "value": "production"}
+        }
+      ]
+    },
+    "panels": [
+      {
+        "id": 1,
+        "title": "Deployment Status Overview",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "up{job=\"portfolio-web\",environment=\"$environment\"}",
+            "legendFormat": "Application Status"
+          },
+          {
+            "expr": "health_check_success{endpoint=\"/api/health\",environment=\"$environment\"}",
+            "legendFormat": "Health Check"
+          },
+          {
+            "expr": "health_check_success{endpoint=\"/api/readiness\",environment=\"$environment\"}",
+            "legendFormat": "Readiness Check"
+          },
+          {
+            "expr": "startup_complete{environment=\"$environment\"}",
+            "legendFormat": "Startup Complete"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "thresholds"
+            },
+            "thresholds": {
+              "steps": [
+                {"color": "red", "value": 0},
+                {"color": "green", "value": 1}
+              ]
+            },
+            "mappings": [
+              {"type": "value", "value": "0", "text": "FAIL"},
+              {"type": "value", "value": "1", "text": "OK"}
+            ]
+          }
+        },
+        "gridPos": {"h": 4, "w": 24, "x": 0, "y": 0}
+      },
+      {
+        "id": 2,
+        "title": "Application Lifecycle Status",
+        "type": "timeline",
+        "targets": [
+          {
+            "expr": "startup_phase{environment=\"$environment\"}",
+            "legendFormat": "Startup Phase"
+          },
+          {
+            "expr": "deployment_phase{environment=\"$environment\"}",
+            "legendFormat": "Deployment Phase"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "custom": {
+              "drawStyle": "bars",
+              "lineInterpolation": "stepAfter"
+            },
+            "mappings": [
+              {"type": "value", "value": "0", "text": "INITIALIZING"},
+              {"type": "value", "value": "1", "text": "DEPENDENCIES"},
+              {"type": "value", "value": "2", "text": "READY"},
+              {"type": "value", "value": "3", "text": "HEALTHY"}
+            ]
+          }
+        },
+        "gridPos": {"h": 6, "w": 24, "x": 0, "y": 4}
+      },
+      {
+        "id": 3,
+        "title": "Health Check Response Times",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "health_check_duration_seconds{endpoint=\"/api/health\",environment=\"$environment\"}",
+            "legendFormat": "Health Check Duration"
+          },
+          {
+            "expr": "health_check_duration_seconds{endpoint=\"/api/readiness\",environment=\"$environment\"}",
+            "legendFormat": "Readiness Check Duration"
+          }
+        ],
+        "yAxes": [
+          {"label": "Seconds", "min": 0}
+        ],
+        "alert": {
+          "conditions": [
+            {
+              "query": {"queryType": "", "refId": "A"},
+              "reducer": {"type": "avg", "params": []},
+              "evaluator": {"params": [5.0], "type": "gt"}
+            }
+          ],
+          "executionErrorState": "alerting",
+          "for": "2m",
+          "frequency": "10s",
+          "handler": 1,
+          "name": "Health Check Response Time Alert",
+          "noDataState": "no_data",
+          "notifications": []
+        },
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 10}
+      },
+      {
+        "id": 4,
+        "title": "Dependency Health",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "sharp_ready{environment=\"$environment\"}",
+            "legendFormat": "Sharp Image Processing"
+          },
+          {
+            "expr": "redis_ready{environment=\"$environment\"}",
+            "legendFormat": "Redis Cache"
+          },
+          {
+            "expr": "filesystem_ready{environment=\"$environment\"}",
+            "legendFormat": "File System"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "thresholds"
+            },
+            "thresholds": {
+              "steps": [
+                {"color": "red", "value": 0},
+                {"color": "yellow", "value": 0.5},
+                {"color": "green", "value": 1}
+              ]
+            },
+            "mappings": [
+              {"type": "value", "value": "0", "text": "DOWN"},
+              {"type": "value", "value": "0.5", "text": "DEGRADED"},
+              {"type": "value", "value": "1", "text": "HEALTHY"}
+            ]
+          }
+        },
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 10}
+      },
+      {
+        "id": 5,
+        "title": "Startup Time Tracking",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "startup_duration_seconds{environment=\"$environment\"}",
+            "legendFormat": "Total Startup Time"
+          },
+          {
+            "expr": "dependency_init_duration_seconds{dependency=\"sharp\",environment=\"$environment\"}",
+            "legendFormat": "Sharp Initialization"
+          },
+          {
+            "expr": "dependency_init_duration_seconds{dependency=\"redis\",environment=\"$environment\"}",
+            "legendFormat": "Redis Initialization"
+          }
+        ],
+        "yAxes": [
+          {"label": "Seconds", "min": 0}
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 18}
+      },
+      {
+        "id": 6,
+        "title": "Graceful Shutdown Metrics",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "shutdown_duration_seconds{environment=\"$environment\"}",
+            "legendFormat": "Shutdown Duration"
+          },
+          {
+            "expr": "active_connections_during_shutdown{environment=\"$environment\"}",
+            "legendFormat": "Active Connections"
+          },
+          {
+            "expr": "requests_completed_during_shutdown{environment=\"$environment\"}",
+            "legendFormat": "Requests Completed"
+          }
+        ],
+        "yAxes": [
+          {"label": "Count/Seconds", "min": 0}
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 18}
+      },
+      {
+        "id": 7,
+        "title": "Memory Usage During Lifecycle",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "process_resident_memory_bytes{environment=\"$environment\"} / 1024 / 1024",
+            "legendFormat": "Resident Memory (MB)"
+          },
+          {
+            "expr": "process_heap_bytes{environment=\"$environment\"} / 1024 / 1024",
+            "legendFormat": "Heap Memory (MB)"
+          },
+          {
+            "expr": "sharp_cache_memory_bytes{environment=\"$environment\"} / 1024 / 1024",
+            "legendFormat": "Sharp Cache (MB)"
+          }
+        ],
+        "yAxes": [
+          {"label": "Megabytes", "min": 0}
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 26}
+      },
+      {
+        "id": 8,
+        "title": "Feature Flag Status",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "feature_flag_enabled{flag=\"image_optimization_v2\",environment=\"$environment\"}",
+            "legendFormat": "Image Optimization V2"
+          },
+          {
+            "expr": "feature_flag_enabled{flag=\"enhanced_caching\",environment=\"$environment\"}",
+            "legendFormat": "Enhanced Caching"
+          },
+          {
+            "expr": "feature_flag_enabled{flag=\"performance_monitoring\",environment=\"$environment\"}",
+            "legendFormat": "Performance Monitoring"
+          },
+          {
+            "expr": "feature_flag_enabled{flag=\"graceful_shutdown\",environment=\"$environment\"}",
+            "legendFormat": "Graceful Shutdown"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "thresholds"
+            },
+            "thresholds": {
+              "steps": [
+                {"color": "gray", "value": 0},
+                {"color": "green", "value": 1}
+              ]
+            },
+            "mappings": [
+              {"type": "value", "value": "0", "text": "DISABLED"},
+              {"type": "value", "value": "1", "text": "ENABLED"}
+            ]
+          }
+        },
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 26}
+      },
+      {
+        "id": 9,
+        "title": "Deployment Events Timeline",
+        "type": "logs",
+        "targets": [
+          {
+            "expr": "{job=\"portfolio-web\",level=\"info\",environment=\"$environment\"} |= \"deployment\" or \"startup\" or \"shutdown\"",
+            "refId": "A"
+          }
+        ],
+        "options": {
+          "showTime": true,
+          "showLabels": false,
+          "showCommonLabels": true,
+          "wrapLogMessage": false,
+          "prettifyLogMessage": false,
+          "enableLogDetails": true,
+          "dedupStrategy": "none",
+          "sortOrder": "Descending"
+        },
+        "gridPos": {"h": 8, "w": 24, "x": 0, "y": 34}
+      },
+      {
+        "id": 10,
+        "title": "Rollback Readiness Indicators",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "backup_deployment_available{environment=\"$environment\"}",
+            "legendFormat": "Backup Available"
+          },
+          {
+            "expr": "rollback_script_accessible{environment=\"$environment\"}",
+            "legendFormat": "Rollback Script Ready"
+          },
+          {
+            "expr": "monitoring_stack_healthy{environment=\"$environment\"}",
+            "legendFormat": "Monitoring Stack"
+          },
+          {
+            "expr": "time() - last_successful_deployment_timestamp{environment=\"$environment\"}",
+            "legendFormat": "Time Since Last Deploy (s)"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "thresholds"
+            },
+            "thresholds": {
+              "steps": [
+                {"color": "red", "value": 0},
+                {"color": "green", "value": 1}
+              ]
+            },
+            "mappings": [
+              {"type": "value", "value": "0", "text": "NOT READY"},
+              {"type": "value", "value": "1", "text": "READY"}
+            ]
+          }
+        },
+        "gridPos": {"h": 4, "w": 24, "x": 0, "y": 42}
+      }
+    ],
+    "annotations": {
+      "list": [
+        {
+          "name": "Deployments",
+          "datasource": "prometheus",
+          "enable": true,
+          "expr": "deployment_started{environment=\"$environment\"}",
+          "iconColor": "blue",
+          "titleFormat": "Deployment Started",
+          "textFormat": "Environment: {{environment}}, Version: {{version}}"
+        },
+        {
+          "name": "Rollbacks",
+          "datasource": "prometheus", 
+          "enable": true,
+          "expr": "rollback_executed{environment=\"$environment\"}",
+          "iconColor": "red",
+          "titleFormat": "Rollback Executed",
+          "textFormat": "Reason: {{reason}}, Duration: {{duration}}"
+        }
+      ]
+    }
+  },
+  "overwrite": true
+}

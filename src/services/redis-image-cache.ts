@@ -123,7 +123,7 @@ export class RedisImageCache {
       pipeline.setEx(key, ttl, JSON.stringify(cacheData));
       
       // Store metadata separately for quick queries
-      pipeline.hMSet(`${key}:meta`, {
+      pipeline.hSet(`${key}:meta`, {
         format: imageData.metadata.format,
         width: imageData.metadata.width.toString(),
         height: imageData.metadata.height.toString(),
@@ -370,7 +370,7 @@ export class RedisImageCache {
       const leastAccessed = await this.client.zRange('img:access', 0, 99); // Bottom 100
       
       // Get largest items
-      const largestItems = await this.client.zRevRange('img:sizes', 0, 49); // Top 50 largest
+      const largestItems = await this.client.zRange('img:sizes', 0, 49, { REV: true }); // Top 50 largest
       
       // Remove items that are both old and large
       const toRemove = leastAccessed.filter(key => largestItems.includes(key));

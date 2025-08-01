@@ -1,0 +1,762 @@
+# =============================================================================
+# PRODUCTION DEPLOYMENT PIPELINE
+# =============================================================================
+# Comprehensive CI/CD pipeline with zero-downtime deployment validation
+# Includes comprehensive testing, security checks, and rollback capabilities
+
+name: 🚀 Production Deployment
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+      - '.vscode/**'
+  workflow_dispatch:
+    inputs:
+      deploy_environment:
+        description: 'Environment to deploy to'
+        required: true
+        default: 'production'
+        type: choice
+        options:
+          - production
+          - staging
+      force_deploy:
+        description: 'Force deployment even if tests fail'
+        required: false
+        default: false
+        type: boolean
+      skip_performance_tests:
+        description: 'Skip performance validation'
+        required: false
+        default: false
+        type: boolean
+
+# =============================================================================
+# ENVIRONMENT CONFIGURATION
+# =============================================================================
+
+env:
+  NODE_VERSION: '20'
+  REGISTRY: registry.digitalocean.com
+  REGISTRY_NAMESPACE: portfolio-images
+  IMAGE_NAME: portfolio-app
+  
+  # Deployment Configuration
+  DEPLOYMENT_TIMEOUT: 1800
+  HEALTH_CHECK_TIMEOUT: 300
+  PERFORMANCE_TEST_TIMEOUT: 180
+  
+  # Security & Quality Gates
+  SECURITY_SCAN_ENABLED: true
+  PERFORMANCE_BUDGET_ENABLED: true
+  ACCESSIBILITY_CHECKS_ENABLED: true
+
+# =============================================================================
+# CONCURRENCY CONTROL
+# =============================================================================
+
+concurrency:
+  group: production-deployment
+  cancel-in-progress: false  # Never cancel production deployments
+
+# =============================================================================
+# JOBS
+# =============================================================================
+
+jobs:
+  # ---------------------------------------------------------------------------
+  # PRE-DEPLOYMENT VALIDATION
+  # ---------------------------------------------------------------------------
+  
+  pre-deployment-checks:
+    name: 🔍 Pre-deployment Validation
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    
+    outputs:
+      should_deploy: ${{ steps.deployment_decision.outputs.should_deploy }}
+      deployment_strategy: ${{ steps.deployment_decision.outputs.strategy }}
+      image_tag: ${{ steps.prepare.outputs.image_tag }}
+      commit_sha: ${{ steps.prepare.outputs.commit_sha }}
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Full history for better analysis
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+      
+      - name: Prepare deployment metadata
+        id: prepare
+        run: |
+          # Generate image tag
+          IMAGE_TAG="${GITHUB_SHA:0:7}-$(date +%Y%m%d-%H%M%S)"
+          echo "image_tag=$IMAGE_TAG" >> $GITHUB_OUTPUT
+          echo "commit_sha=$GITHUB_SHA" >> $GITHUB_OUTPUT
+          
+          # Log deployment context
+          echo "🚀 Deployment Context:"
+          echo "  Branch: $GITHUB_REF_NAME"
+          echo "  Commit: $GITHUB_SHA"
+          echo "  Image Tag: $IMAGE_TAG"
+          echo "  Actor: $GITHUB_ACTOR"
+      
+      - name: Install dependencies
+        run: |
+          npm ci --include=dev
+          npm audit --audit-level=high --production
+      
+      - name: Run comprehensive tests
+        id: tests
+        run: |
+          echo "🧪 Running comprehensive test suite..."
+          
+          # Type checking
+          echo "📝 TypeScript type checking..."
+          npm run typecheck || echo "TYPE_CHECK_FAILED=true" >> $GITHUB_ENV
+          
+          # Unit tests with coverage
+          echo "🔬 Running unit tests..."
+          npm run test:unit || echo "UNIT_TESTS_FAILED=true" >> $GITHUB_ENV
+          
+          # Integration tests
+          echo "🔗 Running integration tests..."
+          npm run test:integration || echo "INTEGRATION_TESTS_FAILED=true" >> $GITHUB_ENV
+          
+          # Build validation
+          echo "🏗️ Validating build process..."
+          npm run build || echo "BUILD_FAILED=true" >> $GITHUB_ENV
+      
+      - name: Security vulnerability scan
+        if: env.SECURITY_SCAN_ENABLED == 'true'
+        id: security
+        run: |
+          echo "🔒 Running security scans..."
+          
+          # NPM audit
+          npm audit --audit-level=moderate || echo "AUDIT_ISSUES=true" >> $GITHUB_ENV
+          
+          # Check for sensitive data in code
+          if grep -r "api_key\|password\|secret\|token" src/ --exclude-dir=node_modules --exclude="*.md" | grep -v "example\|placeholder\|TODO"; then
+            echo "SENSITIVE_DATA_FOUND=true" >> $GITHUB_ENV
+            echo "⚠️ Potential sensitive data found in source code"
+          fi
+      
+      - name: Performance budget validation
+        if: env.PERFORMANCE_BUDGET_ENABLED == 'true'
+        id: performance_budget
+        run: |
+          echo "⚡ Validating performance budget..."
+          
+          # Bundle size analysis
+          npm run build
+          BUNDLE_SIZE=$(du -s dist/ | cut -f1)
+          MAX_BUNDLE_SIZE=50000  # 50MB in KB
+          
+          if [ $BUNDLE_SIZE -gt $MAX_BUNDLE_SIZE ]; then
+            echo "BUNDLE_SIZE_EXCEEDED=true" >> $GITHUB_ENV
+            echo "⚠️ Bundle size ($BUNDLE_SIZE KB) exceeds budget ($MAX_BUNDLE_SIZE KB)"
+          fi
+          
+          echo "bundle_size_kb=$BUNDLE_SIZE" >> $GITHUB_OUTPUT
+      
+      - name: Accessibility validation
+        if: env.ACCESSIBILITY_CHECKS_ENABLED == 'true'
+        id: accessibility
+        run: |
+          echo "♿ Running accessibility checks..."
+          
+          # Run accessibility tests if available
+          if npm run test:a11y 2>/dev/null; then
+            echo "✅ Accessibility tests passed"
+          else
+            echo "A11Y_TESTS_FAILED=true" >> $GITHUB_ENV
+            echo "⚠️ Accessibility tests failed or not available"
+          fi
+      
+      - name: Make deployment decision
+        id: deployment_decision
+        run: |
+          echo "🤔 Making deployment decision..."
+          
+          SHOULD_DEPLOY="true"
+          STRATEGY="standard"
+          ISSUES=()
+          
+          # Check for critical failures
+          if [[ "$BUILD_FAILED" == "true" ]]; then
+            ISSUES+=("Build failed")
+            SHOULD_DEPLOY="false"
+          fi
+          
+          if [[ "$UNIT_TESTS_FAILED" == "true" ]] && [[ "${{ inputs.force_deploy }}" != "true" ]]; then
+            ISSUES+=("Unit tests failed")
+            SHOULD_DEPLOY="false"
+          fi
+          
+          if [[ "$INTEGRATION_TESTS_FAILED" == "true" ]] && [[ "${{ inputs.force_deploy }}" != "true" ]]; then
+            ISSUES+=("Integration tests failed")
+            SHOULD_DEPLOY="false"
+          fi
+          
+          # Check for warnings that require caution
+          if [[ "$TYPE_CHECK_FAILED" == "true" ]]; then
+            ISSUES+=("TypeScript errors detected")
+            STRATEGY="cautious"
+          fi
+          
+          if [[ "$AUDIT_ISSUES" == "true" ]]; then
+            ISSUES+=("Security vulnerabilities detected")
+            STRATEGY="cautious"
+          fi
+          
+          if [[ "$SENSITIVE_DATA_FOUND" == "true" ]]; then
+            ISSUES+=("Sensitive data potentially exposed")
+            SHOULD_DEPLOY="false"
+          fi
+          
+          if [[ "$BUNDLE_SIZE_EXCEEDED" == "true" ]]; then
+            ISSUES+=("Bundle size budget exceeded")
+            STRATEGY="cautious"
+          fi
+          
+          # Output results
+          echo "should_deploy=$SHOULD_DEPLOY" >> $GITHUB_OUTPUT
+          echo "strategy=$STRATEGY" >> $GITHUB_OUTPUT
+          
+          if [[ "$SHOULD_DEPLOY" == "true" ]]; then
+            echo "✅ Deployment approved with strategy: $STRATEGY"
+            if [[ ${#ISSUES[@]} -gt 0 ]]; then
+              echo "⚠️ Issues detected but proceeding:"
+              printf "  - %s\n" "${ISSUES[@]}"
+            fi
+          else
+            echo "❌ Deployment blocked due to critical issues:"
+            printf "  - %s\n" "${ISSUES[@]}"
+            exit 1
+          fi
+
+  # ---------------------------------------------------------------------------  
+  # BUILD AND PUBLISH CONTAINER IMAGE
+  # ---------------------------------------------------------------------------
+  
+  build-and-publish:
+    name: 🏗️ Build & Publish Image
+    runs-on: ubuntu-latest
+    needs: pre-deployment-checks
+    if: needs.pre-deployment-checks.outputs.should_deploy == 'true'
+    timeout-minutes: 25
+    
+    outputs:
+      image_digest: ${{ steps.build.outputs.digest }}
+      image_url: ${{ steps.build.outputs.image_url }}
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        with:
+          driver-opts: |
+            network=host
+      
+      - name: Log in to DigitalOcean Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+          password: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+      
+      - name: Build and push Docker image
+        id: build
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          platforms: linux/amd64
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.REGISTRY_NAMESPACE }}/${{ env.IMAGE_NAME }}:${{ needs.pre-deployment-checks.outputs.image_tag }}
+            ${{ env.REGISTRY }}/${{ env.REGISTRY_NAMESPACE }}/${{ env.IMAGE_NAME }}:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          build-args: |
+            NODE_ENV=production
+            BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ')
+            VCS_REF=${{ needs.pre-deployment-checks.outputs.commit_sha }}
+          labels: |
+            org.opencontainers.image.title=Portfolio Application
+            org.opencontainers.image.description=Frank Palmisano's Professional Portfolio
+            org.opencontainers.image.source=https://github.com/${{ github.repository }}
+            org.opencontainers.image.revision=${{ needs.pre-deployment-checks.outputs.commit_sha }}
+            org.opencontainers.image.version=${{ needs.pre-deployment-checks.outputs.image_tag }}
+            org.opencontainers.image.created=$(date -u +'%Y-%m-%dT%H:%M:%SZ')
+      
+      - name: Generate image manifest
+        run: |
+          echo "📋 Image Details:"
+          echo "  Repository: ${{ env.REGISTRY }}/${{ env.REGISTRY_NAMESPACE }}/${{ env.IMAGE_NAME }}"
+          echo "  Tag: ${{ needs.pre-deployment-checks.outputs.image_tag }}"
+          echo "  Digest: ${{ steps.build.outputs.digest }}"
+          echo "  Build Date: $(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+          echo "  Commit: ${{ needs.pre-deployment-checks.outputs.commit_sha }}"
+          
+          # Save image metadata for deployment
+          cat > image-manifest.json << EOF
+          {
+            "repository": "${{ env.REGISTRY }}/${{ env.REGISTRY_NAMESPACE }}/${{ env.IMAGE_NAME }}",
+            "tag": "${{ needs.pre-deployment-checks.outputs.image_tag }}",
+            "digest": "${{ steps.build.outputs.digest }}",
+            "commit_sha": "${{ needs.pre-deployment-checks.outputs.commit_sha }}",
+            "build_date": "$(date -u +'%Y-%m-%dT%H:%M:%SZ')",
+            "platforms": ["linux/amd64"]
+          }
+          EOF
+      
+      - name: Upload image manifest
+        uses: actions/upload-artifact@v4
+        with:
+          name: image-manifest
+          path: image-manifest.json
+          retention-days: 30
+
+  # ---------------------------------------------------------------------------
+  # DEPLOY TO DIGITAL OCEAN
+  # ---------------------------------------------------------------------------
+  
+  deploy:
+    name: 🚀 Deploy to Digital Ocean
+    runs-on: ubuntu-latest
+    needs: [pre-deployment-checks, build-and-publish]
+    timeout-minutes: 35
+    environment: 
+      name: ${{ inputs.deploy_environment || 'production' }}
+      url: ${{ steps.deploy.outputs.app_url }}
+    
+    outputs:
+      deployment_id: ${{ steps.deploy.outputs.deployment_id }}
+      app_url: ${{ steps.deploy.outputs.app_url }}
+      deployment_status: ${{ steps.deploy.outputs.status }}
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Download image manifest
+        uses: actions/download-artifact@v4
+        with:
+          name: image-manifest
+      
+      - name: Install DigitalOcean CLI
+        uses: digitalocean/action-doctl@v2
+        with:
+          token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+      
+      - name: Backup current deployment
+        id: backup
+        run: |
+          echo "💾 Creating deployment backup..."
+          
+          ENVIRONMENT="${{ inputs.deploy_environment || 'production' }}"
+          APP_ID="${{ secrets.DO_PRODUCTION_APP_ID }}"
+          
+          if [[ "$ENVIRONMENT" == "staging" ]]; then
+            APP_ID="${{ secrets.DO_STAGING_APP_ID }}"
+          fi
+          
+          # Get current deployment
+          CURRENT_DEPLOYMENT=$(doctl apps list-deployments "$APP_ID" --format ID,Phase --no-header | head -1 | awk '{print $1}')
+          
+          if [[ -n "$CURRENT_DEPLOYMENT" ]]; then
+            # Export current app spec
+            doctl apps spec get "$APP_ID" > "backup-app-spec-${CURRENT_DEPLOYMENT}.yaml"
+            
+            echo "backup_deployment_id=$CURRENT_DEPLOYMENT" >> $GITHUB_OUTPUT
+            echo "✅ Backup created for deployment: $CURRENT_DEPLOYMENT"
+          else
+            echo "⚠️ No current deployment found to backup"
+          fi
+      
+      - name: Update app spec with new image
+        id: update_spec
+        run: |
+          echo "📝 Updating app specification..."
+          
+          ENVIRONMENT="${{ inputs.deploy_environment || 'production' }}"
+          IMAGE_TAG="${{ needs.pre-deployment-checks.outputs.image_tag }}"
+          
+          # Select appropriate app spec
+          if [[ "$ENVIRONMENT" == "staging" ]]; then
+            APP_SPEC=".do/app.staging.yaml"
+          else
+            APP_SPEC=".do/app.yaml"
+          fi
+          
+          # Create deployment-specific spec
+          cp "$APP_SPEC" "app-deploy.yaml"
+          
+          # Update image references
+          sed -i "s|image: .*|image: ${{ env.REGISTRY }}/${{ env.REGISTRY_NAMESPACE }}/${{ env.IMAGE_NAME }}:${IMAGE_TAG}|g" app-deploy.yaml
+          
+          # Validate the spec
+          doctl apps spec validate app-deploy.yaml
+          
+          echo "spec_file=app-deploy.yaml" >> $GITHUB_OUTPUT
+          echo "✅ App specification updated and validated"
+      
+      - name: Deploy to Digital Ocean
+        id: deploy
+        run: |
+          echo "🚀 Starting deployment..."
+          
+          ENVIRONMENT="${{ inputs.deploy_environment || 'production' }}"
+          APP_ID="${{ secrets.DO_PRODUCTION_APP_ID }}"
+          DOMAIN="${{ secrets.PRODUCTION_URL }}"
+          
+          if [[ "$ENVIRONMENT" == "staging" ]]; then
+            APP_ID="${{ secrets.DO_STAGING_APP_ID }}"
+            DOMAIN="${{ secrets.STAGING_URL }}"
+          fi
+          
+          # Deploy using updated spec
+          DEPLOYMENT_OUTPUT=$(doctl apps update "$APP_ID" --spec "${{ steps.update_spec.outputs.spec_file }}" --format ID --no-header)
+          
+          if [[ -n "$DEPLOYMENT_OUTPUT" ]]; then
+            DEPLOYMENT_ID="$DEPLOYMENT_OUTPUT"
+            echo "deployment_id=$DEPLOYMENT_ID" >> $GITHUB_OUTPUT
+            echo "app_url=$DOMAIN" >> $GITHUB_OUTPUT
+            echo "✅ Deployment initiated: $DEPLOYMENT_ID"
+            
+            # Wait for deployment to complete
+            echo "⏳ Waiting for deployment to complete..."
+            START_TIME=$(date +%s)
+            
+            while true; do
+              CURRENT_TIME=$(date +%s)
+              ELAPSED=$((CURRENT_TIME - START_TIME))
+              
+              if [[ $ELAPSED -gt ${{ env.DEPLOYMENT_TIMEOUT }} ]]; then
+                echo "❌ Deployment timeout after ${{ env.DEPLOYMENT_TIMEOUT }}s"
+                echo "status=timeout" >> $GITHUB_OUTPUT
+                exit 1
+              fi
+              
+              DEPLOYMENT_INFO=$(doctl apps get-deployment "$APP_ID" "$DEPLOYMENT_ID" --format Phase,Progress --no-header)
+              PHASE=$(echo "$DEPLOYMENT_INFO" | awk '{print $1}')
+              PROGRESS=$(echo "$DEPLOYMENT_INFO" | awk '{print $2}')
+              
+              echo "📊 Deployment status: $PHASE ($PROGRESS) - Elapsed: ${ELAPSED}s"
+              
+              case "$PHASE" in
+                ACTIVE)
+                  echo "status=success" >> $GITHUB_OUTPUT
+                  echo "✅ Deployment completed successfully"
+                  break
+                  ;;
+                ERROR|CANCELED|SUPERSEDED)
+                  echo "status=failed" >> $GITHUB_OUTPUT
+                  echo "❌ Deployment failed with status: $PHASE"
+                  exit 1
+                  ;;
+                PENDING_BUILD|PENDING_DEPLOY|BUILDING|DEPLOYING)
+                  sleep 30
+                  ;;
+                *)
+                  echo "⚠️ Unknown deployment phase: $PHASE"
+                  sleep 30
+                  ;;
+              esac
+            done
+          else
+            echo "❌ Failed to initiate deployment"
+            echo "status=failed" >> $GITHUB_OUTPUT
+            exit 1
+          fi
+
+  # ---------------------------------------------------------------------------
+  # POST-DEPLOYMENT VALIDATION
+  # ---------------------------------------------------------------------------
+  
+  validate-deployment:
+    name: ✅ Validate Deployment
+    runs-on: ubuntu-latest
+    needs: [pre-deployment-checks, deploy]
+    timeout-minutes: 15
+    
+    outputs:
+      validation_status: ${{ steps.validate.outputs.status }}
+      response_time: ${{ steps.validate.outputs.response_time }}
+      health_score: ${{ steps.validate.outputs.health_score }}
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Wait for services to stabilize
+        run: |
+          echo "⏳ Waiting for services to stabilize..."
+          sleep 60
+      
+      - name: Comprehensive health check validation
+        id: validate
+        run: |
+          echo "🏥 Running comprehensive health checks..."
+          
+          APP_URL="${{ needs.deploy.outputs.app_url }}"
+          VALIDATION_PASSED="true"
+          HEALTH_CHECKS=()
+          
+          # Function to test endpoint
+          test_endpoint() {
+            local endpoint="$1"
+            local expected_status="${2:-200}"
+            local timeout="${3:-10}"
+            
+            echo "Testing $endpoint..."
+            RESPONSE=$(curl -s -o /dev/null -w '%{http_code},%{time_total},' --max-time "$timeout" "$endpoint" || echo "000,999,")
+            STATUS_CODE=$(echo "$RESPONSE" | cut -d',' -f1)
+            RESPONSE_TIME=$(echo "$RESPONSE" | cut -d',' -f2)
+            
+            if [[ "$STATUS_CODE" == "$expected_status" ]]; then
+              echo "✅ $endpoint: $STATUS_CODE (${RESPONSE_TIME}s)"
+              HEALTH_CHECKS+=("$endpoint:passed:$RESPONSE_TIME")
+            else
+              echo "❌ $endpoint: $STATUS_CODE (expected $expected_status)"
+              HEALTH_CHECKS+=("$endpoint:failed:$RESPONSE_TIME")
+              VALIDATION_PASSED="false"
+            fi
+          }
+          
+          # Test critical endpoints
+          test_endpoint "$APP_URL" 200 15
+          test_endpoint "$APP_URL/api/health" 200 15
+          test_endpoint "$APP_URL/api/readiness" 200 10
+          test_endpoint "$APP_URL/api/monitoring" 200 10
+          
+          # Test image optimization if enabled
+          test_endpoint "$APP_URL/api/image-optimize" 405 10  # Expecting method not allowed for GET
+          
+          # Calculate health score
+          TOTAL_CHECKS=${#HEALTH_CHECKS[@]}
+          PASSED_CHECKS=$(printf '%s\n' "${HEALTH_CHECKS[@]}" | grep -c ":passed:" || echo "0")
+          HEALTH_SCORE=$((PASSED_CHECKS * 100 / TOTAL_CHECKS))
+          
+          # Get average response time
+          AVG_RESPONSE_TIME=$(printf '%s\n' "${HEALTH_CHECKS[@]}" | grep ":passed:" | cut -d':' -f3 | awk '{sum+=$1; count++} END {if(count>0) print sum/count; else print "999"}')
+          
+          echo "status=$VALIDATION_PASSED" >> $GITHUB_OUTPUT
+          echo "health_score=$HEALTH_SCORE" >> $GITHUB_OUTPUT
+          echo "response_time=$AVG_RESPONSE_TIME" >> $GITHUB_OUTPUT
+          
+          echo "📊 Validation Results:"
+          echo "  Status: $VALIDATION_PASSED"
+          echo "  Health Score: $HEALTH_SCORE%"
+          echo "  Average Response Time: ${AVG_RESPONSE_TIME}s"
+          
+          if [[ "$VALIDATION_PASSED" != "true" ]]; then
+            echo "❌ Health check validation failed"
+            exit 1
+          fi
+      
+      - name: Performance validation
+        if: inputs.skip_performance_tests != true
+        id: performance
+        run: |
+          echo "⚡ Running performance validation..."
+          
+          APP_URL="${{ needs.deploy.outputs.app_url }}"
+          
+          # Test response time under light load
+          echo "Testing response time..."
+          for i in {1..5}; do
+            RESPONSE_TIME=$(curl -o /dev/null -s -w '%{time_total}' --max-time 30 "$APP_URL")
+            echo "  Request $i: ${RESPONSE_TIME}s"
+            
+            # Fail if any request takes longer than 5 seconds
+            if (( $(echo "$RESPONSE_TIME > 5.0" | bc -l) )); then
+              echo "❌ Response time too high: ${RESPONSE_TIME}s"
+              exit 1
+            fi
+          done
+          
+          # Test image optimization performance (if available)
+          if curl -f -s --max-time 30 "$APP_URL/api/image-optimize" >/dev/null 2>&1; then
+            echo "✅ Image optimization endpoint responding"
+          fi
+          
+          echo "✅ Performance validation passed"
+      
+      - name: Smoke test critical user journeys
+        id: smoke_tests
+        run: |
+          echo "🧪 Running smoke tests..."
+          
+          APP_URL="${{ needs.deploy.outputs.app_url }}"
+          
+          # Test main portfolio pages
+          PAGES=(
+            "/"
+            "/software-engineer" 
+            "/customer-service"
+            "/health-status"
+          )
+          
+          for page in "${PAGES[@]}"; do
+            echo "Testing $APP_URL$page..."
+            if curl -f -s --max-time 15 "$APP_URL$page" > /dev/null; then
+              echo "✅ $page: accessible"
+            else
+              echo "❌ $page: failed to load"
+              exit 1
+            fi
+          done
+          
+          echo "✅ All smoke tests passed"
+
+  # ---------------------------------------------------------------------------
+  # ROLLBACK ON FAILURE
+  # ---------------------------------------------------------------------------
+  
+  rollback-on-failure:
+    name: 🔄 Emergency Rollback
+    runs-on: ubuntu-latest
+    needs: [pre-deployment-checks, deploy, validate-deployment]
+    if: failure() && needs.deploy.outputs.deployment_status == 'success'
+    timeout-minutes: 20
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Install DigitalOcean CLI
+        uses: digitalocean/action-doctl@v2
+        with:
+          token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+      
+      - name: Execute emergency rollback
+        run: |
+          echo "🚨 Executing emergency rollback..."
+          
+          ENVIRONMENT="${{ inputs.deploy_environment || 'production' }}"
+          APP_ID="${{ secrets.DO_PRODUCTION_APP_ID }}"
+          
+          if [[ "$ENVIRONMENT" == "staging" ]]; then
+            APP_ID="${{ secrets.DO_STAGING_APP_ID }}"
+          fi
+          
+          # Download backup spec if available
+          BACKUP_SPEC="backup-app-spec-*.yaml"
+          if ls $BACKUP_SPEC 1> /dev/null 2>&1; then
+            SPEC_FILE=$(ls $BACKUP_SPEC | head -1)
+            echo "📋 Using backup spec: $SPEC_FILE"
+          else
+            echo "⚠️ No backup spec found, using current repository spec"
+            SPEC_FILE=".do/app.yaml"
+          fi
+          
+          # Initiate rollback
+          ROLLBACK_OUTPUT=$(doctl apps update "$APP_ID" --spec "$SPEC_FILE" --format ID --no-header)
+          
+          if [[ -n "$ROLLBACK_OUTPUT" ]]; then
+            ROLLBACK_ID="$ROLLBACK_OUTPUT"
+            echo "🔄 Rollback initiated: $ROLLBACK_ID"
+            
+            # Wait for rollback to complete
+            START_TIME=$(date +%s)
+            while true; do
+              CURRENT_TIME=$(date +%s)
+              ELAPSED=$((CURRENT_TIME - START_TIME))
+              
+              if [[ $ELAPSED -gt 900 ]]; then  # 15 minutes timeout
+                echo "❌ Rollback timeout"
+                exit 1
+              fi
+              
+              DEPLOYMENT_INFO=$(doctl apps get-deployment "$APP_ID" "$ROLLBACK_ID" --format Phase --no-header)
+              echo "📊 Rollback status: $DEPLOYMENT_INFO"
+              
+              case "$DEPLOYMENT_INFO" in
+                ACTIVE)
+                  echo "✅ Rollback completed successfully"
+                  break
+                  ;;
+                ERROR|CANCELED|SUPERSEDED)
+                  echo "❌ Rollback failed"
+                  exit 1
+                  ;;
+                *)
+                  sleep 30
+                  ;;
+              esac
+            done
+          else
+            echo "❌ Failed to initiate rollback"
+            exit 1
+          fi
+
+  # ---------------------------------------------------------------------------
+  # NOTIFICATION AND CLEANUP
+  # ---------------------------------------------------------------------------
+  
+  notify-and-cleanup:
+    name: 📢 Notify & Cleanup
+    runs-on: ubuntu-latest
+    needs: [pre-deployment-checks, build-and-publish, deploy, validate-deployment]
+    if: always()
+    
+    steps:
+      - name: Determine overall status
+        id: status
+        run: |
+          if [[ "${{ needs.validate-deployment.result }}" == "success" ]]; then
+            echo "status=success" >> $GITHUB_OUTPUT
+            echo "message=Deployment completed successfully" >> $GITHUB_OUTPUT
+          elif [[ "${{ needs.deploy.result }}" == "failure" ]]; then
+            echo "status=failure" >> $GITHUB_OUTPUT
+            echo "message=Deployment failed during deploy phase" >> $GITHUB_OUTPUT
+          elif [[ "${{ needs.validate-deployment.result }}" == "failure" ]]; then
+            echo "status=failure" >> $GITHUB_OUTPUT
+            echo "message=Deployment failed validation, rollback initiated" >> $GITHUB_OUTPUT
+          else
+            echo "status=unknown" >> $GITHUB_OUTPUT
+            echo "message=Deployment status unclear" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: Send deployment notification
+        if: always()
+        uses: 8398a7/action-slack@v3
+        with:
+          status: ${{ steps.status.outputs.status }}
+          channel: '#deployments'
+          webhook_url: ${{ secrets.SLACK_WEBHOOK_URL }}
+          fields: |
+            {
+              "Environment": "${{ inputs.deploy_environment || 'production' }}",
+              "Image Tag": "${{ needs.pre-deployment-checks.outputs.image_tag }}",
+              "Commit": "${{ needs.pre-deployment-checks.outputs.commit_sha }}",
+              "Actor": "${{ github.actor }}",
+              "Status": "${{ steps.status.outputs.status }}",
+              "Response Time": "${{ needs.validate-deployment.outputs.response_time }}s",
+              "Health Score": "${{ needs.validate-deployment.outputs.health_score }}%"
+            }
+          text: |
+            🚀 **Deployment ${{ steps.status.outputs.status }}**
+            ${{ steps.status.outputs.message }}
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+      
+      - name: Cleanup artifacts
+        if: always()
+        run: |
+          echo "🧹 Cleaning up deployment artifacts..."
+          # Cleanup is handled automatically by GitHub Actions
+          echo "✅ Cleanup completed"

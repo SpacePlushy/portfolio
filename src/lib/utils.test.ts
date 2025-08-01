@@ -72,8 +72,8 @@ describe('cn utility function', () => {
   });
 
   it('should handle variant classes correctly', () => {
-    const variant: 'primary' | 'secondary' = 'primary';
-    const size: 'sm' | 'lg' = 'lg';
+    const variant = 'primary' as const;
+    const size = 'lg' as const;
     const result = cn('button-base', {
       'button-primary': variant === 'primary',
       'button-secondary': variant === 'secondary',

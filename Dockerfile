@@ -112,8 +112,11 @@ USER astro
 # Expose port
 EXPOSE 8080
 
+# Copy startup script for application lifecycle management
+COPY scripts/start-server.js ./scripts/
+
 # Use tini for proper signal handling
 ENTRYPOINT ["tini", "--"]
 
-# Start application directly
-CMD ["node", "./dist/server/entry.mjs"]
+# Start application with lifecycle management
+CMD ["node", "./scripts/start-server.js"]

@@ -133,7 +133,7 @@ describe('Image Optimization Performance', () => {
 
     it('should minimize memory usage with large numbers of components', async () => {
       const componentCount = 50;
-      const initialMemory = performance.memory?.usedJSHeapSize || 0;
+      const initialMemory = (performance as any).memory?.usedJSHeapSize || 0;
 
       const components = Array(componentCount).fill(null).map((_, i) => (
         <LazyImage
@@ -150,7 +150,7 @@ describe('Image Optimization Performance', () => {
       // Allow for garbage collection
       await new Promise(resolve => setTimeout(resolve, 100));
 
-      const finalMemory = performance.memory?.usedJSHeapSize || 0;
+      const finalMemory = (performance as any).memory?.usedJSHeapSize || 0;
       const memoryIncrease = finalMemory - initialMemory;
 
       // Memory increase should be reasonable (less than 5MB for 50 components)

@@ -553,13 +553,13 @@ export class SharpOptimizationService {
     memoryCacheSize: number;
     queueLength: number;
     maxConcurrency: number;
-    sharpStats: sharp.CacheOptions;
+    sharpStats: sharp.CacheResult;
   } {
     return {
       memoryCacheSize: this.memoryCache.size,
       queueLength: this.processingQueue.length,
       maxConcurrency: this.maxConcurrency,
-      sharpStats: sharp.cache(),
+      sharpStats: sharp.cache(false),
     };
   }
 

@@ -1,0 +1,35 @@
+---
+// Monitoring Dashboard Page
+// Displays comprehensive application monitoring metrics
+import Layout from '../layouts/Layout.astro';
+import MonitoringDashboard from '../components/MonitoringDashboard';
+---
+
+<Layout 
+  title="System Monitoring | Frank Palmisano"
+  description="Real-time system monitoring and performance metrics"
+>
+  <main class="min-h-screen bg-background py-8">
+    <div class="container mx-auto px-4">
+      <div class="mb-8">
+        <h1 class="text-4xl font-bold text-foreground mb-2">
+          System Monitoring
+        </h1>
+        <p class="text-muted-foreground text-lg">
+          Real-time application metrics and performance monitoring
+        </p>
+      </div>
+      
+      <MonitoringDashboard client:load />
+      
+      <div class="mt-8 text-center">
+        <a 
+          href="/health-status" 
+          class="inline-flex items-center px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors"
+        >
+          View Health Status
+        </a>
+      </div>
+    </div>
+  </main>
+</Layout>

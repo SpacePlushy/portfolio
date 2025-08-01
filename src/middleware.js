@@ -120,6 +120,9 @@ const rateLimitStore = new Map();
 const botDetectionCache = new Map();
 const suspiciousIPs = new Map();
 
+// Import route detection utility (commented out due to import issues)
+// import { shouldSkipMiddleware, isStaticAsset, isApiRoute, isCacheable, getCacheHeaders } from './utils/route-detection.js';
+
 // Utility functions
 // CDN and Performance Utility Functions
 function detectCDN(request) {
@@ -478,7 +481,8 @@ export async function onRequest(context, next) {
     path === '/manifest.json' ||
     path.startsWith('/favicon-') ||
     path === '/apple-touch-icon.png' ||
-    path === '/robots.txt'
+    path === '/robots.txt' ||
+    path === '/.well-known/appspecific/com.chrome.devtools.json'
   ) {
     return await next();
   }

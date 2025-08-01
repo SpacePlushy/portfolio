@@ -18,6 +18,24 @@ envs:
     value: "100"
   - key: SHARP_CONCURRENCY
     value: "2"
+  # Monitoring and feature flags
+  - key: ENABLE_MONITORING
+    value: "true"
+  - key: ENABLE_PROMETHEUS_METRICS
+    value: "true"
+  - key: HEALTH_CHECK_TIMEOUT
+    value: "30000"
+  - key: STARTUP_TIMEOUT
+    value: "120000"
+  - key: GRACEFUL_SHUTDOWN_TIMEOUT
+    value: "15000"
+  # Feature flags for gradual rollout
+  - key: FEATURE_IMAGE_OPTIMIZATION_V2
+    value: "true"
+  - key: FEATURE_ENHANCED_CACHING
+    value: "true"
+  - key: FEATURE_PERFORMANCE_MONITORING
+    value: "true"
 
 # Main portfolio application with image optimization built-in
 services:
@@ -37,15 +55,31 @@ services:
     http_port: 8080
     
     health_check:
-      http_path: /api/health
-      initial_delay_seconds: 45  # Increased for Sharp initialization
-      period_seconds: 20         # Slightly increased interval
-      timeout_seconds: 15        # Increased timeout for health check
-      success_threshold: 1       # Still require only 1 success
-      failure_threshold: 5       # More lenient failure threshold
+      http_path: /api/readiness  # Use readiness for faster startup
+      initial_delay_seconds: 30  # Reduced with new lifecycle management
+      period_seconds: 15         # More frequent checks
+      timeout_seconds: 10        # Reasonable timeout
+      success_threshold: 1       # Single success needed
+      failure_threshold: 3       # Quick failure detection
+    
+    # Liveness probe for ongoing health
+    liveness_check:
+      http_path: /api/health     # Comprehensive health check
+      initial_delay_seconds: 60  # Allow startup time
+      period_seconds: 30         # Check every 30 seconds
+      timeout_seconds: 15        # Longer timeout for full check
+      success_threshold: 1
+      failure_threshold: 3
     
     routes:
       - path: /
+      # Monitoring and health check routes
+      - path: /api/health
+      - path: /api/readiness
+      - path: /api/monitoring
+      - path: /metrics
+      - path: /health-status
+      - path: /monitoring
     
     envs:
       - key: HOST
@@ -56,6 +90,20 @@ services:
         value: "${redis-cache.PRIVATE_URL}"
       - key: NODE_OPTIONS
         value: "--max-old-space-size=1536"
+      # Application lifecycle settings
+      - key: ENABLE_GRACEFUL_SHUTDOWN
+        value: "true"
+      - key: SHUTDOWN_TIMEOUT_MS
+        value: "15000"
+      - key: STARTUP_PROBE_DELAY_MS
+        value: "5000"
+      # Monitoring configuration
+      - key: METRICS_PORT
+        value: "9090"
+      - key: ENABLE_REQUEST_LOGGING
+        value: "true"
+      - key: ENABLE_PERFORMANCE_TRACKING
+        value: "true"
     
     alerts:
       - rule: CPU_UTILIZATION
