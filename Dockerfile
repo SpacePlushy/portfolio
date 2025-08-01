@@ -32,8 +32,18 @@ RUN npm ci --production --no-audit --no-fund
 # Stage 2: Build application
 FROM node:20-alpine AS builder
 
-# Install minimal build dependencies
-RUN apk add --no-cache vips-dev libc6-compat
+# Install build dependencies including make for canvas
+RUN apk add --no-cache \
+    vips-dev \
+    libc6-compat \
+    build-base \
+    python3 \
+    make \
+    g++ \
+    cairo-dev \
+    pango-dev \
+    jpeg-dev \
+    giflib-dev
 
 WORKDIR /app
 
