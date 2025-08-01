@@ -94,7 +94,7 @@ RUN mkdir -p .cache/images tmp && \
 # Set production environment
 ENV NODE_ENV=production
 ENV NODE_OPTIONS="--max-old-space-size=1536"
-ENV PORT=4321
+ENV PORT=8080
 ENV HOST=0.0.0.0
 
 # Sharp optimizations for Digital Ocean
@@ -104,13 +104,13 @@ ENV SHARP_SIMD=true
 
 # Health check with improved settings
 HEALTHCHECK --interval=30s --timeout=15s --start-period=60s --retries=5 \
-    CMD curl -f http://localhost:4321/api/readiness || curl -f http://localhost:4321/api/health || exit 1
+    CMD curl -f http://localhost:8080/api/readiness || curl -f http://localhost:8080/api/health || exit 1
 
 # Switch to non-root user
 USER astro
 
 # Expose port
-EXPOSE 4321
+EXPOSE 8080
 
 # Use tini for proper signal handling
 ENTRYPOINT ["tini", "--"]
