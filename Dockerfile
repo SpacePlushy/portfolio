@@ -87,9 +87,6 @@ COPY --from=dependencies --chown=astro:astro /app/package*.json ./
 # Copy built application
 COPY --from=builder --chown=astro:astro /app/dist ./dist
 
-# Copy startup script with correct ownership
-COPY --chown=astro:astro scripts/start-server.js ./scripts/
-
 # Create cache directories
 RUN mkdir -p .cache/images tmp && \
     chown -R astro:astro .cache tmp
@@ -118,5 +115,5 @@ EXPOSE 8080
 # Use tini for proper signal handling
 ENTRYPOINT ["tini", "--"]
 
-# Start application with lifecycle management
-CMD ["node", "./scripts/start-server.js"]
+# Start application using npm start
+CMD ["npm", "start"]
