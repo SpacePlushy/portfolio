@@ -1,66 +1,109 @@
-# Build stage
+# Production-ready Dockerfile for Digital Ocean deployment
+# Optimized for Sharp compatibility and build reliability
+
+# Stage 1: Dependencies and Sharp compilation
+FROM node:20-alpine AS dependencies
+
+# Install system dependencies for Sharp and native modules
+RUN apk add --no-cache \
+    build-base \
+    vips-dev \
+    python3 \
+    make \
+    g++ \
+    libc6-compat \
+    && rm -rf /var/cache/apk/*
+
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+COPY tsconfig.json ./
+
+# Set build environment
+ENV NODE_ENV=production
+ENV SHARP_IGNORE_GLOBAL_LIBVIPS=1
+ENV SHARP_CACHE_SIZE=50
+ENV SHARP_CONCURRENCY=1
+
+# Install dependencies with proper Sharp compilation
+RUN npm ci --production --no-audit --no-fund
+
+# Stage 2: Build application
 FROM node:20-alpine AS builder
 
-# Install security updates
-RUN apk update && apk upgrade && apk add --no-cache dumb-init
-
-# Create non-root user
-RUN addgroup -g 1001 -S nodejs && \
-    adduser -S nodejs -u 1001
+# Install minimal build dependencies
+RUN apk add --no-cache vips-dev libc6-compat
 
 WORKDIR /app
 
-# Copy package files
-COPY package*.json ./
+# Copy dependencies from previous stage
+COPY --from=dependencies /app/node_modules ./node_modules
+COPY --from=dependencies /app/package*.json ./
 
-# Install dependencies
-RUN npm ci
+# Install dev dependencies for build
+RUN npm ci --include=dev --no-audit --no-fund
 
-# Copy all files
+# Copy source code
 COPY . .
 
-# Build the application
+# Build with memory optimizations
+ENV NODE_OPTIONS="--max-old-space-size=2048"
+ENV NODE_ENV=production
+
 RUN npm run build
 
-# Runtime stage
-FROM node:20-alpine
+# Stage 3: Production runtime
+FROM node:20-alpine AS production
 
-# Install security updates and dumb-init
-RUN apk update && apk upgrade && apk add --no-cache dumb-init
+# Install runtime dependencies
+RUN apk add --no-cache \
+    vips \
+    libc6-compat \
+    tini \
+    curl \
+    && rm -rf /var/cache/apk/*
 
 # Create non-root user
-RUN addgroup -g 1001 -S nodejs && \
-    adduser -S nodejs -u 1001
+RUN addgroup -g 1001 -S astro && \
+    adduser -S astro -u 1001 -G astro
 
 WORKDIR /app
 
-# Copy package files
-COPY package*.json ./
+# Copy production dependencies
+COPY --from=dependencies --chown=astro:astro /app/node_modules ./node_modules
+COPY --from=dependencies --chown=astro:astro /app/package*.json ./
 
-# Install production dependencies only
-RUN npm ci --production && npm cache clean --force
+# Copy built application
+COPY --from=builder --chown=astro:astro /app/dist ./dist
 
-# Copy built application from builder stage with proper ownership
-COPY --from=builder --chown=nodejs:nodejs /app/dist ./dist
-COPY --from=builder --chown=nodejs:nodejs /app/.astro ./.astro
+# Create cache directories
+RUN mkdir -p .cache/images tmp && \
+    chown -R astro:astro .cache tmp
 
-# Switch to non-root user
-USER nodejs
+# Set production environment
+ENV NODE_ENV=production
+ENV NODE_OPTIONS="--max-old-space-size=1536"
+ENV PORT=4321
+ENV HOST=0.0.0.0
+
+# Sharp optimizations for Digital Ocean
+ENV SHARP_CACHE_SIZE=100
+ENV SHARP_CONCURRENCY=2
+ENV SHARP_SIMD=true
 
 # Health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-  CMD node -e "require('http').get('http://localhost:8080/api/health', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) })"
+HEALTHCHECK --interval=30s --timeout=10s --start-period=20s --retries=3 \
+    CMD curl -f http://localhost:4321/api/health || exit 1
 
-# Expose port 8080 (Digital Ocean default)
-EXPOSE 8080
+# Switch to non-root user
+USER astro
 
-# Set environment variables
-ENV HOST=0.0.0.0
-ENV PORT=8080
-ENV NODE_ENV=production
+# Expose port
+EXPOSE 4321
 
-# Use dumb-init to handle signals properly
-ENTRYPOINT ["dumb-init", "--"]
+# Use tini for proper signal handling
+ENTRYPOINT ["tini", "--"]
 
-# Start the application
+# Start application
 CMD ["node", "./dist/server/entry.mjs"]

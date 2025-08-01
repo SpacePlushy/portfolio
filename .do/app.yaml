@@ -1,11 +1,11 @@
 #
-# Digital Ocean App Platform Deployment Configuration
-# Complete image optimization system with monitoring and caching
+# Digital Ocean App Platform Deployment Configuration - FIXED VERSION
+# Simplified configuration focusing on the main application
 #
-name: portfolio-image-optimization
+name: portfolio-optimized
 region: nyc1
 
-# Environment variables shared across all services
+# Environment variables
 envs:
   - key: NODE_ENV
     value: production
@@ -14,19 +14,14 @@ envs:
   - key: REDIS_URL
     scope: RUN_AND_BUILD_TIME
     type: SECRET
-  - key: MONITORING_ENABLED
-    value: "true"
-  - key: IMAGE_OPTIMIZATION_ENABLED
-    value: "true"
-  - key: CDN_ENABLED
-    value: "true"
-  - key: PERFORMANCE_MONITORING_URL
-    scope: RUN_TIME
-    type: SECRET
+  - key: SHARP_CACHE_SIZE
+    value: "100"
+  - key: SHARP_CONCURRENCY
+    value: "2"
 
-# Main portfolio application
+# Main portfolio application with image optimization built-in
 services:
-  # Primary web application
+  # Primary web application with integrated image processing
   - name: portfolio-web
     source_dir: /
     github:
@@ -36,16 +31,16 @@ services:
     dockerfile_path: Dockerfile
     
     environment_slug: node-js
-    instance_count: 2
-    instance_size_slug: basic-xxs
+    instance_count: 1
+    instance_size_slug: basic-s  # Increased from basic-xxs for Sharp compatibility
     
-    http_port: 8080
+    http_port: 4321
     
     health_check:
       http_path: /api/health
-      initial_delay_seconds: 10
-      period_seconds: 10
-      timeout_seconds: 5
+      initial_delay_seconds: 30
+      period_seconds: 15
+      timeout_seconds: 10
       success_threshold: 1
       failure_threshold: 3
     
@@ -56,127 +51,29 @@ services:
       - key: HOST
         value: "0.0.0.0"
       - key: PORT
-        value: "8080"
-      - key: IMAGE_SERVICE_URL
-        value: "${image-optimizer.PRIVATE_URL}"
+        value: "4321"
       - key: REDIS_URL
         value: "${redis-cache.PRIVATE_URL}"
-      - key: METRICS_ENDPOINT
-        value: "${monitoring.PRIVATE_URL}/metrics"
+      - key: NODE_OPTIONS
+        value: "--max-old-space-size=1536"
     
     alerts:
       - rule: CPU_UTILIZATION
-        value: 80
+        value: 85
       - rule: MEM_UTILIZATION  
-        value: 80
+        value: 85
       - rule: RESTART_COUNT
-        value: 10
+        value: 5
 
-  # Image optimization service
-  - name: image-optimizer
-    source_dir: /
-    dockerfile_path: deploy/docker/Dockerfile.image-optimizer
-    
-    environment_slug: node-js
-    instance_count: 2
-    instance_size_slug: basic-xs
-    
-    http_port: 3001
-    
-    health_check:
-      http_path: /health
-      initial_delay_seconds: 15
-      period_seconds: 10
-      timeout_seconds: 10
-      success_threshold: 1
-      failure_threshold: 3
-    
-    envs:
-      - key: PORT
-        value: "3001"
-      - key: REDIS_URL
-        value: "${redis-cache.PRIVATE_URL}"
-      - key: MAX_IMAGE_SIZE
-        value: "10485760" # 10MB
-      - key: SUPPORTED_FORMATS
-        value: "jpeg,jpg,png,webp,avif,gif"
-      - key: CACHE_TTL
-        value: "3600"
-      - key: WORKER_CONCURRENCY
-        value: "4"
-    
-    alerts:
-      - rule: CPU_UTILIZATION
-        value: 85
-      - rule: MEM_UTILIZATION
-        value: 85
-
-  # Image processing worker service
-  - name: image-worker
-    source_dir: /
-    dockerfile_path: deploy/docker/Dockerfile.image-worker
-    
-    environment_slug: node-js
-    instance_count: 2
-    instance_size_slug: basic-xs
-    
-    envs:
-      - key: REDIS_URL
-        value: "${redis-cache.PRIVATE_URL}"
-      - key: WORKER_CONCURRENCY
-        value: "2"
-      - key: PROCESS_TIMEOUT
-        value: "30000"
-      - key: MAX_RETRIES
-        value: "3"
-    
-    alerts:
-      - rule: CPU_UTILIZATION
-        value: 90
-      - rule: MEM_UTILIZATION
-        value: 90
-
-  # Monitoring and metrics service
-  - name: monitoring
-    source_dir: /
-    dockerfile_path: deploy/docker/Dockerfile.monitoring
-    
-    environment_slug: node-js
-    instance_count: 1
-    instance_size_slug: basic-xxs
-    
-    http_port: 9090
-    
-    health_check:
-      http_path: /health
-      initial_delay_seconds: 20
-      period_seconds: 15
-      timeout_seconds: 10
-      success_threshold: 1
-      failure_threshold: 3
-    
-    envs:
-      - key: PORT
-        value: "9090"
-      - key: PROMETHEUS_CONFIG_PATH
-        value: "/app/prometheus.yml"
-      - key: GRAFANA_ADMIN_PASSWORD
-        scope: RUN_TIME
-        type: SECRET
-      - key: ALERT_WEBHOOK_URL
-        scope: RUN_TIME
-        type: SECRET
-
-# Databases and external services
+# Redis for caching
 databases:
-  # Redis for caching and job queues
   - name: redis-cache
     engine: REDIS
     version: "7"
     size: basic
     num_nodes: 1
-    
-# Static assets and CDN
+
+# Static assets
 static_sites:
   - name: static-assets
     source_dir: /public
@@ -193,59 +90,6 @@ static_sites:
     envs:
       - key: CDN_CACHE_CONTROL
         value: "public, max-age=31536000, immutable"
-
-# Jobs for maintenance and cleanup
-jobs:
-  # Image cache cleanup job
-  - name: cache-cleanup
-    source_dir: /
-    dockerfile_path: deploy/docker/Dockerfile.jobs
-    
-    kind: POST_DEPLOY
-    
-    envs:
-      - key: JOB_TYPE
-        value: "cache-cleanup"
-      - key: REDIS_URL
-        value: "${redis-cache.PRIVATE_URL}"
-      - key: CLEANUP_OLDER_THAN_DAYS
-        value: "7"
-    
-  # Performance report job
-  - name: performance-report
-    source_dir: /
-    dockerfile_path: deploy/docker/Dockerfile.jobs
-    
-    kind: CRON
-    schedule: "0 6 * * *" # Daily at 6 AM UTC
-    
-    envs:
-      - key: JOB_TYPE
-        value: "performance-report"
-      - key: METRICS_URL
-        value: "${monitoring.PRIVATE_URL}"
-      - key: REPORT_WEBHOOK_URL
-        scope: RUN_TIME
-        type: SECRET
-
-# Ingress configuration
-ingress:
-  rules:
-    - match:
-        path:
-          prefix: /api/image
-      component:
-        name: image-optimizer
-    - match:
-        path:
-          prefix: /metrics
-      component:
-        name: monitoring
-    - match:
-        path:
-          prefix: /
-      component:
-        name: portfolio-web
 
 # Alerts configuration
 alerts:
