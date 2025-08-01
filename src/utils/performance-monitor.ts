@@ -363,11 +363,11 @@ export class PerformanceMonitor {
         entries.forEach(entry => {
           this.recordMetric({
             type: 'image_load',
-            duration: entry.loadEventEnd - entry.navigationStart,
+            duration: entry.loadEventEnd - entry.startTime,
             metadata: {
               metric: 'page_load',
-              domContentLoaded: entry.domContentLoadedEventEnd - entry.navigationStart,
-              firstPaint: entry.loadEventStart - entry.navigationStart,
+              domContentLoaded: entry.domContentLoadedEventEnd - entry.startTime,
+              firstPaint: entry.loadEventStart - entry.startTime,
             },
           });
         });
@@ -514,7 +514,7 @@ export class PerformanceMonitor {
   }
 
   private generateId(): string {
-    return `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    return `${Date.now()}-${Math.random().toString(36).substring(2, 11)}`;
   }
 
   private getMetricValue(stats: any, metric: keyof PerformanceBudget): number {

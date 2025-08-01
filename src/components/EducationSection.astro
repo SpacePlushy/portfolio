@@ -41,9 +41,8 @@ const certifications = [
       <div class="space-y-6">
         <h3 class="text-xl font-semibold mb-4">Formal Education</h3>
         {
-          education.map((edu, index) => (
+          education.map((edu) => (
             <Card
-              key={index}
               className="hover:shadow-lg transition-all duration-200 dark:border-muted dark:hover:border-primary/20 dark:hover:shadow-xl dark:hover:shadow-primary/5"
               client:load
             >
@@ -63,8 +62,8 @@ const certifications = [
               {edu.highlights && (
                 <CardContent>
                   <ul class="space-y-1">
-                    {edu.highlights.map((highlight, i) => (
-                      <li key={i} class="flex items-start">
+                    {edu.highlights.map((highlight) => (
+                      <li class="flex items-start">
                         <span class="text-primary mr-2">•</span>
                         <span class="text-sm text-muted-foreground">{highlight}</span>
                       </li>
@@ -82,9 +81,8 @@ const certifications = [
         <h3 class="text-xl font-semibold mb-4">Certifications</h3>
         <div class="flex flex-col gap-3">
           {
-            certifications.map((cert, index) => (
+            certifications.map((cert) => (
               <Card
-                key={index}
                 className="hover:shadow-lg transition-all duration-200 dark:border-muted dark:hover:border-primary/20 dark:hover:shadow-xl dark:hover:shadow-primary/5"
                 client:load
               >

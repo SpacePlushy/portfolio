@@ -28,7 +28,7 @@ import type {
 } from '../types/image';
 import { 
   createMockBrowserCapabilities,
-  createMockResponsiveSource,
+  // createMockResponsiveSource, // Currently unused
   setupImageTestMocks,
 } from '../test/utils/test-utils';
 
@@ -442,7 +442,7 @@ describe('Image Utilities', () => {
       const params: ImageOptimizationParams = { width: 800 };
 
       const url = buildOptimizedImageUrl(baseUrl, params);
-      expect(url).toStartWith(baseUrl);
+      expect(url.startsWith(baseUrl)).toBeTruthy();
     });
   });
 

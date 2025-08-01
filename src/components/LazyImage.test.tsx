@@ -5,12 +5,12 @@
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+// import userEvent from '@testing-library/user-event'; // Currently unused
 import React from 'react';
 import { LazyImage } from './LazyImage';
 import type { LazyImageProps } from '../types/image';
 import { 
-  createMockImageData,
+  // createMockImageData, // Currently unused
   createMockResponsiveSource,
   setupImageTestMocks,
   axeTestHelper,

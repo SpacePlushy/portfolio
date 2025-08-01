@@ -77,16 +77,16 @@ const experiences = [
             </CardHeader>
             <CardContent className="space-y-4">
               <ul class="space-y-2">
-                {exp.description.map((item, i) => (
-                  <li key={i} class="flex items-start">
+                {exp.description.map((item) => (
+                  <li class="flex items-start">
                     <span class="text-primary mr-2 mt-1">•</span>
                     <span class="text-muted-foreground">{item}</span>
                   </li>
                 ))}
               </ul>
               <div class="flex flex-wrap gap-2 pt-2">
-                {exp.technologies.map((tech, i) => (
-                  <Badge key={i} variant="outline" className="text-xs">
+                {exp.technologies.map((tech) => (
+                  <Badge variant="outline" className="text-xs">
                     {tech}
                   </Badge>
                 ))}

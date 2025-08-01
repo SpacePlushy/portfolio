@@ -88,6 +88,10 @@ export const mockIntersectionObserver = () => {
     observe: vi.fn(),
     unobserve: vi.fn(),
     disconnect: vi.fn(),
+    root: null,
+    rootMargin: '0px',
+    thresholds: [0],
+    takeRecords: vi.fn().mockReturnValue([]),
   };
 
   // Store original to restore later
@@ -377,7 +381,7 @@ export const measureRenderTime = async (renderFn: () => Promise<void> | void): P
 export const simulateSlowNetwork = () => {
   const originalFetch = global.fetch;
   
-  global.fetch = vi.fn().mockImplementation((...args) => {
+  global.fetch = vi.fn().mockImplementation((...args: Parameters<typeof fetch>) => {
     return new Promise((resolve) => {
       setTimeout(() => {
         resolve(originalFetch(...args));
@@ -398,10 +402,10 @@ export const simulateNetworkError = () => {
 };
 
 export const simulateImageLoadError = () => {
-  const mockImage = mockImage();
+  const imageMock = mockImage();
   
   // Override to always trigger error
-  global.Image = class extends mockImage.MockImage {
+  global.Image = class extends imageMock.MockImage {
     constructor() {
       super();
       setTimeout(() => {

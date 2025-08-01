@@ -216,9 +216,11 @@ if (isMainThread) {
     }
   }
 
-  export default ImageProcessorPool;
+}
 
-} else {
+export default ImageProcessorPool;
+
+if (!isMainThread) {
   // Worker thread - Image processing
   const workerId = workerData.workerId;
   
@@ -267,7 +269,7 @@ if (isMainThread) {
     });
 
     // Get metadata
-    const metadata = await sharpInstance.metadata();
+    // const metadata = await sharpInstance.metadata(); // Currently unused
 
     // Apply transformations
     if (options.width || options.height) {
