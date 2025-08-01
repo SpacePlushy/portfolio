@@ -84,14 +84,12 @@ WORKDIR /app
 COPY --from=dependencies --chown=astro:astro /app/node_modules ./node_modules
 COPY --from=dependencies --chown=astro:astro /app/package*.json ./
 
-# Copy built application and startup scripts
+# Copy built application
 COPY --from=builder --chown=astro:astro /app/dist ./dist
-COPY --from=builder --chown=astro:astro /app/scripts ./scripts
 
-# Create cache directories and make scripts executable
+# Create cache directories
 RUN mkdir -p .cache/images tmp && \
-    chown -R astro:astro .cache tmp scripts && \
-    chmod +x scripts/start-server.js
+    chown -R astro:astro .cache tmp
 
 # Set production environment
 ENV NODE_ENV=production
@@ -117,5 +115,5 @@ EXPOSE 4321
 # Use tini for proper signal handling
 ENTRYPOINT ["tini", "--"]
 
-# Start application with startup script
-CMD ["node", "scripts/start-server.js"]
+# Start application directly
+CMD ["node", "./dist/server/entry.mjs"]

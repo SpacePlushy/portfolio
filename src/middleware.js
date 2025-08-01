@@ -59,7 +59,10 @@ const SECURITY_CONFIG = {
     allowedBots: [
       'googlebot', 'bingbot', 'slurp', 'duckduckbot', 'baiduspider',
       'yandexbot', 'facebookexternalhit', 'twitterbot', 'linkedinbot',
-      'whatsapp', 'telegrambot', 'applebot', 'seznambot'
+      'whatsapp', 'telegrambot', 'applebot', 'seznambot',
+      // Monitoring and health check services
+      'kube-probe', 'GoogleHC', 'UptimeRobot', 'Pingdom', 'StatusCake',
+      'Site24x7', 'NewRelicPinger', 'blackbox-exporter'
     ],
     suspiciousPatterns: [
       /bot|crawler|spider|scraper|wget|curl|python|java|go-http|okhttp/i,
