@@ -466,6 +466,11 @@ export async function onRequest(context, next) {
   const ip = getClientIP(request);
   const path = url.pathname;
   const method = request.method;
+
+  // Skip heavy processing for health checks during startup
+  if (path === '/api/health' || path === '/api/readiness') {
+    return await next();
+  }
   
   // CDN detection and optimization
   const cdnInfo = detectCDN(request);

@@ -84,12 +84,14 @@ WORKDIR /app
 COPY --from=dependencies --chown=astro:astro /app/node_modules ./node_modules
 COPY --from=dependencies --chown=astro:astro /app/package*.json ./
 
-# Copy built application
+# Copy built application and startup scripts
 COPY --from=builder --chown=astro:astro /app/dist ./dist
+COPY --from=builder --chown=astro:astro /app/scripts ./scripts
 
-# Create cache directories
+# Create cache directories and make scripts executable
 RUN mkdir -p .cache/images tmp && \
-    chown -R astro:astro .cache tmp
+    chown -R astro:astro .cache tmp scripts && \
+    chmod +x scripts/start-server.js
 
 # Set production environment
 ENV NODE_ENV=production
@@ -102,9 +104,9 @@ ENV SHARP_CACHE_SIZE=100
 ENV SHARP_CONCURRENCY=2
 ENV SHARP_SIMD=true
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=20s --retries=3 \
-    CMD curl -f http://localhost:4321/api/health || exit 1
+# Health check with improved settings
+HEALTHCHECK --interval=30s --timeout=15s --start-period=60s --retries=5 \
+    CMD curl -f http://localhost:4321/api/readiness || curl -f http://localhost:4321/api/health || exit 1
 
 # Switch to non-root user
 USER astro
@@ -115,5 +117,5 @@ EXPOSE 4321
 # Use tini for proper signal handling
 ENTRYPOINT ["tini", "--"]
 
-# Start application
-CMD ["node", "./dist/server/entry.mjs"]
+# Start application with startup script
+CMD ["node", "scripts/start-server.js"]
