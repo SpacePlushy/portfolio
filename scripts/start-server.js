@@ -4,12 +4,12 @@
  * Handles graceful startup, dependency checks, and error handling
  */
 
-const path = require('path');
-const { spawn } = require('child_process');
+import path from 'path';
+import { spawn } from 'child_process';
 
 // Configuration
 const SERVER_PATH = './dist/server/entry.mjs';
-const PORT = process.env.PORT || 4321;
+const PORT = process.env.PORT || 8080;
 const HOST = process.env.HOST || '0.0.0.0';
 const STARTUP_TIMEOUT = 60000; // 60 seconds
 
@@ -25,7 +25,7 @@ async function preflightChecks() {
   
   // Check if server file exists
   try {
-    const fs = require('fs');
+    const fs = await import('fs');
     if (!fs.existsSync(SERVER_PATH)) {
       throw new Error(`Server entry point not found: ${SERVER_PATH}`);
     }
@@ -64,7 +64,11 @@ async function startServer() {
     process.title = 'portfolio-server';
     
     // Start the server process
-    const serverProcess = spawn('node', [SERVER_PATH], {
+    // Override the port since Astro hardcodes it during build
+    const serverProcess = spawn('node', [
+      '-e',
+      `process.env.PORT = '${PORT}'; process.env.HOST = '${HOST}'; import('${SERVER_PATH}');`
+    ], {
       stdio: 'inherit',
       env: {
         ...process.env,
