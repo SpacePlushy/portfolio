@@ -15,7 +15,7 @@ describe('Readiness Endpoint', () => {
 
   describe('Basic Readiness Check', () => {
     it('should always return ready status', async () => {
-      const { GET } = await import('/Users/spaceplushy/portfolio/src/pages/api/readiness.js');
+      const { GET } = await import('../../pages/api/readiness.js');
       
       const response = await GET();
       const data = await response.json();
@@ -28,7 +28,7 @@ describe('Readiness Endpoint', () => {
     });
 
     it('should calculate uptime correctly', async () => {
-      const { GET } = await import('/Users/spaceplushy/portfolio/src/pages/api/readiness.js');
+      const { GET } = await import('../../pages/api/readiness.js');
       
       const response = await GET();
       const data = await response.json();
@@ -39,7 +39,7 @@ describe('Readiness Endpoint', () => {
     });
 
     it('should return proper headers', async () => {
-      const { GET } = await import('/Users/spaceplushy/portfolio/src/pages/api/readiness.js');
+      const { GET } = await import('../../pages/api/readiness.js');
       
       const response = await GET();
 
@@ -48,7 +48,7 @@ describe('Readiness Endpoint', () => {
     });
 
     it('should return valid timestamp', async () => {
-      const { GET } = await import('/Users/spaceplushy/portfolio/src/pages/api/readiness.js');
+      const { GET } = await import('../../pages/api/readiness.js');
       
       const response = await GET();
       const data = await response.json();
@@ -61,7 +61,7 @@ describe('Readiness Endpoint', () => {
 
   describe('Performance Tests', () => {
     it('should respond very quickly', async () => {
-      const { GET } = await import('/Users/spaceplushy/portfolio/src/pages/api/readiness.js');
+      const { GET } = await import('../../pages/api/readiness.js');
       
       const startTime = Date.now();
       const response = await GET();
@@ -73,7 +73,7 @@ describe('Readiness Endpoint', () => {
     });
 
     it('should handle high concurrency', async () => {
-      const { GET } = await import('/Users/spaceplushy/portfolio/src/pages/api/readiness.js');
+      const { GET } = await import('../../pages/api/readiness.js');
       
       // Make 100 concurrent requests
       const promises = Array(100).fill(null).map(() => GET());
@@ -92,7 +92,7 @@ describe('Readiness Endpoint', () => {
     });
 
     it('should maintain consistent response format under load', async () => {
-      const { GET } = await import('/Users/spaceplushy/portfolio/src/pages/api/readiness.js');
+      const { GET } = await import('../../pages/api/readiness.js');
       
       const responses = await Promise.all(
         Array(50).fill(null).map(() => GET())
@@ -117,7 +117,7 @@ describe('Readiness Endpoint', () => {
 
   describe('Stability Tests', () => {
     it('should never fail regardless of system state', async () => {
-      const { GET } = await import('/Users/spaceplushy/portfolio/src/pages/api/readiness.js');
+      const { GET } = await import('../../pages/api/readiness.js');
       
       // Try to stress the endpoint
       const results = [];
@@ -147,7 +147,7 @@ describe('Readiness Endpoint', () => {
       // when Date.now is mocked (which happens in other tests)
       expect(() => {
         // Just importing should work
-        import('/Users/spaceplushy/portfolio/src/pages/api/readiness.js');
+        import('../../pages/api/readiness.js');
       }).not.toThrow();
     });
   });
@@ -162,7 +162,7 @@ describe('Readiness Endpoint', () => {
         return 1000000; // Current time is before startup (clock went backwards)
       });
 
-      const { GET } = await import('/Users/spaceplushy/portfolio/src/pages/api/readiness.js');
+      const { GET } = await import('../../pages/api/readiness.js');
       
       const response = await GET();
       const data = await response.json();
@@ -174,7 +174,7 @@ describe('Readiness Endpoint', () => {
     });
 
     it('should work immediately after startup', async () => {
-      const { GET } = await import('/Users/spaceplushy/portfolio/src/pages/api/readiness.js');
+      const { GET } = await import('../../pages/api/readiness.js');
       
       const response = await GET();
       const data = await response.json();
@@ -185,7 +185,7 @@ describe('Readiness Endpoint', () => {
     });
 
     it('should handle extremely large uptime values', async () => {
-      const { GET } = await import('/Users/spaceplushy/portfolio/src/pages/api/readiness.js');
+      const { GET } = await import('../../pages/api/readiness.js');
       
       const response = await GET();
       const data = await response.json();
@@ -198,7 +198,7 @@ describe('Readiness Endpoint', () => {
 
   describe('Comparison with Health Endpoint', () => {
     it('should be simpler and faster than health endpoint', async () => {
-      const { GET: getReadiness } = await import('/Users/spaceplushy/portfolio/src/pages/api/readiness.js');
+      const { GET: getReadiness } = await import('../../pages/api/readiness.js');
       
       const start = Date.now();
       const readinessResponse = await getReadiness();
@@ -219,7 +219,7 @@ describe('Readiness Endpoint', () => {
     });
 
     it('should always return 200 status unlike health endpoint', async () => {
-      const { GET } = await import('/Users/spaceplushy/portfolio/src/pages/api/readiness.js');
+      const { GET } = await import('../../pages/api/readiness.js');
       
       // Make multiple requests at different times
       const responses = await Promise.all([

@@ -44,7 +44,7 @@ describe('Health Check Endpoint', () => {
     });
 
     // Reset globals
-    vi.doUnmock('/Users/spaceplushy/portfolio/src/pages/api/health.js');
+    vi.doUnmock('../../pages/api/health.js');
   });
 
   afterEach(() => {
@@ -59,7 +59,7 @@ describe('Health Check Endpoint', () => {
       mockFs.access.mockResolvedValue(undefined);
 
       // Import after mocks are set up
-      const { GET } = await import('/Users/spaceplushy/portfolio/src/pages/api/health.js');
+      const { GET } = await import('../../pages/api/health.js');
       
       const response = await GET();
       const data = await response.json();
@@ -83,7 +83,7 @@ describe('Health Check Endpoint', () => {
 
       mockFs.access.mockResolvedValue(undefined);
 
-      const { GET } = await import('/Users/spaceplushy/portfolio/src/pages/api/health.js');
+      const { GET } = await import('../../pages/api/health.js');
       
       const response = await GET();
       const data = await response.json();
@@ -104,7 +104,7 @@ describe('Health Check Endpoint', () => {
 
       mockFs.access.mockResolvedValue(undefined);
 
-      const { GET } = await import('/Users/spaceplushy/portfolio/src/pages/api/health.js');
+      const { GET } = await import('../../pages/api/health.js');
       
       const response = await GET();
       const data = await response.json();
@@ -132,7 +132,7 @@ describe('Health Check Endpoint', () => {
       // Wait for initialization to complete
       vi.runAllTimers();
 
-      const { GET } = await import('/Users/spaceplushy/portfolio/src/pages/api/health.js');
+      const { GET } = await import('../../pages/api/health.js');
       
       // Allow some time for async initialization
       await vi.runAllTimersAsync();
@@ -149,7 +149,7 @@ describe('Health Check Endpoint', () => {
       mockFs.access.mockResolvedValue(undefined);
 
       // Import immediately without waiting for initialization
-      const { GET } = await import('/Users/spaceplushy/portfolio/src/pages/api/health.js');
+      const { GET } = await import('../../pages/api/health.js');
       
       const response = await GET();
       const data = await response.json();
@@ -167,7 +167,7 @@ describe('Health Check Endpoint', () => {
 
       mockFs.access.mockResolvedValue(undefined);
 
-      const { GET } = await import('/Users/spaceplushy/portfolio/src/pages/api/health.js');
+      const { GET } = await import('../../pages/api/health.js');
       
       // Wait for initialization attempt
       await vi.runAllTimersAsync();
@@ -188,7 +188,7 @@ describe('Health Check Endpoint', () => {
 
       mockFs.access.mockResolvedValue(undefined);
 
-      const { GET } = await import('/Users/spaceplushy/portfolio/src/pages/api/health.js');
+      const { GET } = await import('../../pages/api/health.js');
       
       // Fast-forward past timeout
       vi.advanceTimersByTime(6000);
@@ -214,7 +214,7 @@ describe('Health Check Endpoint', () => {
       mockRedis.createClient.mockReturnValue(mockClient);
       mockFs.access.mockResolvedValue(undefined);
 
-      const { GET } = await import('/Users/spaceplushy/portfolio/src/pages/api/health.js');
+      const { GET } = await import('../../pages/api/health.js');
       
       // Wait for Redis initialization
       await vi.runAllTimersAsync();
@@ -233,7 +233,7 @@ describe('Health Check Endpoint', () => {
 
       mockFs.access.mockResolvedValue(undefined);
 
-      const { GET } = await import('/Users/spaceplushy/portfolio/src/pages/api/health.js');
+      const { GET } = await import('../../pages/api/health.js');
       
       const response = await GET();
       const data = await response.json();
@@ -254,7 +254,7 @@ describe('Health Check Endpoint', () => {
       mockRedis.createClient.mockReturnValue(mockClient);
       mockFs.access.mockResolvedValue(undefined);
 
-      const { GET } = await import('/Users/spaceplushy/portfolio/src/pages/api/health.js');
+      const { GET } = await import('../../pages/api/health.js');
       
       // Wait for Redis initialization attempt
       await vi.runAllTimersAsync();
@@ -277,7 +277,7 @@ describe('Health Check Endpoint', () => {
       mockRedis.createClient.mockReturnValue(mockClient);
       mockFs.access.mockResolvedValue(undefined);
 
-      const { GET } = await import('/Users/spaceplushy/portfolio/src/pages/api/health.js');
+      const { GET } = await import('../../pages/api/health.js');
       
       // Fast-forward past timeout
       vi.advanceTimersByTime(6000);
@@ -294,7 +294,7 @@ describe('Health Check Endpoint', () => {
 
       mockFs.access.mockResolvedValue(undefined);
 
-      const { GET } = await import('/Users/spaceplushy/portfolio/src/pages/api/health.js');
+      const { GET } = await import('../../pages/api/health.js');
       
       const response = await GET();
       const data = await response.json();
@@ -307,7 +307,7 @@ describe('Health Check Endpoint', () => {
     it('should report filesystem as healthy when files are accessible', async () => {
       mockFs.access.mockResolvedValue(undefined);
 
-      const { GET } = await import('/Users/spaceplushy/portfolio/src/pages/api/health.js');
+      const { GET } = await import('../../pages/api/health.js');
       
       const response = await GET();
       const data = await response.json();
@@ -320,7 +320,7 @@ describe('Health Check Endpoint', () => {
     it('should handle filesystem access failure gracefully', async () => {
       mockFs.access.mockRejectedValue(new Error('ENOENT: no such file or directory'));
 
-      const { GET } = await import('/Users/spaceplushy/portfolio/src/pages/api/health.js');
+      const { GET } = await import('../../pages/api/health.js');
       
       const response = await GET();
       const data = await response.json();
@@ -334,7 +334,7 @@ describe('Health Check Endpoint', () => {
       // Mock fs.access to hang
       mockFs.access.mockImplementation(() => new Promise(() => {})); // Never resolves
 
-      const { GET } = await import('/Users/spaceplushy/portfolio/src/pages/api/health.js');
+      const { GET } = await import('../../pages/api/health.js');
       
       // Fast-forward past timeout
       vi.advanceTimersByTime(3000);
@@ -353,7 +353,7 @@ describe('Health Check Endpoint', () => {
       // Mock Sharp and Redis as degraded
       mockFs.access.mockRejectedValue(new Error('Not ready'));
 
-      const { GET } = await import('/Users/spaceplushy/portfolio/src/pages/api/health.js');
+      const { GET } = await import('../../pages/api/health.js');
       
       // Simulate early startup (within 60 seconds)
       vi.spyOn(Date, 'now').mockReturnValue(1000); // Very early in startup
@@ -369,7 +369,7 @@ describe('Health Check Endpoint', () => {
     it('should be strict after startup period', async () => {
       mockFs.access.mockRejectedValue(new Error('Critical failure'));
 
-      const { GET } = await import('/Users/spaceplushy/portfolio/src/pages/api/health.js');
+      const { GET } = await import('../../pages/api/health.js');
       
       // Simulate well after startup (beyond 60 seconds)
       vi.spyOn(Date, 'now').mockReturnValue(Date.now() + 120000); // 2 minutes after startup
@@ -387,7 +387,7 @@ describe('Health Check Endpoint', () => {
         throw new Error('Unexpected error during startup');
       });
 
-      const { GET } = await import('/Users/spaceplushy/portfolio/src/pages/api/health.js');
+      const { GET } = await import('../../pages/api/health.js');
       
       // Simulate startup period
       vi.spyOn(Date, 'now').mockReturnValue(1000);
@@ -406,7 +406,7 @@ describe('Health Check Endpoint', () => {
         throw new Error('Critical system error');
       });
 
-      const { GET } = await import('/Users/spaceplushy/portfolio/src/pages/api/health.js');
+      const { GET } = await import('../../pages/api/health.js');
       
       // Simulate well after startup
       vi.spyOn(Date, 'now').mockReturnValue(Date.now() + 120000);
@@ -425,7 +425,7 @@ describe('Health Check Endpoint', () => {
     it('should include all required response fields', async () => {
       mockFs.access.mockResolvedValue(undefined);
 
-      const { GET } = await import('/Users/spaceplushy/portfolio/src/pages/api/health.js');
+      const { GET } = await import('../../pages/api/health.js');
       
       const response = await GET();
       const data = await response.json();
@@ -445,7 +445,7 @@ describe('Health Check Endpoint', () => {
     it('should have proper cache control headers', async () => {
       mockFs.access.mockResolvedValue(undefined);
 
-      const { GET } = await import('/Users/spaceplushy/portfolio/src/pages/api/health.js');
+      const { GET } = await import('../../pages/api/health.js');
       
       const response = await GET();
 
@@ -457,7 +457,7 @@ describe('Health Check Endpoint', () => {
       process.env.npm_package_version = '2.1.0';
       mockFs.access.mockResolvedValue(undefined);
 
-      const { GET } = await import('/Users/spaceplushy/portfolio/src/pages/api/health.js');
+      const { GET } = await import('../../pages/api/health.js');
       
       const response = await GET();
       const data = await response.json();
@@ -469,7 +469,7 @@ describe('Health Check Endpoint', () => {
       delete process.env.npm_package_version;
       mockFs.access.mockResolvedValue(undefined);
 
-      const { GET } = await import('/Users/spaceplushy/portfolio/src/pages/api/health.js');
+      const { GET } = await import('../../pages/api/health.js');
       
       const response = await GET();
       const data = await response.json();
@@ -482,7 +482,7 @@ describe('Health Check Endpoint', () => {
     it('should respond quickly under normal conditions', async () => {
       mockFs.access.mockResolvedValue(undefined);
 
-      const { GET } = await import('/Users/spaceplushy/portfolio/src/pages/api/health.js');
+      const { GET } = await import('../../pages/api/health.js');
       
       const startTime = Date.now();
       const response = await GET();
@@ -497,7 +497,7 @@ describe('Health Check Endpoint', () => {
     it('should handle concurrent health check requests', async () => {
       mockFs.access.mockResolvedValue(undefined);
 
-      const { GET } = await import('/Users/spaceplushy/portfolio/src/pages/api/health.js');
+      const { GET } = await import('../../pages/api/health.js');
       
       // Make multiple concurrent requests
       const promises = Array(10).fill(null).map(() => GET());

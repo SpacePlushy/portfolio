@@ -91,7 +91,7 @@ describe('Security Middleware', () => {
 
   describe('Middleware Skipping Logic', () => {
     it('should skip middleware for health endpoints', async () => {
-      const { onRequest } = await import('/Users/spaceplushy/portfolio/src/middleware.js');
+      const { onRequest } = await import('../../middleware.js');
       
       const healthPaths = ['/api/health', '/api/readiness'];
 
@@ -106,7 +106,7 @@ describe('Security Middleware', () => {
     });
 
     it('should skip middleware for static assets', async () => {
-      const { onRequest } = await import('/Users/spaceplushy/portfolio/src/middleware.js');
+      const { onRequest } = await import('../../middleware.js');
       
       const staticPaths = [
         '/favicon.ico',
@@ -127,7 +127,7 @@ describe('Security Middleware', () => {
     });
 
     it('should handle Chrome DevTools requests', async () => {
-      const { onRequest } = await import('/Users/spaceplushy/portfolio/src/middleware.js');
+      const { onRequest } = await import('../../middleware.js');
       
       mockUrl.pathname = '/.well-known/appspecific/com.chrome.devtools.json';
       const result = await onRequest(mockContext, mockNext);
@@ -139,7 +139,7 @@ describe('Security Middleware', () => {
 
   describe('CDN Detection', () => {
     it('should detect Cloudflare CDN', async () => {
-      const { onRequest } = await import('/Users/spaceplushy/portfolio/src/middleware.js');
+      const { onRequest } = await import('../../middleware.js');
       
 
       mockRequest.headers.set('cf-ray', '12345-LAX');
@@ -153,7 +153,7 @@ describe('Security Middleware', () => {
     });
 
     it('should detect AWS CloudFront', async () => {
-      const { onRequest } = await import('/Users/spaceplushy/portfolio/src/middleware.js');
+      const { onRequest } = await import('../../middleware.js');
       
       mockRequest.headers.set('x-amz-cf-id', 'EXAMPLE123');
       mockRequest.headers.set('x-cache', 'Hit from cloudfront');
@@ -165,7 +165,7 @@ describe('Security Middleware', () => {
     });
 
     it('should detect Digital Ocean CDN', async () => {
-      const { onRequest } = await import('/Users/spaceplushy/portfolio/src/middleware.js');
+      const { onRequest } = await import('../../middleware.js');
       
       mockRequest.headers.set('x-digitalocean-cache-status', 'HIT');
       
@@ -176,7 +176,7 @@ describe('Security Middleware', () => {
     });
 
     it('should detect generic CDN', async () => {
-      const { onRequest } = await import('/Users/spaceplushy/portfolio/src/middleware.js');
+      const { onRequest } = await import('../../middleware.js');
       
       mockRequest.headers.set('x-cache', 'HIT');
       mockRequest.headers.set('x-served-by', 'cache-server-1');
@@ -190,7 +190,7 @@ describe('Security Middleware', () => {
 
   describe('Asset Type Detection', () => {
     it('should correctly identify image assets', async () => {
-      const { onRequest } = await import('/Users/spaceplushy/portfolio/src/middleware.js');
+      const { onRequest } = await import('../../middleware.js');
       
       const imagePaths = ['/image.png', '/photo.jpg', '/icon.svg', '/banner.webp'];
 
@@ -206,7 +206,7 @@ describe('Security Middleware', () => {
     });
 
     it('should correctly identify font assets', async () => {
-      const { onRequest } = await import('/Users/spaceplushy/portfolio/src/middleware.js');
+      const { onRequest } = await import('../../middleware.js');
       
       mockUrl.pathname = '/font.woff2';
       const result = await onRequest(mockContext, mockNext);
@@ -217,7 +217,7 @@ describe('Security Middleware', () => {
     });
 
     it('should correctly identify script and style assets', async () => {
-      const { onRequest } = await import('/Users/spaceplushy/portfolio/src/middleware.js');
+      const { onRequest } = await import('../../middleware.js');
       
       const scriptPaths = ['/bundle.js', '/styles.css'];
 
@@ -235,7 +235,7 @@ describe('Security Middleware', () => {
     });
 
     it('should correctly identify page assets', async () => {
-      const { onRequest } = await import('/Users/spaceplushy/portfolio/src/middleware.js');
+      const { onRequest } = await import('../../middleware.js');
       
       mockUrl.pathname = '/software-engineer';
       const result = await onRequest(mockContext, mockNext);
@@ -247,7 +247,7 @@ describe('Security Middleware', () => {
 
   describe('Rate Limiting', () => {
     it('should allow requests within rate limit', async () => {
-      const { onRequest } = await import('/Users/spaceplushy/portfolio/src/middleware.js');
+      const { onRequest } = await import('../../middleware.js');
       
       mockUrl.pathname = '/api/test';
       mockRequest.headers.set('cf-connecting-ip', '192.168.1.1');
@@ -260,7 +260,7 @@ describe('Security Middleware', () => {
     });
 
     it('should enforce rate limits and block excessive requests', async () => {
-      const { onRequest } = await import('/Users/spaceplushy/portfolio/src/middleware.js');
+      const { onRequest } = await import('../../middleware.js');
       
       mockUrl.pathname = '/api/test';
       mockRequest.headers.set('cf-connecting-ip', '192.168.1.2');
@@ -283,7 +283,7 @@ describe('Security Middleware', () => {
     });
 
     it('should have different limits for different endpoints', async () => {
-      const { onRequest } = await import('/Users/spaceplushy/portfolio/src/middleware.js');
+      const { onRequest } = await import('../../middleware.js');
       
       // Health endpoint should have higher limit
       mockUrl.pathname = '/api/health';
@@ -301,7 +301,7 @@ describe('Security Middleware', () => {
     });
 
     it('should reset rate limits after window expires', async () => {
-      const { onRequest } = await import('/Users/spaceplushy/portfolio/src/middleware.js');
+      const { onRequest } = await import('../../middleware.js');
       
       mockUrl.pathname = '/api/test';
       mockRequest.headers.set('cf-connecting-ip', '192.168.1.4');
@@ -330,7 +330,7 @@ describe('Security Middleware', () => {
 
   describe('Bot Detection', () => {
     it('should detect and allow legitimate search engine bots', async () => {
-      const { onRequest } = await import('/Users/spaceplushy/portfolio/src/middleware.js');
+      const { onRequest } = await import('../../middleware.js');
       
       const legitimateBots = [
         'Googlebot/2.1 (+http://www.google.com/bot.html)',
@@ -352,7 +352,7 @@ describe('Security Middleware', () => {
     });
 
     it('should detect suspicious bots', async () => {
-      const { onRequest } = await import('/Users/spaceplushy/portfolio/src/middleware.js');
+      const { onRequest } = await import('../../middleware.js');
       
       const suspiciousBots = [
         'python-requests/2.28.1',
@@ -378,7 +378,7 @@ describe('Security Middleware', () => {
     });
 
     it('should classify regular users as human', async () => {
-      const { onRequest } = await import('/Users/spaceplushy/portfolio/src/middleware.js');
+      const { onRequest } = await import('../../middleware.js');
       
       const humanUserAgents = [
         'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
@@ -399,7 +399,7 @@ describe('Security Middleware', () => {
     });
 
     it('should increase confidence with missing headers', async () => {
-      const { onRequest } = await import('/Users/spaceplushy/portfolio/src/middleware.js');
+      const { onRequest } = await import('../../middleware.js');
       
       // Remove typical browser headers
       mockRequest.headers.delete('user-agent');
@@ -417,7 +417,7 @@ describe('Security Middleware', () => {
     });
 
     it('should track and use behavioral signals', async () => {
-      const { onRequest } = await import('/Users/spaceplushy/portfolio/src/middleware.js');
+      const { onRequest } = await import('../../middleware.js');
       
       mockRequest.headers.set('cf-connecting-ip', '192.168.1.100');
       mockRequest.headers.set('user-agent', 'SuspiciousBot/1.0');
@@ -443,7 +443,7 @@ describe('Security Middleware', () => {
 
   describe('Security Headers', () => {
     it('should add comprehensive security headers', async () => {
-      const { onRequest } = await import('/Users/spaceplushy/portfolio/src/middleware.js');
+      const { onRequest } = await import('../../middleware.js');
       
       const result = await onRequest(mockContext, mockNext);
 
@@ -460,7 +460,7 @@ describe('Security Middleware', () => {
       const originalEnv = process.env.NODE_ENV;
       process.env.NODE_ENV = 'production';
 
-      const { onRequest } = await import('/Users/spaceplushy/portfolio/src/middleware.js');
+      const { onRequest } = await import('../../middleware.js');
       
       const result = await onRequest(mockContext, mockNext);
 
@@ -474,7 +474,7 @@ describe('Security Middleware', () => {
       const originalEnv = process.env.NODE_ENV;
       process.env.NODE_ENV = 'development';
 
-      const { onRequest } = await import('/Users/spaceplushy/portfolio/src/middleware.js');
+      const { onRequest } = await import('../../middleware.js');
       
       const result = await onRequest(mockContext, mockNext);
 
@@ -484,7 +484,7 @@ describe('Security Middleware', () => {
     });
 
     it('should not override CDN headers', async () => {
-      const { onRequest } = await import('/Users/spaceplushy/portfolio/src/middleware.js');
+      const { onRequest } = await import('../../middleware.js');
       
       // Set some CDN headers that should be preserved
       mockResponse.headers.set('cf-cache-status', 'HIT');
@@ -500,7 +500,7 @@ describe('Security Middleware', () => {
 
   describe('Cache Control Headers', () => {
     it('should set appropriate cache headers for API routes', async () => {
-      const { onRequest } = await import('/Users/spaceplushy/portfolio/src/middleware.js');
+      const { onRequest } = await import('../../middleware.js');
       
       mockUrl.pathname = '/api/users';
       const result = await onRequest(mockContext, mockNext);
@@ -511,7 +511,7 @@ describe('Security Middleware', () => {
     });
 
     it('should set long cache headers for static assets', async () => {
-      const { onRequest } = await import('/Users/spaceplushy/portfolio/src/middleware.js');
+      const { onRequest } = await import('../../middleware.js');
       
       mockUrl.pathname = '/styles.css';
       const result = await onRequest(mockContext, mockNext);
@@ -521,7 +521,7 @@ describe('Security Middleware', () => {
     });
 
     it('should set medium cache headers for images', async () => {
-      const { onRequest } = await import('/Users/spaceplushy/portfolio/src/middleware.js');
+      const { onRequest } = await import('../../middleware.js');
       
       mockUrl.pathname = '/image.png';
       const result = await onRequest(mockContext, mockNext);
@@ -531,7 +531,7 @@ describe('Security Middleware', () => {
     });
 
     it('should set short cache headers for dynamic pages', async () => {
-      const { onRequest } = await import('/Users/spaceplushy/portfolio/src/middleware.js');
+      const { onRequest } = await import('../../middleware.js');
       
       mockUrl.pathname = '/software-engineer';
       const result = await onRequest(mockContext, mockNext);
@@ -542,7 +542,7 @@ describe('Security Middleware', () => {
     });
 
     it('should add appropriate Vary headers', async () => {
-      const { onRequest } = await import('/Users/spaceplushy/portfolio/src/middleware.js');
+      const { onRequest } = await import('../../middleware.js');
       
       mockUrl.pathname = '/';
       const result = await onRequest(mockContext, mockNext);
@@ -554,7 +554,7 @@ describe('Security Middleware', () => {
     });
 
     it('should add ETag for cacheable content', async () => {
-      const { onRequest } = await import('/Users/spaceplushy/portfolio/src/middleware.js');
+      const { onRequest } = await import('../../middleware.js');
       
       mockUrl.pathname = '/software-engineer';
       const result = await onRequest(mockContext, mockNext);
@@ -566,7 +566,7 @@ describe('Security Middleware', () => {
 
   describe('Compression Hints', () => {
     it('should add compression hints for compressible content', async () => {
-      const { onRequest } = await import('/Users/spaceplushy/portfolio/src/middleware.js');
+      const { onRequest } = await import('../../middleware.js');
       
       mockUrl.pathname = '/';
       mockRequest.headers.set('accept-encoding', 'gzip, br');
@@ -578,7 +578,7 @@ describe('Security Middleware', () => {
     });
 
     it('should prefer brotli over gzip', async () => {
-      const { onRequest } = await import('/Users/spaceplushy/portfolio/src/middleware.js');
+      const { onRequest } = await import('../../middleware.js');
       
       mockUrl.pathname = '/styles.css';
       mockRequest.headers.set('accept-encoding', 'gzip, deflate, br');
@@ -590,7 +590,7 @@ describe('Security Middleware', () => {
     });
 
     it('should not add compression hints for non-compressible content', async () => {
-      const { onRequest } = await import('/Users/spaceplushy/portfolio/src/middleware.js');
+      const { onRequest } = await import('../../middleware.js');
       
       mockUrl.pathname = '/image.png';
       mockRequest.headers.set('accept-encoding', 'gzip, br');
@@ -604,7 +604,7 @@ describe('Security Middleware', () => {
 
   describe('Performance and Monitoring Headers', () => {
     it('should add response time header', async () => {
-      const { onRequest } = await import('/Users/spaceplushy/portfolio/src/middleware.js');
+      const { onRequest } = await import('../../middleware.js');
       
       const result = await onRequest(mockContext, mockNext);
 
@@ -617,7 +617,7 @@ describe('Security Middleware', () => {
       const originalEnv = process.env.NODE_ENV;
       process.env.NODE_ENV = 'development';
 
-      const { onRequest } = await import('/Users/spaceplushy/portfolio/src/middleware.js');
+      const { onRequest } = await import('../../middleware.js');
       
       mockUrl.pathname = '/image.png';
       const result = await onRequest(mockContext, mockNext);
@@ -631,7 +631,7 @@ describe('Security Middleware', () => {
       const originalEnv = process.env.NODE_ENV;
       process.env.NODE_ENV = 'production';
 
-      const { onRequest } = await import('/Users/spaceplushy/portfolio/src/middleware.js');
+      const { onRequest } = await import('../../middleware.js');
       
       mockUrl.pathname = '/image.png';
       const result = await onRequest(mockContext, mockNext);
@@ -644,7 +644,7 @@ describe('Security Middleware', () => {
 
   describe('IP Address Detection', () => {
     it('should detect IP from Cloudflare header', async () => {
-      const { onRequest } = await import('/Users/spaceplushy/portfolio/src/middleware.js');
+      const { onRequest } = await import('../../middleware.js');
       
       mockRequest.headers.set('cf-connecting-ip', '203.0.113.1');
       mockRequest.headers.set('x-forwarded-for', '192.168.1.1, 203.0.113.1');
@@ -657,7 +657,7 @@ describe('Security Middleware', () => {
     });
 
     it('should detect IP from X-Forwarded-For header', async () => {
-      const { onRequest } = await import('/Users/spaceplushy/portfolio/src/middleware.js');
+      const { onRequest } = await import('../../middleware.js');
       
       mockRequest.headers.set('x-forwarded-for', '203.0.113.2, 192.168.1.1');
       
@@ -669,7 +669,7 @@ describe('Security Middleware', () => {
     });
 
     it('should handle multiple IP formats', async () => {
-      const { onRequest } = await import('/Users/spaceplushy/portfolio/src/middleware.js');
+      const { onRequest } = await import('../../middleware.js');
       
       const ipHeaders = [
         ['x-real-ip', '203.0.113.3'],
@@ -693,7 +693,7 @@ describe('Security Middleware', () => {
 
   describe('Error Handling and Edge Cases', () => {
     it('should handle requests with no user agent', async () => {
-      const { onRequest } = await import('/Users/spaceplushy/portfolio/src/middleware.js');
+      const { onRequest } = await import('../../middleware.js');
       
       mockRequest.headers.delete('user-agent');
       
@@ -705,7 +705,7 @@ describe('Security Middleware', () => {
     });
 
     it('should handle malformed headers gracefully', async () => {
-      const { onRequest } = await import('/Users/spaceplushy/portfolio/src/middleware.js');
+      const { onRequest } = await import('../../middleware.js');
       
       mockRequest.headers.set('accept-encoding', 'invalid-encoding-format-test');
       
@@ -715,7 +715,7 @@ describe('Security Middleware', () => {
     });
 
     it('should handle extremely long URLs', async () => {
-      const { onRequest } = await import('/Users/spaceplushy/portfolio/src/middleware.js');
+      const { onRequest } = await import('../../middleware.js');
       
       mockUrl.pathname = '/' + 'a'.repeat(2000);
       
@@ -725,7 +725,7 @@ describe('Security Middleware', () => {
     });
 
     it('should handle special characters in paths', async () => {
-      const { onRequest } = await import('/Users/spaceplushy/portfolio/src/middleware.js');
+      const { onRequest } = await import('../../middleware.js');
       
       const specialPaths = [
         '/path with spaces',
@@ -748,7 +748,7 @@ describe('Security Middleware', () => {
 
   describe('Context and Locals', () => {
     it('should populate context locals with bot check info', async () => {
-      const { onRequest } = await import('/Users/spaceplushy/portfolio/src/middleware.js');
+      const { onRequest } = await import('../../middleware.js');
       
       const result = await onRequest(mockContext, mockNext);
 
@@ -761,7 +761,7 @@ describe('Security Middleware', () => {
     });
 
     it('should populate context locals with rate limit info', async () => {
-      const { onRequest } = await import('/Users/spaceplushy/portfolio/src/middleware.js');
+      const { onRequest } = await import('../../middleware.js');
       
       const result = await onRequest(mockContext, mockNext);
 
@@ -774,7 +774,7 @@ describe('Security Middleware', () => {
 
   describe('Performance Tests', () => {
     it('should process requests quickly', async () => {
-      const { onRequest } = await import('/Users/spaceplushy/portfolio/src/middleware.js');
+      const { onRequest } = await import('../../middleware.js');
       
       const start = Date.now();
       await onRequest(mockContext, mockNext);
@@ -785,7 +785,7 @@ describe('Security Middleware', () => {
     });
 
     it('should handle concurrent requests', async () => {
-      const { onRequest } = await import('/Users/spaceplushy/portfolio/src/middleware.js');
+      const { onRequest } = await import('../../middleware.js');
       
       // Create multiple concurrent requests
       const promises = [];

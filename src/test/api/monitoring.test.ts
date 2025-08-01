@@ -35,7 +35,7 @@ describe('Monitoring API Endpoint', () => {
 
   describe('Basic Monitoring Response', () => {
     it('should return monitoring data with correct structure', async () => {
-      const { GET } = await import('/Users/spaceplushy/portfolio/src/pages/api/monitoring.js');
+      const { GET } = await import('../../pages/api/monitoring.js');
       
       const response = await GET();
       const data = await response.json();
@@ -60,7 +60,7 @@ describe('Monitoring API Endpoint', () => {
     });
 
     it('should return reasonable metric values', async () => {
-      const { GET } = await import('/Users/spaceplushy/portfolio/src/pages/api/monitoring.js');
+      const { GET } = await import('../../pages/api/monitoring.js');
       
       const response = await GET();
       const data = await response.json();
@@ -89,7 +89,7 @@ describe('Monitoring API Endpoint', () => {
     });
 
     it('should include system information', async () => {
-      const { GET } = await import('/Users/spaceplushy/portfolio/src/pages/api/monitoring.js');
+      const { GET } = await import('../../pages/api/monitoring.js');
       
       const response = await GET();
       const data = await response.json();
@@ -106,7 +106,7 @@ describe('Monitoring API Endpoint', () => {
 
   describe('Top Paths Metrics', () => {
     it('should return array of top paths with required fields', async () => {
-      const { GET } = await import('/Users/spaceplushy/portfolio/src/pages/api/monitoring.js');
+      const { GET } = await import('../../pages/api/monitoring.js');
       
       const response = await GET();
       const data = await response.json();
@@ -127,7 +127,7 @@ describe('Monitoring API Endpoint', () => {
     });
 
     it('should include expected common paths', async () => {
-      const { GET } = await import('/Users/spaceplushy/portfolio/src/pages/api/monitoring.js');
+      const { GET } = await import('../../pages/api/monitoring.js');
       
       const response = await GET();
       const data = await response.json();
@@ -141,7 +141,7 @@ describe('Monitoring API Endpoint', () => {
     });
 
     it('should have reasonable response time values', async () => {
-      const { GET } = await import('/Users/spaceplushy/portfolio/src/pages/api/monitoring.js');
+      const { GET } = await import('../../pages/api/monitoring.js');
       
       const response = await GET();
       const data = await response.json();
@@ -160,7 +160,7 @@ describe('Monitoring API Endpoint', () => {
 
   describe('Top User Agents Metrics', () => {
     it('should return array of user agents with classifications', async () => {
-      const { GET } = await import('/Users/spaceplushy/portfolio/src/pages/api/monitoring.js');
+      const { GET } = await import('../../pages/api/monitoring.js');
       
       const response = await GET();
       const data = await response.json();
@@ -181,7 +181,7 @@ describe('Monitoring API Endpoint', () => {
     });
 
     it('should include realistic user agent strings', async () => {
-      const { GET } = await import('/Users/spaceplushy/portfolio/src/pages/api/monitoring.js');
+      const { GET } = await import('../../pages/api/monitoring.js');
       
       const response = await GET();
       const data = await response.json();
@@ -198,7 +198,7 @@ describe('Monitoring API Endpoint', () => {
     });
 
     it('should have proper classification distribution', async () => {
-      const { GET } = await import('/Users/spaceplushy/portfolio/src/pages/api/monitoring.js');
+      const { GET } = await import('../../pages/api/monitoring.js');
       
       const response = await GET();
       const data = await response.json();
@@ -217,7 +217,7 @@ describe('Monitoring API Endpoint', () => {
 
   describe('Recent Events', () => {
     it('should return array of recent security events', async () => {
-      const { GET } = await import('/Users/spaceplushy/portfolio/src/pages/api/monitoring.js');
+      const { GET } = await import('../../pages/api/monitoring.js');
       
       const response = await GET();
       const data = await response.json();
@@ -245,7 +245,7 @@ describe('Monitoring API Endpoint', () => {
     });
 
     it('should include different types of security events', async () => {
-      const { GET } = await import('/Users/spaceplushy/portfolio/src/pages/api/monitoring.js');
+      const { GET } = await import('../../pages/api/monitoring.js');
       
       const response = await GET();
       const data = await response.json();
@@ -265,7 +265,7 @@ describe('Monitoring API Endpoint', () => {
     });
 
     it('should have reasonable event details', async () => {
-      const { GET } = await import('/Users/spaceplushy/portfolio/src/pages/api/monitoring.js');
+      const { GET } = await import('../../pages/api/monitoring.js');
       
       const response = await GET();
       const data = await response.json();
@@ -307,7 +307,7 @@ describe('Monitoring API Endpoint', () => {
     });
 
     it('should have recent timestamps', async () => {
-      const { GET } = await import('/Users/spaceplushy/portfolio/src/pages/api/monitoring.js');
+      const { GET } = await import('../../pages/api/monitoring.js');
       
       const response = await GET();
       const data = await response.json();
@@ -333,7 +333,7 @@ describe('Monitoring API Endpoint', () => {
         arrayBuffers: 10485760 // 10MB in bytes
       });
 
-      const { GET } = await import('/Users/spaceplushy/portfolio/src/pages/api/monitoring.js');
+      const { GET } = await import('../../pages/api/monitoring.js');
       
       const response = await GET();
       const data = await response.json();
@@ -353,7 +353,7 @@ describe('Monitoring API Endpoint', () => {
         arrayBuffers: 0
       });
 
-      const { GET } = await import('/Users/spaceplushy/portfolio/src/pages/api/monitoring.js');
+      const { GET } = await import('../../pages/api/monitoring.js');
       
       const response = await GET();
       const data = await response.json();
@@ -372,7 +372,7 @@ describe('Monitoring API Endpoint', () => {
         throw new Error('Process error');
       });
 
-      const { GET } = await import('/Users/spaceplushy/portfolio/src/pages/api/monitoring.js');
+      const { GET } = await import('../../pages/api/monitoring.js');
       
       const response = await GET();
       const data = await response.json();
@@ -389,7 +389,7 @@ describe('Monitoring API Endpoint', () => {
         throw new Error('Memory usage error');
       });
 
-      const { GET } = await import('/Users/spaceplushy/portfolio/src/pages/api/monitoring.js');
+      const { GET } = await import('../../pages/api/monitoring.js');
       
       const response = await GET();
       const data = await response.json();
@@ -403,7 +403,7 @@ describe('Monitoring API Endpoint', () => {
         throw new Error('Test error');
       });
 
-      const { GET } = await import('/Users/spaceplushy/portfolio/src/pages/api/monitoring.js');
+      const { GET } = await import('../../pages/api/monitoring.js');
       
       const response = await GET();
 
@@ -414,7 +414,7 @@ describe('Monitoring API Endpoint', () => {
 
   describe('Performance Tests', () => {
     it('should respond quickly under normal conditions', async () => {
-      const { GET } = await import('/Users/spaceplushy/portfolio/src/pages/api/monitoring.js');
+      const { GET } = await import('../../pages/api/monitoring.js');
       
       const startTime = Date.now();
       const response = await GET();
@@ -426,7 +426,7 @@ describe('Monitoring API Endpoint', () => {
     });
 
     it('should handle concurrent requests', async () => {
-      const { GET } = await import('/Users/spaceplushy/portfolio/src/pages/api/monitoring.js');
+      const { GET } = await import('../../pages/api/monitoring.js');
       
       // Make multiple concurrent requests
       const promises = Array(10).fill(null).map(() => GET());
@@ -449,7 +449,7 @@ describe('Monitoring API Endpoint', () => {
 
   describe('Data Consistency', () => {
     it('should have consistent data relationships', async () => {
-      const { GET } = await import('/Users/spaceplushy/portfolio/src/pages/api/monitoring.js');
+      const { GET } = await import('../../pages/api/monitoring.js');
       
       const response = await GET();
       const data = await response.json();
@@ -470,7 +470,7 @@ describe('Monitoring API Endpoint', () => {
     });
 
     it('should have realistic proportions', async () => {
-      const { GET } = await import('/Users/spaceplushy/portfolio/src/pages/api/monitoring.js');
+      const { GET } = await import('../../pages/api/monitoring.js');
       
       const response = await GET();
       const data = await response.json();
@@ -488,7 +488,7 @@ describe('Monitoring API Endpoint', () => {
 
   describe('Response Format Validation', () => {
     it('should return properly formatted JSON', async () => {
-      const { GET } = await import('/Users/spaceplushy/portfolio/src/pages/api/monitoring.js');
+      const { GET } = await import('../../pages/api/monitoring.js');
       
       const response = await GET();
       const text = await response.text();
@@ -502,7 +502,7 @@ describe('Monitoring API Endpoint', () => {
     });
 
     it('should have consistent array lengths', async () => {
-      const { GET } = await import('/Users/spaceplushy/portfolio/src/pages/api/monitoring.js');
+      const { GET } = await import('../../pages/api/monitoring.js');
       
       const response = await GET();
       const data = await response.json();

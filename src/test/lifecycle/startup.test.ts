@@ -74,7 +74,7 @@ describe('Application Startup Lifecycle', () => {
       mockSharp.default.mockReturnValue(mockSharpInstance);
 
       // Mock the health endpoint module to access initialization
-      const healthModule = await import('/Users/spaceplushy/portfolio/src/pages/api/health.js');
+      const healthModule = await import('../../pages/api/health.js');
 
       // Allow initialization to complete
       await vi.runAllTimersAsync();
@@ -89,7 +89,7 @@ describe('Application Startup Lifecycle', () => {
         throw new Error('Sharp initialization failed');
       });
 
-      const healthModule = await import('/Users/spaceplushy/portfolio/src/pages/api/health.js');
+      const healthModule = await import('../../pages/api/health.js');
 
       await vi.runAllTimersAsync();
 
@@ -105,7 +105,7 @@ describe('Application Startup Lifecycle', () => {
 
       process.env.REDIS_URL = undefined;
 
-      const healthModule = await import('/Users/spaceplushy/portfolio/src/pages/api/health.js');
+      const healthModule = await import('../../pages/api/health.js');
 
       // Advance past Sharp timeout
       vi.advanceTimersByTime(6000);
@@ -133,7 +133,7 @@ describe('Application Startup Lifecycle', () => {
       };
       mockSharp.default.mockReturnValue(mockSharpInstance);
 
-      const healthModule = await import('/Users/spaceplushy/portfolio/src/pages/api/health.js');
+      const healthModule = await import('../../pages/api/health.js');
 
       await vi.runAllTimersAsync();
 
@@ -159,7 +159,7 @@ describe('Application Startup Lifecycle', () => {
       };
       mockSharp.default.mockReturnValue(mockSharpInstance);
 
-      const healthModule = await import('/Users/spaceplushy/portfolio/src/pages/api/health.js');
+      const healthModule = await import('../../pages/api/health.js');
 
       await vi.runAllTimersAsync();
 
@@ -182,7 +182,7 @@ describe('Application Startup Lifecycle', () => {
       };
       mockSharp.default.mockReturnValue(mockSharpInstance);
 
-      const healthModule = await import('/Users/spaceplushy/portfolio/src/pages/api/health.js');
+      const healthModule = await import('../../pages/api/health.js');
 
       await vi.runAllTimersAsync();
 
@@ -205,7 +205,7 @@ describe('Application Startup Lifecycle', () => {
       };
       mockSharp.default.mockReturnValue(mockSharpInstance);
 
-      const healthModule = await import('/Users/spaceplushy/portfolio/src/pages/api/health.js');
+      const healthModule = await import('../../pages/api/health.js');
 
       // Advance past Redis timeout
       vi.advanceTimersByTime(6000);
@@ -231,7 +231,7 @@ describe('Application Startup Lifecycle', () => {
       };
       mockRedis.createClient.mockReturnValue(mockClient);
 
-      const healthModule = await import('/Users/spaceplushy/portfolio/src/pages/api/health.js');
+      const healthModule = await import('../../pages/api/health.js');
 
       await vi.runAllTimersAsync();
 
@@ -260,7 +260,7 @@ describe('Application Startup Lifecycle', () => {
       };
       mockRedis.createClient.mockReturnValue(mockClient);
 
-      const healthModule = await import('/Users/spaceplushy/portfolio/src/pages/api/health.js');
+      const healthModule = await import('../../pages/api/health.js');
 
       await vi.runAllTimersAsync();
 
@@ -290,7 +290,7 @@ describe('Application Startup Lifecycle', () => {
       };
       mockRedis.createClient.mockReturnValue(mockClient);
 
-      const healthModule = await import('/Users/spaceplushy/portfolio/src/pages/api/health.js');
+      const healthModule = await import('../../pages/api/health.js');
 
       await vi.runAllTimersAsync();
 
@@ -312,7 +312,7 @@ describe('Application Startup Lifecycle', () => {
       };
       mockRedis.createClient.mockReturnValue(mockClient);
 
-      const healthModule = await import('/Users/spaceplushy/portfolio/src/pages/api/health.js');
+      const healthModule = await import('../../pages/api/health.js');
 
       await vi.runAllTimersAsync();
 
@@ -339,7 +339,7 @@ describe('Application Startup Lifecycle', () => {
       };
       mockRedis.createClient.mockReturnValue(mockClient);
 
-      const healthModule = await import('/Users/spaceplushy/portfolio/src/pages/api/health.js');
+      const healthModule = await import('../../pages/api/health.js');
 
       // Advance time to let both complete
       vi.advanceTimersByTime(200);
@@ -363,7 +363,7 @@ describe('Application Startup Lifecycle', () => {
 
       mockFs.access.mockResolvedValue(undefined);
 
-      const { GET } = await import('/Users/spaceplushy/portfolio/src/pages/api/health.js');
+      const { GET } = await import('../../pages/api/health.js');
 
       // Make health check request during startup (before Sharp completes)
       vi.spyOn(Date, 'now').mockReturnValue(1000); // Very early startup
@@ -384,7 +384,7 @@ describe('Application Startup Lifecycle', () => {
 
       mockFs.access.mockRejectedValue(new Error('File system error'));
 
-      const { GET } = await import('/Users/spaceplushy/portfolio/src/pages/api/health.js');
+      const { GET } = await import('../../pages/api/health.js');
 
       await vi.runAllTimersAsync();
 
@@ -405,7 +405,7 @@ describe('Application Startup Lifecycle', () => {
 
       mockFs.access.mockResolvedValue(undefined);
 
-      const { GET } = await import('/Users/spaceplushy/portfolio/src/pages/api/health.js');
+      const { GET } = await import('../../pages/api/health.js');
 
       // Check before initialization
       const earlyResponse = await GET();
@@ -430,7 +430,7 @@ describe('Application Startup Lifecycle', () => {
       });
 
       expect(async () => {
-        const healthModule = await import('/Users/spaceplushy/portfolio/src/pages/api/health.js');
+        const healthModule = await import('../../pages/api/health.js');
         await vi.runAllTimersAsync();
       }).not.toThrow();
 
@@ -452,7 +452,7 @@ describe('Application Startup Lifecycle', () => {
         throw new Error('Redis client creation failed');
       });
 
-      const healthModule = await import('/Users/spaceplushy/portfolio/src/pages/api/health.js');
+      const healthModule = await import('../../pages/api/health.js');
 
       await vi.runAllTimersAsync();
 
@@ -476,7 +476,7 @@ describe('Application Startup Lifecycle', () => {
       };
       mockSharp.default.mockReturnValue(mockSharpInstance);
 
-      const healthModule = await import('/Users/spaceplushy/portfolio/src/pages/api/health.js');
+      const healthModule = await import('../../pages/api/health.js');
 
       await vi.runAllTimersAsync();
 
@@ -495,7 +495,7 @@ describe('Application Startup Lifecycle', () => {
         throw new Error('Sharp error');
       });
 
-      const healthModule = await import('/Users/spaceplushy/portfolio/src/pages/api/health.js');
+      const healthModule = await import('../../pages/api/health.js');
 
       expect(async () => {
         await vi.runAllTimersAsync();
@@ -515,7 +515,7 @@ describe('Application Startup Lifecycle', () => {
       };
       mockSharp.default.mockReturnValue(mockSharpInstance);
 
-      const healthModule = await import('/Users/spaceplushy/portfolio/src/pages/api/health.js');
+      const healthModule = await import('../../pages/api/health.js');
 
       await vi.runAllTimersAsync();
 
@@ -533,7 +533,7 @@ describe('Application Startup Lifecycle', () => {
       };
       mockSharp.default.mockReturnValue(mockSharpInstance);
 
-      const healthModule = await import('/Users/spaceplushy/portfolio/src/pages/api/health.js');
+      const healthModule = await import('../../pages/api/health.js');
 
       await vi.runAllTimersAsync();
 
@@ -554,7 +554,7 @@ describe('Application Startup Lifecycle', () => {
       };
       mockSharp.default.mockReturnValue(mockSharpInstance);
 
-      const healthModule = await import('/Users/spaceplushy/portfolio/src/pages/api/health.js');
+      const healthModule = await import('../../pages/api/health.js');
 
       await vi.runAllTimersAsync();
 
@@ -582,7 +582,7 @@ describe('Application Startup Lifecycle', () => {
       mockRedis.createClient.mockReturnValue(mockClient);
 
       const startTime = Date.now();
-      const healthModule = await import('/Users/spaceplushy/portfolio/src/pages/api/health.js');
+      const healthModule = await import('../../pages/api/health.js');
 
       await vi.runAllTimersAsync();
       const endTime = Date.now();
@@ -605,7 +605,7 @@ describe('Application Startup Lifecycle', () => {
       };
       mockRedis.createClient.mockReturnValue(mockClient);
 
-      const healthModule = await import('/Users/spaceplushy/portfolio/src/pages/api/health.js');
+      const healthModule = await import('../../pages/api/health.js');
 
       await vi.runAllTimersAsync();
 
@@ -624,7 +624,7 @@ describe('Application Startup Lifecycle', () => {
       };
       mockSharp.default.mockReturnValue(mockSharpInstance);
 
-      const healthModule = await import('/Users/spaceplushy/portfolio/src/pages/api/health.js');
+      const healthModule = await import('../../pages/api/health.js');
 
       expect(async () => {
         await vi.runAllTimersAsync();
@@ -637,7 +637,7 @@ describe('Application Startup Lifecycle', () => {
   describe('Readiness vs Liveness Separation', () => {
     it('should handle readiness check independently of initialization', async () => {
       // Import readiness endpoint
-      const { GET: getReadiness } = await import('/Users/spaceplushy/portfolio/src/pages/api/readiness.js');
+      const { GET: getReadiness } = await import('../../pages/api/readiness.js');
 
       // Mock slow initialization
       const mockSharpInstance = {
@@ -657,8 +657,8 @@ describe('Application Startup Lifecycle', () => {
     });
 
     it('should differentiate between liveness and readiness', async () => {
-      const { GET: getHealth } = await import('/Users/spaceplushy/portfolio/src/pages/api/health.js');
-      const { GET: getReadiness } = await import('/Users/spaceplushy/portfolio/src/pages/api/readiness.js');
+      const { GET: getHealth } = await import('../../pages/api/health.js');
+      const { GET: getReadiness } = await import('../../pages/api/readiness.js');
 
       // Mock initialization in progress
       mockSharp.default.mockImplementation(() => {
