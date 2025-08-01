@@ -2,36 +2,36 @@ spec:
   name: portfolio
   region: nyc
   services:
-  - name: web
-    dockerfile_path: Dockerfile
-    source_dir: /
+  - dockerfile_path: Dockerfile
     github:
-      repo: SpacePlushy/portfolio
       branch: build-fixes
       deploy_on_push: true
-    http_port: 8080
-    instance_count: 1
-    instance_size_slug: basic-xxs
+      repo: SpacePlushy/portfolio
     health_check:
+      failure_threshold: 3
       http_path: /api/health
       initial_delay_seconds: 30
       period_seconds: 10
-      timeout_seconds: 5
       success_threshold: 1
-      failure_threshold: 3
+      timeout_seconds: 5
+    http_port: 8080
+    instance_count: 1
+    instance_size_slug: basic-xxs
+    name: web
+    source_dir: /
     envs:
     - key: NODE_ENV
-      value: production
       scope: RUN_AND_BUILD_TIME
+      value: production
     - key: PORT
+      scope: RUN_TIME
       value: "8080"
-      scope: RUN_TIME
     - key: HOST
+      scope: RUN_TIME
       value: "0.0.0.0"
-      scope: RUN_TIME
     - key: RATE_LIMIT_ENABLED
-      value: "true"
       scope: RUN_TIME
+      value: "true"
     - key: BOT_DETECTION_ENABLED
-      value: "true"
       scope: RUN_TIME
+      value: "true"
