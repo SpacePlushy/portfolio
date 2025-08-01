@@ -6,9 +6,16 @@ services:
   environment_slug: node-js
   http_port: 8080
   instance_count: 1
-  instance_size_slug: basic-xxs
+  instance_size_slug: basic-xs
   routes:
   - path: /
+  health_check:
+    http_path: /api/health
+    initial_delay_seconds: 30
+    period_seconds: 10
+    timeout_seconds: 5
+    success_threshold: 1
+    failure_threshold: 3
   envs:
   - key: NODE_ENV
     value: production
@@ -16,3 +23,15 @@ services:
     value: 0.0.0.0
   - key: PORT
     value: "8080"
+  - key: RATE_LIMIT_ENABLED
+    value: "true"
+  - key: BOT_DETECTION_ENABLED
+    value: "true"
+  - key: CDN_OPTIMIZATION_ENABLED
+    value: "true"
+  - key: COMPRESSION_ENABLED
+    value: "true"
+  - key: CACHE_STATIC_ASSETS
+    value: "true"
+  - key: CDN_PROVIDER
+    value: "digitalocean"

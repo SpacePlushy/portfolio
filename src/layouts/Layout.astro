@@ -1,6 +1,7 @@
 ---
 import '../styles/global.css';
 import Favicon from '@/components/Favicon.astro';
+import Analytics from '@/components/Analytics.astro';
 ---
 
 <!doctype html>
@@ -40,6 +41,9 @@ import Favicon from '@/components/Favicon.astro';
         localStorage.setItem('theme', theme);
       }
     </script>
+    
+    <!-- Analytics Integration -->
+    <Analytics />
   </head>
   <body>
     <slot />

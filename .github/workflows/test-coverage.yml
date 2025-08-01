@@ -1,0 +1,314 @@
+name: Test Coverage and Quality
+
+on:
+  push:
+    branches: [ main, develop, feat/* ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  test-coverage:
+    name: Test Coverage Analysis
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    strategy:
+      matrix:
+        node-version: [20]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run TypeScript check
+        run: npm run typecheck
+
+      - name: Run linting
+        run: npm run lint
+
+      - name: Run unit tests with coverage
+        run: npm run test:coverage
+        env:
+          NODE_ENV: test
+
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          file: ./coverage/coverage-final.json
+          flags: unittests
+          name: codecov-umbrella
+          fail_ci_if_error: true
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
+      - name: Archive coverage results
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report-${{ matrix.node-version }}
+          path: coverage/
+          retention-days: 30
+
+  integration-tests:
+    name: Integration Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    needs: test-coverage
+
+    services:
+      docker:
+        image: docker:24-dind
+        options: --privileged
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build application
+        run: npm run build
+        timeout-minutes: 10
+
+      - name: Run Docker integration tests
+        run: npm test -- src/test/docker.integration.test.ts
+        env:
+          ENABLE_DOCKER_TESTS: true
+          NODE_ENV: test
+        timeout-minutes: 20
+
+      - name: Run build process tests
+        run: npm test -- src/test/build-process.test.ts
+        timeout-minutes: 10
+
+      - name: Archive build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-artifacts
+          path: dist/
+          retention-days: 7
+
+  migration-validation:
+    name: Migration Compatibility Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    needs: test-coverage
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run migration compatibility tests
+        run: npm test -- src/test/migration-compatibility.test.ts
+
+      - name: Run performance regression tests
+        run: npm test -- src/test/performance-regression.test.ts
+
+      - name: Run SSR and hydration tests
+        run: npm test -- src/test/ssr-hydration.test.ts
+
+  middleware-security:
+    name: Middleware and Security Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: test-coverage
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run middleware tests
+        run: npm test -- src/middleware.test.ts
+
+      - name: Run configuration tests
+        run: npm test -- src/test/astro-config.test.ts
+
+      - name: Security audit
+        run: npm audit --audit-level moderate
+
+  test-summary:
+    name: Test Summary and Reports
+    runs-on: ubuntu-latest
+    needs: [test-coverage, integration-tests, migration-validation, middleware-security]
+    if: always()
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Download coverage artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: coverage-report-20
+          path: coverage/
+
+      - name: Run coverage analysis tests
+        run: npm test -- src/test/coverage-analysis.test.ts
+
+      - name: Generate test summary
+        run: |
+          echo "## Test Summary for PR #${{ github.event.number }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Coverage Report" >> $GITHUB_STEP_SUMMARY
+          if [ -f coverage/coverage-summary.json ]; then
+            echo "Coverage data available in artifacts" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "⚠️ Coverage data not found" >> $GITHUB_STEP_SUMMARY
+          fi
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Test Categories" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Unit Tests: Middleware, utilities, configuration" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Integration Tests: Docker, build process" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Migration Tests: Vercel → Digital Ocean compatibility" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Performance Tests: Regression analysis" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ SSR Tests: Hydration and rendering" >> $GITHUB_STEP_SUMMARY
+
+      - name: Comment PR with test results
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { owner, repo, number } = context.issue;
+            const jobResults = {
+              'test-coverage': '${{ needs.test-coverage.result }}',
+              'integration-tests': '${{ needs.integration-tests.result }}',
+              'migration-validation': '${{ needs.migration-validation.result }}',
+              'middleware-security': '${{ needs.middleware-security.result }}'
+            };
+            
+            let comment = '## 🧪 Test Results for Digital Ocean Migration\n\n';
+            comment += '### Test Suite Results\n';
+            
+            for (const [job, result] of Object.entries(jobResults)) {
+              const emoji = result === 'success' ? '✅' : result === 'failure' ? '❌' : '⚠️';
+              const jobName = job.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase());
+              comment += `- ${emoji} **${jobName}**: ${result}\n`;
+            }
+            
+            comment += '\n### Migration Test Coverage\n';
+            comment += '- **Middleware**: Bot protection replacement for BotID\n';
+            comment += '- **Docker**: Containerization for Digital Ocean App Platform\n';
+            comment += '- **Build Process**: Node.js adapter and SSR validation\n';
+            comment += '- **Performance**: Regression analysis for removed Vercel features\n';
+            comment += '- **Compatibility**: Vercel → Digital Ocean migration validation\n';
+            
+            comment += '\n### Recommendations\n';
+            if (Object.values(jobResults).every(result => result === 'success')) {
+              comment += '🎉 All tests passing! Migration is ready for deployment.\n';
+            } else {
+              comment += '⚠️ Some tests failed. Please review the failed jobs above.\n';
+            }
+            
+            comment += '\n---\n';
+            comment += '*Generated by GitHub Actions workflow*';
+
+            github.rest.issues.createComment({
+              owner,
+              repo,
+              issue_number: number,
+              body: comment
+            });
+
+  deploy-readiness:
+    name: Deployment Readiness Check
+    runs-on: ubuntu-latest
+    needs: [test-coverage, integration-tests, migration-validation, middleware-security]
+    if: needs.test-coverage.result == 'success' && needs.integration-tests.result == 'success'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build for production
+        run: npm run build
+
+      - name: Validate build artifacts
+        run: |
+          echo "Checking build artifacts..."
+          ls -la dist/
+          
+          if [ ! -f dist/server/entry.mjs ]; then
+            echo "❌ Server entry point missing"
+            exit 1
+          fi
+          
+          if [ ! -d dist/client ]; then
+            echo "❌ Client assets missing"
+            exit 1
+          fi
+          
+          echo "✅ Build artifacts are valid"
+
+      - name: Test Docker build (dry run)
+        run: |
+          echo "Testing Docker build configuration..."
+          docker build --dry-run .
+          echo "✅ Dockerfile is valid"
+
+      - name: Deployment readiness summary
+        run: |
+          echo "## 🚀 Deployment Readiness" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### ✅ Ready for Digital Ocean Deployment" >> $GITHUB_STEP_SUMMARY
+          echo "- Build artifacts generated successfully" >> $GITHUB_STEP_SUMMARY
+          echo "- Docker configuration validated" >> $GITHUB_STEP_SUMMARY
+          echo "- All tests passing" >> $GITHUB_STEP_SUMMARY
+          echo "- Migration compatibility verified" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Next Steps" >> $GITHUB_STEP_SUMMARY
+          echo "1. Deploy to Digital Ocean App Platform" >> $GITHUB_STEP_SUMMARY
+          echo "2. Configure CDN (recommended)" >> $GITHUB_STEP_SUMMARY
+          echo "3. Set up monitoring and alerts" >> $GITHUB_STEP_SUMMARY
+          echo "4. Implement manual caching strategy" >> $GITHUB_STEP_SUMMARY

@@ -1,0 +1,453 @@
+---
+/**
+ * Flexible Analytics Component for Portfolio Website
+ * Supports Google Analytics 4, Plausible Analytics, and self-hosted solutions
+ * Includes GDPR compliance, privacy controls, and performance tracking
+ */
+
+// Get analytics configuration from environment variables
+const {
+  // Provider selection
+  ANALYTICS_PROVIDER = 'none', // 'ga4', 'plausible', 'custom', 'none'
+  
+  // Google Analytics 4
+  GA4_MEASUREMENT_ID,
+  GA4_CONFIG_OPTIONS = '{}',
+  
+  // Plausible Analytics
+  PLAUSIBLE_DOMAIN,
+  PLAUSIBLE_SRC = 'https://plausible.io/js/script.js',
+  PLAUSIBLE_OPTIONS = '{}',
+  
+  // Custom/Self-hosted
+  CUSTOM_ANALYTICS_SRC,
+  CUSTOM_ANALYTICS_CONFIG = '{}',
+  
+  // Privacy and compliance
+  ANALYTICS_CONSENT_REQUIRED = 'true',
+  ANALYTICS_ANONYMIZE_IP = 'true',
+  ANALYTICS_COOKIE_LESS = 'false',
+  
+  // Performance tracking
+  ANALYTICS_TRACK_PERFORMANCE = 'true',
+  ANALYTICS_TRACK_ERRORS = 'true',
+  
+  // Development mode
+  ANALYTICS_DEBUG = process.env.NODE_ENV === 'development' ? 'true' : 'false'
+} = import.meta.env;
+
+// Parse configuration options
+const ga4Options = JSON.parse(GA4_CONFIG_OPTIONS);
+const plausibleOptions = JSON.parse(PLAUSIBLE_OPTIONS);
+const customConfig = JSON.parse(CUSTOM_ANALYTICS_CONFIG);
+
+// Determine if analytics should be loaded
+const shouldLoadAnalytics = ANALYTICS_PROVIDER !== 'none' && 
+  (ANALYTICS_PROVIDER === 'ga4' && GA4_MEASUREMENT_ID) ||
+  (ANALYTICS_PROVIDER === 'plausible' && PLAUSIBLE_DOMAIN) ||
+  (ANALYTICS_PROVIDER === 'custom' && CUSTOM_ANALYTICS_SRC);
+
+// Privacy settings
+const consentRequired = ANALYTICS_CONSENT_REQUIRED === 'true';
+const anonymizeIP = ANALYTICS_ANONYMIZE_IP === 'true';
+const cookieLess = ANALYTICS_COOKIE_LESS === 'true';
+const trackPerformance = ANALYTICS_TRACK_PERFORMANCE === 'true';
+const trackErrors = ANALYTICS_TRACK_ERRORS === 'true';
+const debugMode = ANALYTICS_DEBUG === 'true';
+---
+
+{shouldLoadAnalytics && (
+  <>
+    <!-- Analytics Configuration and Initialization -->
+    <script is:inline define:vars={{ 
+      provider: ANALYTICS_PROVIDER,
+      ga4Id: GA4_MEASUREMENT_ID,
+      ga4Options,
+      plausibleDomain: PLAUSIBLE_DOMAIN,
+      plausibleSrc: PLAUSIBLE_SRC,
+      plausibleOptions,
+      customSrc: CUSTOM_ANALYTICS_SRC,
+      customConfig,
+      consentRequired,
+      anonymizeIP,
+      cookieLess,
+      trackPerformance,
+      trackErrors,
+      debugMode
+    }}>
+      // Analytics Manager - Handles multiple providers and privacy compliance
+      window.AnalyticsManager = {
+        initialized: false,
+        provider: provider,
+        consentGiven: false,
+        
+        // Initialize analytics based on consent and configuration
+        init() {
+          if (this.initialized) return;
+          
+          // Check for existing consent
+          if (consentRequired) {
+            this.consentGiven = this.checkConsent();
+            if (!this.consentGiven) {
+              this.showConsentBanner();
+              return;
+            }
+          } else {
+            this.consentGiven = true;
+          }
+          
+          this.loadProvider();
+          this.setupErrorTracking();
+          this.setupPerformanceTracking();
+          this.initialized = true;
+          
+          if (debugMode) {
+            console.log('[Analytics] Initialized with provider:', provider);
+          }
+        },
+        
+        // Check for stored consent
+        checkConsent() {
+          try {
+            return localStorage.getItem('analytics-consent') === 'granted';
+          } catch (e) {
+            return false;
+          }
+        },
+        
+        // Store consent preference
+        setConsent(granted) {
+          try {
+            localStorage.setItem('analytics-consent', granted ? 'granted' : 'denied');
+            this.consentGiven = granted;
+            
+            if (granted && !this.initialized) {
+              this.loadProvider();
+              this.setupErrorTracking();
+              this.setupPerformanceTracking();
+              this.initialized = true;
+            }
+          } catch (e) {
+            console.warn('[Analytics] Could not store consent preference');
+          }
+        },
+        
+        // Show consent banner
+        showConsentBanner() {
+          if (document.getElementById('analytics-consent-banner')) return;
+          
+          const banner = document.createElement('div');
+          banner.id = 'analytics-consent-banner';
+          banner.style.cssText = `
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            padding: 16px;
+            border-radius: 8px;
+            z-index: 10000;
+            font-family: system-ui, -apple-system, sans-serif;
+            font-size: 14px;
+            line-height: 1.4;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+          `;
+          
+          banner.innerHTML = `
+            <div style="margin-bottom: 12px;">
+              This website uses analytics to improve user experience. We respect your privacy and only collect anonymous usage data.
+            </div>
+            <div>
+              <button id="analytics-accept" style="background: #22c55e; color: white; border: none; padding: 8px 16px; border-radius: 4px; margin-right: 8px; cursor: pointer;">Accept</button>
+              <button id="analytics-decline" style="background: #6b7280; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer;">Decline</button>
+            </div>
+          `;
+          
+          document.body.appendChild(banner);
+          
+          // Handle consent buttons
+          document.getElementById('analytics-accept').onclick = () => {
+            this.setConsent(true);
+            banner.remove();
+          };
+          
+          document.getElementById('analytics-decline').onclick = () => {
+            this.setConsent(false);
+            banner.remove();
+          };
+        },
+        
+        // Load the selected analytics provider
+        loadProvider() {
+          switch (provider) {
+            case 'ga4':
+              this.loadGoogleAnalytics();
+              break;
+            case 'plausible':
+              this.loadPlausible();
+              break;
+            case 'custom':
+              this.loadCustomAnalytics();
+              break;
+          }
+        },
+        
+        // Load Google Analytics 4
+        loadGoogleAnalytics() {
+          if (!ga4Id) return;
+          
+          // Load gtag script
+          const script = document.createElement('script');
+          script.async = true;
+          script.src = `https://www.googletagmanager.com/gtag/js?id=${ga4Id}`;
+          document.head.appendChild(script);
+          
+          // Initialize gtag
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          window.gtag = gtag;
+          
+          gtag('js', new Date());
+          
+          // Configure GA4 with privacy settings
+          const config = {
+            anonymize_ip: anonymizeIP,
+            allow_google_signals: !cookieLess,
+            allow_ad_personalization_signals: false,
+            ...ga4Options
+          };
+          
+          gtag('config', ga4Id, config);
+          
+          if (debugMode) {
+            console.log('[Analytics] Google Analytics 4 loaded with config:', config);
+          }
+        },
+        
+        // Load Plausible Analytics
+        loadPlausible() {
+          if (!plausibleDomain) return;
+          
+          const script = document.createElement('script');
+          script.defer = true;
+          script.src = plausibleSrc;
+          script.setAttribute('data-domain', plausibleDomain);
+          
+          // Apply Plausible options as data attributes
+          Object.entries(plausibleOptions).forEach(([key, value]) => {
+            script.setAttribute(`data-${key}`, value);
+          });
+          
+          document.head.appendChild(script);
+          
+          // Create plausible function
+          window.plausible = window.plausible || function() { 
+            (window.plausible.q = window.plausible.q || []).push(arguments);
+          };
+          
+          if (debugMode) {
+            console.log('[Analytics] Plausible Analytics loaded for domain:', plausibleDomain);
+          }
+        },
+        
+        // Load custom analytics
+        loadCustomAnalytics() {
+          if (!customSrc) return;
+          
+          const script = document.createElement('script');
+          script.async = true;
+          script.src = customSrc;
+          document.head.appendChild(script);
+          
+          // Store custom config globally for the analytics script to use
+          window.customAnalyticsConfig = customConfig;
+          
+          if (debugMode) {
+            console.log('[Analytics] Custom analytics loaded from:', customSrc);
+          }
+        },
+        
+        // Track custom events
+        trackEvent(eventName, properties = {}) {
+          if (!this.consentGiven || !this.initialized) return;
+          
+          switch (provider) {
+            case 'ga4':
+              if (window.gtag) {
+                gtag('event', eventName, properties);
+              }
+              break;
+            case 'plausible':
+              if (window.plausible) {
+                plausible(eventName, { props: properties });
+              }
+              break;
+            case 'custom':
+              if (window.customAnalytics && window.customAnalytics.track) {
+                window.customAnalytics.track(eventName, properties);
+              }
+              break;
+          }
+          
+          if (debugMode) {
+            console.log('[Analytics] Event tracked:', eventName, properties);
+          }
+        },
+        
+        // Track page views
+        trackPageView(path, title) {
+          if (!this.consentGiven || !this.initialized) return;
+          
+          switch (provider) {
+            case 'ga4':
+              if (window.gtag) {
+                gtag('config', ga4Id, {
+                  page_path: path,
+                  page_title: title
+                });
+              }
+              break;
+            case 'plausible':
+              if (window.plausible) {
+                plausible('pageview', { u: window.location.href });
+              }
+              break;
+            case 'custom':
+              if (window.customAnalytics && window.customAnalytics.pageview) {
+                window.customAnalytics.pageview(path, title);
+              }
+              break;
+          }
+          
+          if (debugMode) {
+            console.log('[Analytics] Page view tracked:', path, title);
+          }
+        },
+        
+        // Setup error tracking
+        setupErrorTracking() {
+          if (!trackErrors) return;
+          
+          window.addEventListener('error', (event) => {
+            this.trackEvent('error', {
+              message: event.message,
+              filename: event.filename,
+              lineno: event.lineno,
+              colno: event.colno,
+              stack: event.error?.stack?.substring(0, 500)
+            });
+          });
+          
+          window.addEventListener('unhandledrejection', (event) => {
+            this.trackEvent('unhandled_promise_rejection', {
+              reason: event.reason?.toString?.() || 'Unknown error'
+            });
+          });
+        },
+        
+        // Setup performance tracking
+        setupPerformanceTracking() {
+          if (!trackPerformance) return;
+          
+          // Track Core Web Vitals
+          if ('PerformanceObserver' in window) {
+            // Largest Contentful Paint
+            new PerformanceObserver((entryList) => {
+              for (const entry of entryList.getEntries()) {
+                this.trackEvent('web_vital_lcp', {
+                  value: Math.round(entry.startTime),
+                  rating: entry.startTime < 2500 ? 'good' : entry.startTime < 4000 ? 'needs_improvement' : 'poor'
+                });
+              }
+            }).observe({ entryTypes: ['largest-contentful-paint'] });
+            
+            // First Input Delay
+            new PerformanceObserver((entryList) => {
+              for (const entry of entryList.getEntries()) {
+                this.trackEvent('web_vital_fid', {
+                  value: Math.round(entry.processingStart - entry.startTime),
+                  rating: entry.processingStart - entry.startTime < 100 ? 'good' : entry.processingStart - entry.startTime < 300 ? 'needs_improvement' : 'poor'
+                });
+              }
+            }).observe({ entryTypes: ['first-input'] });
+            
+            // Cumulative Layout Shift
+            new PerformanceObserver((entryList) => {
+              let clsValue = 0;
+              for (const entry of entryList.getEntries()) {
+                if (!entry.hadRecentInput) {
+                  clsValue += entry.value;
+                }
+              }
+              if (clsValue > 0) {
+                this.trackEvent('web_vital_cls', {
+                  value: Math.round(clsValue * 1000) / 1000,
+                  rating: clsValue < 0.1 ? 'good' : clsValue < 0.25 ? 'needs_improvement' : 'poor'
+                });
+              }
+            }).observe({ entryTypes: ['layout-shift'] });
+          }
+          
+          // Track page load performance
+          window.addEventListener('load', () => {
+            setTimeout(() => {
+              const navigation = performance.getEntriesByType('navigation')[0];
+              if (navigation) {
+                this.trackEvent('page_performance', {
+                  dns_time: Math.round(navigation.domainLookupEnd - navigation.domainLookupStart),
+                  connect_time: Math.round(navigation.connectEnd - navigation.connectStart),
+                  request_time: Math.round(navigation.responseEnd - navigation.requestStart),
+                  dom_load_time: Math.round(navigation.domContentLoadedEventEnd - navigation.navigationStart),
+                  total_load_time: Math.round(navigation.loadEventEnd - navigation.navigationStart)
+                });
+              }
+            }, 1000);
+          });
+        }
+      };
+      
+      // Initialize analytics when DOM is ready
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => {
+          window.AnalyticsManager.init();
+        });
+      } else {
+        window.AnalyticsManager.init();
+      }
+    </script>
+
+    <!-- Provider-specific scripts (only loaded when needed) -->
+    {ANALYTICS_PROVIDER === 'ga4' && GA4_MEASUREMENT_ID && (
+      <script type="application/ld+json">
+        {JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "WebSite",
+          "name": "Frank Palmisano - Professional Portfolio",
+          "url": Astro.site?.toString() || "https://frankpalmisano.com"
+        })}
+      </script>
+    )}
+  </>
+)}
+
+<!-- Analytics Debug Panel (Development Only) -->
+{debugMode && shouldLoadAnalytics && (
+  <div id="analytics-debug" style="position: fixed; top: 10px; right: 10px; background: rgba(0,0,0,0.8); color: white; padding: 10px; border-radius: 5px; font-size: 12px; z-index: 9999; max-width: 300px;">
+    <strong>Analytics Debug</strong><br/>
+    Provider: {ANALYTICS_PROVIDER}<br/>
+    Consent Required: {consentRequired ? 'Yes' : 'No'}<br/>
+    Status: <span id="analytics-status">Initializing...</span>
+    <button onclick="window.AnalyticsManager.trackEvent('debug_test', {timestamp: Date.now()})" style="margin-top: 5px; padding: 2px 6px; font-size: 10px;">Test Event</button>
+  </div>
+  
+  <script is:inline>
+    // Update debug status
+    setTimeout(() => {
+      const statusEl = document.getElementById('analytics-status');
+      if (statusEl && window.AnalyticsManager) {
+        statusEl.textContent = window.AnalyticsManager.initialized ? 'Active' : 'Waiting for consent';
+      }
+    }, 1000);
+  </script>
+)}
