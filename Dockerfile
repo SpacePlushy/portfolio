@@ -27,7 +27,7 @@ ENV SHARP_CACHE_SIZE=50
 ENV SHARP_CONCURRENCY=1
 
 # Install dependencies with proper Sharp compilation
-RUN npm ci --production --no-audit --no-fund
+RUN npm ci --omit=dev --no-audit --no-fund
 
 # Stage 2: Build application
 FROM node:20-alpine AS builder
