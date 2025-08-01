@@ -1,0 +1,42 @@
+name: portfolio-app
+region: nyc
+services:
+- name: web
+  dockerfile_path: Dockerfile
+  source_dir: /
+  github:
+    repo: SpacePlushy/portfolio
+    branch: build-fixes
+    deploy_on_push: true
+  environment_slug: node-js
+  instance_count: 1
+  instance_size_slug: basic-xs
+  http_port: 8080
+  health_check:
+    http_path: /api/health
+    initial_delay_seconds: 30
+    period_seconds: 10
+    timeout_seconds: 5
+    success_threshold: 1
+    failure_threshold: 3
+  envs:
+  - key: NODE_ENV
+    value: production
+    scope: RUN_AND_BUILD_TIME
+  - key: PORT
+    value: "8080"
+    scope: RUN_TIME
+  - key: HOST
+    value: 0.0.0.0
+    scope: RUN_TIME
+  - key: RATE_LIMIT_ENABLED
+    value: "true"
+    scope: RUN_TIME
+  - key: BOT_DETECTION_ENABLED
+    value: "true"
+    scope: RUN_TIME
+  - key: ANALYTICS_PROVIDER
+    value: "none"
+    scope: RUN_TIME
+  routes:
+  - path: /
