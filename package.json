@@ -4,6 +4,7 @@
   "version": "0.0.1",
   "scripts": {
     "dev": "astro dev",
+    "start": "node ./dist/server/entry.mjs",
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",
@@ -19,8 +20,8 @@
   },
   "dependencies": {
     "@astrojs/check": "^0.9.4",
+    "@astrojs/node": "^9.3.2",
     "@astrojs/react": "^4.3.0",
-    "@astrojs/vercel": "^8.2.3",
     "@hookform/resolvers": "^5.2.0",
     "@radix-ui/react-label": "^2.1.7",
     "@radix-ui/react-separator": "^1.1.7",
@@ -28,9 +29,7 @@
     "@tailwindcss/vite": "^4.1.11",
     "@types/react": "^19.1.8",
     "@types/react-dom": "^19.1.6",
-    "@vercel/analytics": "^1.5.0",
     "astro": "^5.12.3",
-    "botid": "^1.4.5",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lucide-react": "^0.526.0",

@@ -1,86 +1,100 @@
 ---
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 ---
 
 <section class="container mx-auto px-4 py-16" id="about">
-	<div class="max-w-6xl mx-auto space-y-12">
-		<div class="text-center space-y-4">
-			<Badge variant="outline" className="text-sm">
-				About Me
-			</Badge>
-			<h2 class="text-3xl md:text-4xl font-bold">
-				Bridging Technical Excellence with Human Connection
-			</h2>
-		</div>
+  <div class="max-w-6xl mx-auto space-y-12">
+    <div class="text-center space-y-4">
+      <Badge variant="outline" className="text-sm"> About Me </Badge>
+      <h2 class="text-3xl md:text-4xl font-bold">
+        Bridging Technical Excellence with Human Connection
+      </h2>
+    </div>
 
-		<div class="grid lg:grid-cols-3 gap-8">
-			<div class="lg:col-span-2 space-y-6">
-				<p class="text-lg text-muted-foreground leading-relaxed">
-					I'm a versatile professional with a unique blend of technical expertise and customer-focused excellence. 
-					With experience spanning from NASA spacecraft development to achieving 99% customer satisfaction ratings, 
-					I bring both analytical problem-solving skills and exceptional interpersonal abilities to every challenge.
-				</p>
-				<p class="text-lg text-muted-foreground leading-relaxed">
-					My journey has taught me that the best solutions come from understanding both the technical requirements 
-					and the human needs behind them. Whether I'm architecting embedded systems for space exploration or 
-					helping customers resolve complex issues, I approach each challenge with empathy, precision, and a 
-					commitment to excellence.
-				</p>
-			</div>
+    <div class="grid lg:grid-cols-3 gap-8">
+      <div class="lg:col-span-2 space-y-6">
+        <p class="text-lg text-muted-foreground leading-relaxed">
+          I'm a versatile professional with a unique blend of technical expertise and
+          customer-focused excellence. With experience spanning from NASA spacecraft development to
+          achieving 99% customer satisfaction ratings, I bring both analytical problem-solving
+          skills and exceptional interpersonal abilities to every challenge.
+        </p>
+        <p class="text-lg text-muted-foreground leading-relaxed">
+          My journey has taught me that the best solutions come from understanding both the
+          technical requirements and the human needs behind them. Whether I'm architecting embedded
+          systems for space exploration or helping customers resolve complex issues, I approach each
+          challenge with empathy, precision, and a commitment to excellence.
+        </p>
+      </div>
 
-			<div class="space-y-4">
-				<Card className="hover:shadow-lg transition-all duration-200 dark:border-muted dark:hover:border-primary/20 dark:hover:shadow-xl dark:hover:shadow-primary/5" client:load>
-					<CardContent className="p-6 space-y-4">
-						<h3 class="font-semibold text-lg">Quick Stats</h3>
-						<div class="space-y-3">
-							<div class="flex justify-between items-center">
-								<span class="text-muted-foreground">Experience</span>
-								<span class="font-medium">10+ Years</span>
-							</div>
-							<div class="flex justify-between items-center">
-								<span class="text-muted-foreground">NASA Project</span>
-								<span class="font-medium">Orion Spacecraft</span>
-							</div>
-							<div class="flex justify-between items-center">
-								<span class="text-muted-foreground">Customer Satisfaction</span>
-								<span class="font-medium">99%</span>
-							</div>
-							<div class="flex justify-between items-center">
-								<span class="text-muted-foreground">Industry Recognition</span>
-								<span class="font-medium">Top 4%</span>
-							</div>
-						</div>
-					</CardContent>
-				</Card>
-			</div>
-		</div>
+      <div class="space-y-4">
+        <Card
+          className="hover:shadow-lg transition-all duration-200 dark:border-muted dark:hover:border-primary/20 dark:hover:shadow-xl dark:hover:shadow-primary/5"
+          client:load
+        >
+          <CardContent className="p-6 space-y-4">
+            <h3 class="font-semibold text-lg">Quick Stats</h3>
+            <div class="space-y-3">
+              <div class="flex justify-between items-center">
+                <span class="text-muted-foreground">Experience</span>
+                <span class="font-medium">10+ Years</span>
+              </div>
+              <div class="flex justify-between items-center">
+                <span class="text-muted-foreground">NASA Project</span>
+                <span class="font-medium">Orion Spacecraft</span>
+              </div>
+              <div class="flex justify-between items-center">
+                <span class="text-muted-foreground">Customer Satisfaction</span>
+                <span class="font-medium">99%</span>
+              </div>
+              <div class="flex justify-between items-center">
+                <span class="text-muted-foreground">Industry Recognition</span>
+                <span class="font-medium">Top 4%</span>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
 
-		<div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-			<Card className="text-center hover:shadow-lg transition-all duration-200 dark:border-muted dark:hover:border-primary/20 dark:hover:shadow-xl dark:hover:shadow-primary/5" client:load>
-				<CardContent className="p-6">
-					<div class="text-3xl font-bold text-primary mb-2">10+</div>
-					<p class="text-sm text-muted-foreground">Years Experience</p>
-				</CardContent>
-			</Card>
-			<Card className="text-center hover:shadow-lg transition-all duration-200 dark:border-muted dark:hover:border-primary/20 dark:hover:shadow-xl dark:hover:shadow-primary/5" client:load>
-				<CardContent className="p-6">
-					<div class="text-3xl font-bold text-primary mb-2">NASA</div>
-					<p class="text-sm text-muted-foreground">Orion Spacecraft</p>
-				</CardContent>
-			</Card>
-			<Card className="text-center hover:shadow-lg transition-all duration-200 dark:border-muted dark:hover:border-primary/20 dark:hover:shadow-xl dark:hover:shadow-primary/5" client:load>
-				<CardContent className="p-6">
-					<div class="text-3xl font-bold text-primary mb-2">99%</div>
-					<p class="text-sm text-muted-foreground">Customer Satisfaction</p>
-				</CardContent>
-			</Card>
-			<Card className="text-center hover:shadow-lg transition-all duration-200 dark:border-muted dark:hover:border-primary/20 dark:hover:shadow-xl dark:hover:shadow-primary/5" client:load>
-				<CardContent className="p-6">
-					<div class="text-3xl font-bold text-primary mb-2">Top 4%</div>
-					<p class="text-sm text-muted-foreground">Industry Recognition</p>
-				</CardContent>
-			</Card>
-		</div>
-	</div>
+    <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <Card
+        className="text-center hover:shadow-lg transition-all duration-200 dark:border-muted dark:hover:border-primary/20 dark:hover:shadow-xl dark:hover:shadow-primary/5"
+        client:load
+      >
+        <CardContent className="p-6">
+          <div class="text-3xl font-bold text-primary mb-2">10+</div>
+          <p class="text-sm text-muted-foreground">Years Experience</p>
+        </CardContent>
+      </Card>
+      <Card
+        className="text-center hover:shadow-lg transition-all duration-200 dark:border-muted dark:hover:border-primary/20 dark:hover:shadow-xl dark:hover:shadow-primary/5"
+        client:load
+      >
+        <CardContent className="p-6">
+          <div class="text-3xl font-bold text-primary mb-2">NASA</div>
+          <p class="text-sm text-muted-foreground">Orion Spacecraft</p>
+        </CardContent>
+      </Card>
+      <Card
+        className="text-center hover:shadow-lg transition-all duration-200 dark:border-muted dark:hover:border-primary/20 dark:hover:shadow-xl dark:hover:shadow-primary/5"
+        client:load
+      >
+        <CardContent className="p-6">
+          <div class="text-3xl font-bold text-primary mb-2">99%</div>
+          <p class="text-sm text-muted-foreground">Customer Satisfaction</p>
+        </CardContent>
+      </Card>
+      <Card
+        className="text-center hover:shadow-lg transition-all duration-200 dark:border-muted dark:hover:border-primary/20 dark:hover:shadow-xl dark:hover:shadow-primary/5"
+        client:load
+      >
+        <CardContent className="p-6">
+          <div class="text-3xl font-bold text-primary mb-2">Top 4%</div>
+          <p class="text-sm text-muted-foreground">Industry Recognition</p>
+        </CardContent>
+      </Card>
+    </div>
+  </div>
 </section>

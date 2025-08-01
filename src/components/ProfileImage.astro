@@ -7,11 +7,11 @@ interface Props {
   priority?: boolean;
 }
 
-const { className = "", priority = false } = Astro.props;
+const { className = '', priority = false } = Astro.props;
 ---
 
 <div class={`relative overflow-hidden rounded-full ${className}`}>
-  <Image 
+  <Image
     src={frankHeadshot}
     alt="Frank Palmisano - Software Engineer & Customer Service Expert"
     widths={[96, 192, 256, 384]}

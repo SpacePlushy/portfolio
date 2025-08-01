@@ -5,31 +5,38 @@
 ### ❌ What DIDN'T Work Initially
 
 #### 1. **Astro CLI Integration Issues**
+
 ```bash
 # These commands installed packages but didn't update astro.config.mjs
 npm run astro add react
 npm run astro add tailwind
 ```
+
 - **Problem**: Dependencies were installed but config file remained empty
 - **Solution**: Use `--yes` flag and verify config was updated
 
 #### 2. **shadcn/ui Detection Problems**
+
 ```bash
 npx shadcn@latest init
 # Error: No Tailwind CSS configuration found
 ```
+
 - **Problem**: shadcn couldn't detect Tailwind even when installed
 - **Root Cause**: Missing proper Tailwind config file structure
 
 ### ✅ What WORKED - The Correct Flow
 
 #### 1. **Proper Astro Integration Setup**
+
 ```bash
 # Use --yes flag for better automation
 npx astro add react --yes
 npx astro add tailwind --yes
 ```
+
 **Critical**: Verify `astro.config.mjs` gets updated with:
+
 ```js
 import react from '@astrojs/react';
 import tailwindcss from '@tailwindcss/vite';
@@ -37,17 +44,19 @@ import tailwindcss from '@tailwindcss/vite';
 export default defineConfig({
   integrations: [react()],
   vite: {
-    plugins: [tailwindcss()]
-  }
+    plugins: [tailwindcss()],
+  },
 });
 ```
 
 #### 2. **Astro Uses Tailwind v4 + Vite Plugin Approach**
+
 - **Not** the traditional `@astrojs/tailwind` integration
 - Uses `@tailwindcss/vite` plugin directly
 - CSS import: `@import "tailwindcss";` (not separate base/components/utilities)
 
 #### 3. **Path Aliases Required for shadcn/ui**
+
 ```json
 // tsconfig.json
 {
@@ -59,18 +68,23 @@ export default defineConfig({
   }
 }
 ```
+
 **Note**: This is a manual configuration step - there is NO CLI tool for adding TypeScript path aliases. This is the correct prescribed approach per official documentation.
 
 #### 4. **shadcn/ui Initialization**
+
 ```bash
 npx shadcn@latest init
 ```
+
 **Detects**:
+
 - ✅ Astro framework
-- ✅ Tailwind v4 configuration  
+- ✅ Tailwind v4 configuration
 - ✅ Path aliases
 
 **Creates**:
+
 - `components.json` configuration
 - `src/lib/utils.ts` utility functions
 - Enhanced `src/styles/global.css` with design tokens
@@ -78,12 +92,13 @@ npx shadcn@latest init
 ### 🎯 The Ideal Development Approach
 
 #### **Keep Components as .astro Files**
+
 Instead of creating separate React components, use shadcn components directly in `.astro` files:
 
 ```astro
 ---
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
 ---
 
 <section class="container mx-auto">
@@ -95,11 +110,14 @@ import { Card } from "@/components/ui/card";
 ```
 
 #### **Use client: directives Strategically**
+
 - `client:load` - For interactive components
 - No directive needed for static shadcn styling
 
 #### **Manual Steps That Are Actually Correct**
+
 After investigation, these manual configurations have **NO CLI alternatives** and are the prescribed approach:
+
 1. **TypeScript Path Aliases** - Must be manually added to `tsconfig.json`
 2. **Global CSS Import** - Must be manually imported in `Layout.astro`
 
@@ -108,12 +126,14 @@ These are not workarounds but the official way to configure these features in As
 ### 🔧 Technical Architecture
 
 #### **Tailwind v4 Integration**
+
 - Uses new `@theme inline` syntax
 - OKLCH color space for better color handling
 - Design tokens through CSS custom properties
 - Automatic dark mode support
 
 #### **Component Architecture**
+
 ```
 src/
 ├── components/
@@ -136,7 +156,7 @@ src/
 ### 📋 Perfect Setup Checklist
 
 - [ ] `npx astro add react --yes`
-- [ ] `npx astro add tailwind --yes`  
+- [ ] `npx astro add tailwind --yes`
 - [ ] Verify `astro.config.mjs` was updated
 - [ ] **Manually** add path aliases to `tsconfig.json` (no CLI available)
 - [ ] **Manually** import global CSS in `Layout.astro` (no CLI available)
@@ -166,6 +186,7 @@ src/
 ### 🎨 Dark Mode Implementation
 
 #### **Theme Persistence Without Flash**
+
 ```astro
 <!-- In Layout.astro <head> -->
 <script is:inline>
@@ -178,17 +199,20 @@ src/
     }
     return 'light';
   })();
-  
+
   if (theme === 'dark') {
     document.documentElement.classList.add('dark');
   }
 </script>
 ```
+
 **Critical**: Use `is:inline` to prevent theme flash on page load.
 
 #### **Consistent Transitions**
+
 - **Problem**: Different elements fading at different speeds during theme switch
 - **Solution**: Standardize all transitions to same duration
+
 ```css
 /* Use transition-all duration-200 consistently */
 .card {
@@ -199,6 +223,7 @@ src/
 ### 🚀 Deployment Lessons
 
 #### **Vercel Framework Detection**
+
 - **Issue**: Vercel cached Next.js detection even after removing all Next.js files
 - **Solution**: Manually set framework to "Astro" or "Other" in project settings
 - **Build Settings**:
@@ -207,29 +232,36 @@ src/
   - Framework Preset: Astro
 
 #### **Repository Cleanup**
+
 - Remove any cloned subdirectories that contain other frameworks
 - Vercel scans entire repo and can get confused by nested `package.json` files
 
 ### 🎯 Component Best Practices
 
 #### **Card Hover States**
+
 ```astro
-<Card className="hover:shadow-lg transition-all duration-200 
+<Card
+  className="hover:shadow-lg transition-all duration-200 
   dark:border-muted dark:hover:border-primary/20 
-  dark:hover:shadow-xl dark:hover:shadow-primary/5" 
-  client:load>
+  dark:hover:shadow-xl dark:hover:shadow-primary/5"
+  client:load
+/>
 ```
+
 - Always define both light and dark hover states
 - Use consistent transition durations
 - Apply subtle borders in dark mode for definition
 
 #### **Spacing Consistency**
+
 - `gap-6` for grid layouts
 - `space-y-8` or `gap-8` for major section spacing
 - `space-y-4` for content within cards
 - `space-y-12` between major page sections
 
 ### 📁 Project Structure That Worked
+
 ```
 src/
 ├── components/
@@ -251,6 +283,7 @@ src/
 ```
 
 ### 🛠️ Middleware for Chrome DevTools
+
 ```javascript
 // src/middleware.js
 export function onRequest(context, next) {
@@ -260,15 +293,18 @@ export function onRequest(context, next) {
   return next();
 }
 ```
+
 Prevents 404 spam in console from Chrome DevTools requests.
 
 ### 🎨 Color System (Dark Stone Theme)
+
 - Uses oklch color space for better color handling
 - Dark mode uses subtle gray tones ("stone" palette)
 - Borders more prominent in dark mode for element definition
 - Primary color remains consistent across themes
 
 ### ✅ Final v1.0 Feature Set
+
 - **Dual Portfolio Paths**: Software Engineer & Customer Service Representative
 - **Dark/Light Mode**: With persistence and no flash
 - **Responsive Design**: Mobile-first approach
@@ -279,6 +315,7 @@ Prevents 404 spam in console from Chrome DevTools requests.
 - **Accessibility**: Semantic HTML + ARIA labels where needed
 
 ### 🔑 Key Takeaways
+
 1. **CLI Tools Have Limits**: Some configs are meant to be manual (TypeScript aliases, CSS imports)
 2. **Theme Implementation**: Inline scripts prevent flash, consistent transitions prevent jarring switches
 3. **Deployment**: Framework detection can be cached - always verify and manually override if needed
@@ -290,13 +327,16 @@ Prevents 404 spam in console from Chrome DevTools requests.
 ### 🚀 Implementation Steps
 
 #### 1. **Install Vercel Adapter**
+
 ```bash
 npx astro add vercel --yes
 ```
+
 - Automatically installs `@astrojs/vercel`
 - Updates `astro.config.mjs` with adapter import
 
 #### 2. **Configure for SSR**
+
 ```javascript
 // astro.config.mjs
 export default defineConfig({
@@ -310,19 +350,21 @@ export default defineConfig({
     // Enable Vercel Image Optimization
     imageService: true,
     devImageService: 'sharp',
-  })
+  }),
 });
 ```
 
 ### 🎯 Benefits of SSR Implementation
 
 #### **Performance Benefits**
+
 - **ISR (Incremental Static Regeneration)**: Pages cached after first request
 - **Dynamic Content**: Can fetch fresh data on each request when needed
 - **Vercel Image Optimization**: Automatic image optimization on the fly
 - **Edge Functions**: Middleware runs at edge locations for lowest latency
 
 #### **Developer Benefits**
+
 - **Flexibility**: Mix static and dynamic content as needed
 - **No Build Times**: Content updates without rebuilds
 - **API Routes**: Can create dynamic API endpoints
@@ -330,20 +372,22 @@ export default defineConfig({
 
 ### 📊 Static vs SSR Trade-offs
 
-| Feature | Static (Previous) | SSR (Current) |
-|---------|------------------|---------------|
-| **First Load** | Instant (pre-built) | Fast (ISR cache) |
-| **Dynamic Data** | Build-time only | Real-time possible |
-| **Build Time** | Longer (all pages) | Shorter (on-demand) |
-| **Hosting Cost** | Minimal | Slightly higher |
-| **Complexity** | Simple | More options |
+| Feature          | Static (Previous)   | SSR (Current)       |
+| ---------------- | ------------------- | ------------------- |
+| **First Load**   | Instant (pre-built) | Fast (ISR cache)    |
+| **Dynamic Data** | Build-time only     | Real-time possible  |
+| **Build Time**   | Longer (all pages)  | Shorter (on-demand) |
+| **Hosting Cost** | Minimal             | Slightly higher     |
+| **Complexity**   | Simple              | More options        |
 
 ### 🔧 ISR Configuration Explained
+
 ```javascript
 isr: {
   expiration: 60 * 60, // 1 hour cache
 }
 ```
+
 - First visitor triggers page generation
 - Page cached for 1 hour
 - Subsequent visitors get cached version
@@ -351,13 +395,16 @@ isr: {
 - Best of both worlds: Static performance + dynamic capability
 
 ### 💡 When to Use SSR
+
 - **User-specific content**: Dashboards, profiles
 - **Frequently updated data**: News, prices
 - **API integrations**: Real-time data fetching
 - **Large sites**: Avoid building thousands of pages
 
 ### 🏆 Our Portfolio with SSR
+
 Even though our portfolio is mostly static content, SSR provides:
+
 1. **Future flexibility** for dynamic features
 2. **Faster deploys** (no pre-building all pages)
 3. **A/B testing capability** without rebuilds
@@ -366,6 +413,7 @@ Even though our portfolio is mostly static content, SSR provides:
 ## 🖼️ Vercel Image Optimization with SSR
 
 ### How It Works
+
 With `imageService: true` in our Vercel adapter config, images are automatically optimized:
 
 ```astro
@@ -374,25 +422,22 @@ import { Image } from 'astro:assets';
 import profilePic from '../assets/profile.jpg';
 ---
 
-<Image 
-  src={profilePic} 
-  alt="Profile"
-  width={400}
-  height={400}
-/>
+<Image src={profilePic} alt="Profile" width={400} height={400} />
 ```
 
 ### Automatic Optimizations
 
 #### 1. **Format Conversion**
+
 - Serves WebP to modern browsers (70% smaller)
 - Falls back to original format for older browsers
 - Converts on-demand, not at build time
 
 #### 2. **Responsive Images**
+
 ```astro
-<Image 
-  src={heroImage} 
+<Image
+  src={heroImage}
   alt="Hero"
   widths={[400, 800, 1200]}
   sizes="(max-width: 640px) 400px, 
@@ -400,38 +445,46 @@ import profilePic from '../assets/profile.jpg';
          1200px"
 />
 ```
+
 Generates multiple sizes, browser picks the right one!
 
 #### 3. **Quality Optimization**
+
 - Photos: ~75-85 quality (balanced size/quality)
 - Graphics: ~90-95 quality (crisp text/lines)
 - Adjusts automatically based on content
 
 #### 4. **Performance Features**
+
 - **Lazy Loading**: Images load as user scrolls
 - **CDN Delivery**: Served from nearest edge location
 - **Cache Headers**: Browser caches optimized versions
 - **Progressive Enhancement**: Basic image loads first, enhanced version follows
 
 ### Real-World Impact
+
 **Before Optimization:**
+
 - `hero-image.png`: 1.2MB
 - Load time: 3-4 seconds on 3G
 
 **After Optimization:**
+
 - `hero-image.webp`: 180KB
 - Load time: 0.5 seconds on 3G
 - **85% file size reduction!**
 
 ### Configuration in Our Project
+
 ```javascript
 adapter: vercel({
-  imageService: true,      // Production optimization
+  imageService: true, // Production optimization
   devImageService: 'sharp', // Local development
-})
+});
 ```
 
 This means:
+
 - **Development**: Uses Sharp library locally
 - **Production**: Uses Vercel's edge optimization
 - **Zero Config**: Just use `<Image>` component!
