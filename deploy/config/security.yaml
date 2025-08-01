@@ -1,0 +1,572 @@
+# =============================================================================
+# SECURITY HARDENING CONFIGURATION
+# =============================================================================
+# Comprehensive security configuration for image optimization system
+
+# =============================================================================
+# API SECURITY CONFIGURATION
+# =============================================================================
+
+api_security:
+  # Rate limiting configuration
+  rate_limiting:
+    enabled: true
+    
+    # Global rate limits
+    global:
+      requests_per_minute: 1000
+      requests_per_hour: 10000
+      burst_capacity: 50
+    
+    # Endpoint-specific rate limits
+    endpoints:
+      # Image upload endpoints
+      "/api/image/upload":
+        requests_per_minute: 20
+        requests_per_hour: 200
+        max_file_size: 10485760  # 10MB
+        concurrent_uploads: 3
+      
+      "/api/image/optimize":
+        requests_per_minute: 50
+        requests_per_hour: 500
+        processing_timeout: 30000  # 30 seconds
+      
+      # API endpoints
+      "/api/*":
+        requests_per_minute: 100
+        requests_per_hour: 1000
+      
+      # Static assets (more permissive)
+      "/assets/*":
+        requests_per_minute: 500
+        requests_per_hour: 5000
+    
+    # Rate limiting by client type
+    client_limits:
+      authenticated:
+        multiplier: 2.0  # 2x limits for authenticated users
+      
+      premium:
+        multiplier: 5.0  # 5x limits for premium users
+      
+      anonymous:
+        multiplier: 1.0  # Base limits
+    
+    # Geographic rate limiting
+    geo_limits:
+      enabled: true
+      suspicious_countries:
+        - "CN"
+        - "RU"
+        - "KP"
+      suspicious_country_multiplier: 0.5  # Half the normal limits
+  
+  # Input validation and sanitization
+  input_validation:
+    enabled: true
+    
+    # File upload validation
+    file_upload:
+      # Allowed MIME types
+      allowed_mime_types:
+        - "image/jpeg"
+        - "image/png"
+        - "image/gif"
+        - "image/webp"
+        - "image/bmp"
+        - "image/tiff"
+      
+      # File size limits
+      max_file_size: 10485760  # 10MB
+      min_file_size: 1024      # 1KB
+      
+      # Image dimension limits
+      max_width: 4096
+      max_height: 4096
+      min_width: 16
+      min_height: 16
+      
+      # File name validation
+      filename_regex: "^[a-zA-Z0-9._-]+$"
+      max_filename_length: 255
+      
+      # Content validation
+      validate_image_headers: true
+      scan_for_malware: true
+      strip_metadata: true
+    
+    # Request validation
+    request_validation:
+      # Maximum request size
+      max_request_size: 15728640  # 15MB
+      
+      # Parameter validation
+      max_parameters: 50
+      max_parameter_length: 1000
+      
+      # Header validation
+      required_headers:
+        - "User-Agent"
+        - "Accept"
+      
+      blocked_headers:
+        - "X-Forwarded-For"  # Prevent spoofing
+        - "X-Real-IP"
+      
+      # Query parameter limits
+      max_query_length: 2048
+  
+  # Authentication and authorization
+  authentication:
+    enabled: false  # Portfolio site doesn't require auth
+    
+    # If authentication is enabled in the future
+    jwt:
+      algorithm: "RS256"
+      expiration: 3600  # 1 hour
+      refresh_token_expiration: 604800  # 7 days
+    
+    api_keys:
+      enabled: false
+      required_for_uploads: false
+  
+  # CORS configuration
+  cors:
+    enabled: true
+    
+    allowed_origins:
+      - "https://frankpalmisano.com"
+      - "https://www.frankpalmisano.com"
+      - "https://portfolio-staging.ondigitalocean.app"
+    
+    allowed_methods:
+      - "GET"
+      - "POST"
+      - "OPTIONS"
+    
+    allowed_headers:
+      - "Content-Type"
+      - "Accept"
+      - "Origin"
+      - "User-Agent"
+      - "Cache-Control"
+    
+    max_age: 86400  # 24 hours
+    credentials: false
+
+# =============================================================================
+# IMAGE SECURITY CONFIGURATION
+# =============================================================================
+
+image_security:
+  # Malware scanning
+  malware_scanning:
+    enabled: true
+    scanner: "clamav"
+    
+    # Scanning configuration
+    scan_timeout: 30000  # 30 seconds
+    quarantine_infected: true
+    quarantine_path: "/quarantine"
+    
+    # Signature updates
+    update_signatures: true
+    update_frequency: "daily"
+  
+  # Content validation
+  content_validation:
+    # Image format validation
+    validate_magic_bytes: true
+    validate_headers: true
+    validate_structure: true
+    
+    # Metadata handling
+    strip_exif: true
+    strip_xmp: true
+    strip_iptc: true
+    preserve_color_profile: true
+    
+    # Content filtering
+    detect_inappropriate_content: false  # Optional AI-based filtering
+    block_known_bad_hashes: true
+  
+  # Image processing security
+  processing_security:
+    # Resource limits per image
+    max_memory_per_image: 268435456  # 256MB
+    max_processing_time: 30000       # 30 seconds
+    max_concurrent_processing: 4
+    
+    # Sharp.js security settings
+    sharp_settings:
+      fail_on_error: true
+      unlimited_text: false
+      sequentialRead: true
+      density: 72  # Limit DPI to prevent memory bombs
+    
+    # Prevent image bombs
+    pixel_limit: 16777216  # 16 megapixels (4096x4096)
+    compression_bomb_detection: true
+    
+    # Output validation
+    validate_output: true
+    max_output_size: 5242880  # 5MB
+
+# =============================================================================
+# NETWORK SECURITY
+# =============================================================================
+
+network_security:
+  # TLS/SSL configuration
+  tls:
+    enabled: true
+    min_version: "1.2"
+    cipher_suites:
+      - "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384"
+      - "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256"
+      - "TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305"
+    
+    # HSTS configuration
+    hsts:
+      enabled: true
+      max_age: 31536000  # 1 year
+      include_subdomains: true
+      preload: true
+  
+  # Security headers
+  security_headers:
+    enabled: true
+    
+    headers:
+      # Content Security Policy
+      Content-Security-Policy: >
+        default-src 'self';
+        img-src 'self' data: https: blob:;
+        script-src 'self' 'unsafe-inline' 'unsafe-eval';
+        style-src 'self' 'unsafe-inline';
+        font-src 'self' data:;
+        connect-src 'self';
+        frame-src 'none';
+        object-src 'none';
+        base-uri 'self';
+        form-action 'self'
+      
+      # Other security headers
+      X-Content-Type-Options: "nosniff"
+      X-Frame-Options: "DENY"
+      X-XSS-Protection: "1; mode=block"
+      Referrer-Policy: "strict-origin-when-cross-origin"
+      Permissions-Policy: >
+        camera=(),
+        microphone=(),
+        geolocation=(),
+        payment=(),
+        usb=(),
+        magnetometer=(),
+        gyroscope=(),
+        accelerometer=()
+  
+  # Request filtering
+  request_filtering:
+    enabled: true
+    
+    # Block suspicious patterns
+    blocked_patterns:
+      - "(?i)(<script|<iframe|<object|<embed)"
+      - "(?i)(union.*select|select.*from)"
+      - "(?i)(script.*src|javascript:)"
+      - "(?i)(eval\\(|function\\()"
+    
+    # Block suspicious user agents
+    blocked_user_agents:
+      - "(?i)(bot|crawler|spider|scraper)"
+      - "(?i)(sqlmap|nmap|nikto|dirb)"
+      - "(?i)(curl|wget|python-requests)"
+    
+    # Geographic blocking
+    geo_blocking:
+      enabled: false  # Disabled for global accessibility
+      blocked_countries: []
+    
+    # IP reputation filtering
+    ip_reputation:
+      enabled: true
+      block_known_bad_ips: true
+      reputation_services:
+        - "spamhaus"
+        - "abuse_ch"
+
+# =============================================================================
+# APPLICATION SECURITY
+# =============================================================================
+
+application_security:
+  # Container security
+  container_security:
+    # Run as non-root user
+    run_as_non_root: true
+    user_id: 1001
+    group_id: 1001
+    
+    # Security context
+    security_context:
+      read_only_root_filesystem: false  # Needed for Sharp.js temp files
+      allow_privilege_escalation: false
+      drop_capabilities:
+        - "ALL"
+      add_capabilities: []
+    
+    # Resource limits
+    resource_limits:
+      cpu: "1000m"
+      memory: "512Mi"
+      ephemeral_storage: "1Gi"
+    
+    # Image scanning
+    image_scanning:
+      enabled: true
+      scan_on_build: true
+      fail_on_critical: true
+      fail_on_high: false
+  
+  # Secrets management
+  secrets_management:
+    # Environment variables
+    env_vars:
+      encrypt_at_rest: true
+      use_secrets_store: true
+      rotate_secrets: true
+      rotation_frequency: "90d"
+    
+    # Secret scanning
+    secret_scanning:
+      enabled: true
+      scan_commits: true
+      scan_builds: true
+      
+      # Patterns to detect
+      patterns:
+        - "(?i)(password|passwd|pwd)\\s*[=:]\\s*['\"][^'\"\\s]{8,}"
+        - "(?i)(secret|key|token)\\s*[=:]\\s*['\"][^'\"\\s]{16,}"
+        - "(?i)(api[_-]?key)\\s*[=:]\\s*['\"][^'\"\\s]{16,}"
+  
+  # Logging and monitoring
+  security_logging:
+    enabled: true
+    
+    # Security events to log
+    log_events:
+      - "authentication_attempts"
+      - "authorization_failures"
+      - "rate_limit_exceeded"
+      - "suspicious_requests"
+      - "file_upload_rejections"
+      - "malware_detections"
+      - "error_responses"
+    
+    # Log format
+    log_format: "json"
+    log_level: "info"
+    
+    # Log retention
+    retention_days: 90
+    
+    # SIEM integration
+    siem_integration:
+      enabled: false
+      endpoint: ""
+      format: "syslog"
+
+# =============================================================================
+# INCIDENT RESPONSE
+# =============================================================================
+
+incident_response:
+  # Automated responses
+  automated_responses:
+    enabled: true
+    
+    # Response actions
+    actions:
+      # Block suspicious IPs
+      ip_blocking:
+        enabled: true
+        block_duration: 3600  # 1 hour
+        escalate_after_attempts: 5
+        permanent_block_threshold: 10
+      
+      # Rate limiting escalation
+      rate_limit_escalation:
+        enabled: true
+        escalation_multiplier: 0.5  # Reduce limits by 50%
+        escalation_duration: 1800   # 30 minutes
+      
+      # Service protection
+      service_protection:
+        enabled: true
+        circuit_breaker: true
+        circuit_breaker_threshold: 10  # errors
+        circuit_breaker_timeout: 60    # seconds
+  
+  # Alert configuration
+  alerts:
+    enabled: true
+    
+    # Alert channels
+    channels:
+      slack:
+        enabled: true
+        webhook_url: "${SECURITY_ALERT_WEBHOOK}"
+        severity_levels: ["medium", "high", "critical"]
+      
+      email:
+        enabled: true
+        recipients: ["security@company.com"]
+        severity_levels: ["high", "critical"]
+      
+      pagerduty:
+        enabled: false
+        integration_key: ""
+        severity_levels: ["critical"]
+    
+    # Alert rules
+    rules:
+      - name: "multiple_upload_failures"
+        condition: "upload_failures > 10 in 5m"
+        severity: "medium"
+        message: "Multiple image upload failures detected"
+      
+      - name: "malware_detected"
+        condition: "malware_detections > 0"
+        severity: "critical"
+        message: "Malware detected in uploaded file"
+      
+      - name: "suspicious_traffic_spike"
+        condition: "request_rate > baseline * 5"
+        severity: "high"
+        message: "Suspicious traffic spike detected"
+      
+      - name: "repeated_blocked_requests"
+        condition: "blocked_requests_per_ip > 50 in 10m"
+        severity: "medium"
+        message: "Repeated blocked requests from single IP"
+
+# =============================================================================
+# COMPLIANCE AND AUDITING
+# =============================================================================
+
+compliance:
+  # GDPR compliance (if applicable)
+  gdpr:
+    enabled: false  # Portfolio site typically doesn't collect personal data
+    data_retention_days: 30
+    anonymization_enabled: true
+    consent_required: false
+  
+  # Security standards compliance
+  standards:
+    - "OWASP_Top_10"
+    - "CIS_Controls"
+    - "NIST_Cybersecurity_Framework"
+  
+  # Audit logging
+  audit_logging:
+    enabled: true
+    
+    # Events to audit
+    audit_events:
+      - "configuration_changes"
+      - "security_policy_updates"
+      - "admin_actions"
+      - "failed_authentications"
+      - "privilege_escalations"
+    
+    # Audit log retention
+    retention_days: 365
+    immutable_logs: true
+    
+    # External audit log storage
+    external_storage:
+      enabled: true
+      destination: "digitalocean_spaces"
+      encryption: true
+
+# =============================================================================
+# SECURITY TESTING
+# =============================================================================
+
+security_testing:
+  # Automated security testing
+  automated_testing:
+    enabled: true
+    
+    # SAST (Static Application Security Testing)
+    sast:
+      enabled: true
+      tools:
+        - "semgrep"
+        - "bandit"
+      scan_on_build: true
+      fail_on_high: false
+    
+    # DAST (Dynamic Application Security Testing)
+    dast:
+      enabled: true
+      tools:
+        - "zap"
+      scan_schedule: "weekly"
+      target_urls:
+        - "https://staging.frankpalmisano.com"
+    
+    # Dependency scanning
+    dependency_scanning:
+      enabled: true
+      tools:
+        - "npm_audit"
+        - "snyk"
+      scan_frequency: "daily"
+      fail_on_high: true
+  
+  # Penetration testing
+  penetration_testing:
+    enabled: false  # External service
+    frequency: "annually"
+    scope:
+      - "web_application"
+      - "api_endpoints"
+      - "infrastructure"
+
+# =============================================================================
+# IMPLEMENTATION NOTES
+# =============================================================================
+
+# Digital Ocean App Platform Security Implementation:
+# 
+# 1. Built-in Security Features:
+#    - Automatic TLS/SSL certificates
+#    - DDoS protection
+#    - Web Application Firewall (WAF)
+#    - Regular security updates
+# 
+# 2. Application-Level Security:
+#    - Implement rate limiting in middleware
+#    - Add security headers in Astro configuration
+#    - Configure CORS appropriately
+#    - Validate all inputs
+# 
+# 3. Container Security:
+#    - Use non-root user in Dockerfile
+#    - Implement least privilege principle
+#    - Regular image scanning
+#    - Secure base images
+# 
+# 4. Network Security:
+#    - Use private networking between services
+#    - Implement proper firewall rules
+#    - Monitor network traffic
+# 
+# 5. Monitoring and Alerting:
+#    - Set up security monitoring
+#    - Configure incident response
+#    - Regular security assessments

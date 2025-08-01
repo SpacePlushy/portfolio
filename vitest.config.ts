@@ -3,7 +3,13 @@ import react from '@vitejs/plugin-react';
 import { resolve } from 'path';
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [react({
+    jsxImportSource: 'react',
+    include: ['**/*.tsx', '**/*.jsx'],
+  })],
+  esbuild: {
+    jsxInject: "import React from 'react'",
+  },
   test: {
     globals: true,
     environment: 'jsdom',

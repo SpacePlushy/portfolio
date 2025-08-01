@@ -1,0 +1,590 @@
+# =============================================================================
+# PERFORMANCE MONITORING AND OPTIMIZATION CONFIGURATION
+# =============================================================================
+# Comprehensive performance monitoring setup for image optimization system
+
+# =============================================================================
+# MONITORING CONFIGURATION
+# =============================================================================
+
+monitoring:
+  enabled: true
+  
+  # Metric collection configuration
+  metrics:
+    collection_interval: 15  # seconds
+    retention_period: 30    # days
+    high_cardinality_limit: 10000
+    
+    # Custom metrics to collect
+    custom_metrics:
+      # Application performance
+      - name: "http_request_duration_seconds"
+        type: "histogram"
+        help: "HTTP request duration in seconds"
+        labels: ["method", "endpoint", "status_code"]
+        buckets: [0.1, 0.25, 0.5, 1, 2.5, 5, 10]
+      
+      - name: "http_requests_total"
+        type: "counter"
+        help: "Total HTTP requests"
+        labels: ["method", "endpoint", "status_code"]
+      
+      # Image processing metrics
+      - name: "image_processing_duration_seconds"
+        type: "histogram"
+        help: "Time spent processing images"
+        labels: ["format", "size_category"]
+        buckets: [0.5, 1, 2, 5, 10, 30, 60]
+      
+      - name: "image_processing_queue_size"
+        type: "gauge"
+        help: "Number of images in processing queue"
+      
+      - name: "image_cache_hit_ratio"
+        type: "gauge"
+        help: "Cache hit ratio for images"
+      
+      - name: "image_size_reduction_ratio"
+        type: "histogram"
+        help: "Ratio of size reduction after optimization"
+        buckets: [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
+      
+      # Resource utilization
+      - name: "nodejs_memory_usage_bytes"
+        type: "gauge"
+        help: "Node.js memory usage by type"
+        labels: ["type"]
+      
+      - name: "nodejs_gc_duration_seconds"
+        type: "histogram"
+        help: "Garbage collection duration"
+        labels: ["kind"]
+        buckets: [0.001, 0.01, 0.1, 1, 10]
+
+# =============================================================================
+# PERFORMANCE THRESHOLDS AND ALERTS
+# =============================================================================
+
+performance_thresholds:
+  # Response time thresholds (in seconds)
+  response_time:
+    p50_warning: 0.5
+    p50_critical: 1.0
+    p95_warning: 2.0
+    p95_critical: 5.0
+    p99_warning: 5.0
+    p99_critical: 10.0
+  
+  # Throughput thresholds (requests per second)
+  throughput:
+    min_warning: 10
+    min_critical: 5
+    max_warning: 1000
+    max_critical: 2000
+  
+  # Error rate thresholds (percentage)  
+  error_rate:
+    warning: 1.0
+    critical: 5.0
+  
+  # Resource utilization thresholds (percentage)
+  resources:
+    cpu_warning: 70
+    cpu_critical: 85
+    memory_warning: 80
+    memory_critical: 90
+    disk_warning: 80
+    disk_critical: 90
+  
+  # Image processing thresholds
+  image_processing:
+    queue_size_warning: 50
+    queue_size_critical: 100
+    processing_time_warning: 10  # seconds
+    processing_time_critical: 30
+    cache_hit_ratio_warning: 0.8
+    cache_hit_ratio_critical: 0.7
+
+# =============================================================================
+# PERFORMANCE OPTIMIZATION CONFIGURATION
+# =============================================================================
+
+optimization:
+  # Auto-scaling configuration
+  auto_scaling:
+    enabled: true
+    
+    # Scaling triggers
+    triggers:
+      - metric: "cpu_utilization"
+        threshold: 70
+        action: "scale_up"
+        cooldown: 300  # 5 minutes
+      
+      - metric: "response_time_p95"
+        threshold: 2.0
+        action: "scale_up"
+        cooldown: 180  # 3 minutes
+      
+      - metric: "queue_size"
+        threshold: 50
+        action: "scale_workers"
+        cooldown: 120  # 2 minutes
+    
+    # Scaling policies
+    policies:
+      scale_up:
+        increment: 2
+        max_instances: 10
+        stabilization_window: 300
+      
+      scale_down:
+        decrement: 1
+        min_instances: 2
+        stabilization_window: 600
+  
+  # Cache optimization
+  caching:
+    # Redis optimization
+    redis:
+      # Memory optimization
+      maxmemory_policy: "allkeys-lru"
+      maxmemory_samples: 10
+      
+      # Performance tuning
+      tcp_keepalive: 300
+      timeout: 0
+      tcp_backlog: 511
+      
+      # Persistence optimization
+      save_policy: "900 1 300 10 60 10000"
+      rdbcompression: true
+      rdbchecksum: true
+    
+    # Application-level caching
+    application:
+      # Image cache settings
+      image_cache_ttl: 86400  # 24 hours
+      image_cache_max_size: 1073741824  # 1GB
+      
+      # Response cache settings
+      response_cache_ttl: 3600  # 1 hour
+      response_cache_vary: ["Accept-Encoding", "User-Agent"]
+      
+      # Cache warming
+      cache_warming:
+        enabled: true
+        popular_images_threshold: 10  # views
+        warming_schedule: "0 2 * * *"  # 2 AM daily
+  
+  # Image processing optimization
+  image_processing:
+    # Sharp.js optimization
+    sharp:
+      cache_size: 200  # MB
+      concurrency: 4
+      simd: true
+      
+      # Quality optimization by format
+      quality_settings:
+        jpeg:
+          quality: 85
+          progressive: true
+          mozjpeg: true
+        
+        png:
+          compressionLevel: 6
+          adaptiveFiltering: true
+          palette: true
+        
+        webp:
+          quality: 85
+          effort: 4
+          smartSubsample: true
+        
+        avif:
+          quality: 80
+          effort: 4
+          chromaSubsampling: "4:2:0"
+    
+    # Processing queue optimization
+    queue:
+      # Worker configuration
+      worker_concurrency: 4
+      worker_timeout: 30000  # 30 seconds
+      max_retries: 3
+      
+      # Queue management
+      max_queue_size: 1000
+      priority_processing: true
+      batch_processing: false
+      
+      # Processing strategies
+      strategies:
+        - name: "small_images"
+          condition: "size < 100KB"
+          priority: "high"
+          timeout: 5000
+        
+        - name: "large_images" 
+          condition: "size > 5MB"
+          priority: "low"
+          timeout: 60000
+          pre_resize: true
+
+# =============================================================================
+# MONITORING DASHBOARDS
+# =============================================================================
+
+dashboards:
+  # Performance overview dashboard
+  performance_overview:
+    enabled: true
+    refresh_interval: "30s"
+    
+    panels:
+      - name: "Response Time"
+        type: "graph"
+        metrics: ["http_request_duration_seconds"]
+        aggregation: "p95"
+        time_range: "1h"
+      
+      - name: "Request Rate"
+        type: "graph" 
+        metrics: ["http_requests_total"]
+        aggregation: "rate"
+        time_range: "1h"
+      
+      - name: "Error Rate"
+        type: "graph"
+        metrics: ["http_requests_total"]
+        filter: 'status_code=~"5.."'
+        aggregation: "rate"
+        time_range: "1h"
+      
+      - name: "Resource Utilization"
+        type: "gauge"
+        metrics: ["cpu_usage", "memory_usage"]
+        thresholds: [70, 85]
+  
+  # Image processing dashboard
+  image_processing:
+    enabled: true
+    refresh_interval: "15s"
+    
+    panels:
+      - name: "Processing Queue"
+        type: "graph"
+        metrics: ["image_processing_queue_size"]
+        time_range: "30m"
+      
+      - name: "Processing Time"
+        type: "heatmap"
+        metrics: ["image_processing_duration_seconds"]
+        time_range: "1h"
+      
+      - name: "Cache Performance"
+        type: "stat"
+        metrics: ["image_cache_hit_ratio"]
+        thresholds: [0.8, 0.9]
+      
+      - name: "Size Reduction"
+        type: "histogram"
+        metrics: ["image_size_reduction_ratio"]
+        time_range: "1h"
+
+# =============================================================================
+# ALERTING RULES
+# =============================================================================
+
+alerting:
+  rules:
+    # Performance alerts
+    - name: "HighResponseTime"
+      condition: "p95(http_request_duration_seconds) > 2"
+      duration: "5m"
+      severity: "warning"
+      description: "Response time P95 is above 2 seconds"
+    
+    - name: "CriticalResponseTime"
+      condition: "p95(http_request_duration_seconds) > 5"
+      duration: "2m"
+      severity: "critical"
+      description: "Response time P95 is above 5 seconds"
+    
+    - name: "HighErrorRate"
+      condition: "rate(http_requests_total{status_code=~'5..'}[5m]) / rate(http_requests_total[5m]) > 0.05"
+      duration: "3m"
+      severity: "critical"
+      description: "Error rate is above 5%"
+    
+    - name: "LowThroughput"
+      condition: "rate(http_requests_total[5m]) < 5"
+      duration: "10m"
+      severity: "warning"
+      description: "Request rate is unusually low"
+    
+    # Resource alerts
+    - name: "HighCPUUsage"
+      condition: "cpu_usage > 85"
+      duration: "5m"
+      severity: "warning"
+      description: "CPU usage is above 85%"
+    
+    - name: "HighMemoryUsage"
+      condition: "memory_usage > 90"
+      duration: "3m"
+      severity: "critical"
+      description: "Memory usage is above 90%"
+    
+    # Image processing alerts
+    - name: "ImageProcessingQueueBackup"
+      condition: "image_processing_queue_size > 100"
+      duration: "5m"
+      severity: "warning"
+      description: "Image processing queue is backing up"
+    
+    - name: "LowCacheHitRatio"
+      condition: "image_cache_hit_ratio < 0.7"
+      duration: "10m"
+      severity: "warning"
+      description: "Image cache hit ratio is below 70%"
+    
+    - name: "SlowImageProcessing"
+      condition: "p95(image_processing_duration_seconds) > 30"
+      duration: "5m"
+      severity: "warning"
+      description: "Image processing is taking longer than 30 seconds"
+
+# =============================================================================
+# PERFORMANCE TESTING CONFIGURATION
+# =============================================================================
+
+performance_testing:
+  # Load testing configuration
+  load_testing:
+    enabled: true
+    
+    # Test scenarios
+    scenarios:
+      - name: "baseline_load"
+        duration: "10m"
+        users: 50
+        ramp_up: "2m"
+        endpoints:
+          - path: "/"
+            weight: 40
+          - path: "/api/health"
+            weight: 30
+          - path: "/api/image/optimize"
+            weight: 20
+            method: "POST"
+            file: "test-images/sample.jpg"
+          - path: "/metrics"
+            weight: 10
+      
+      - name: "stress_test"
+        duration: "5m"
+        users: 200
+        ramp_up: "1m"
+        acceptance_criteria:
+          response_time_p95: 5000  # ms
+          error_rate: 5  # percentage
+      
+      - name: "spike_test"
+        duration: "2m"
+        users: 500
+        ramp_up: "30s"
+        acceptance_criteria:
+          response_time_p95: 10000  # ms
+          error_rate: 10  # percentage
+  
+  # Continuous performance monitoring
+  continuous_monitoring:
+    enabled: true
+    
+    # Synthetic tests
+    synthetic_tests:
+      - name: "homepage_load"
+        url: "https://frankpalmisano.com"
+        frequency: "5m"
+        timeout: 10000
+        expected_response_time: 2000
+      
+      - name: "api_health_check"
+        url: "https://frankpalmisano.com/api/health"
+        frequency: "1m"
+        timeout: 5000
+        expected_response_time: 500
+      
+      - name: "image_optimization_test"
+        url: "https://frankpalmisano.com/api/image/optimize"
+        method: "POST"
+        frequency: "10m"
+        timeout: 30000
+        expected_response_time: 5000
+        payload: "test-image-data"
+
+# =============================================================================
+# OPTIMIZATION RECOMMENDATIONS
+# =============================================================================
+
+optimization_recommendations:
+  # Automatic optimization
+  auto_optimization:
+    enabled: true
+    
+    # Performance tuning recommendations
+    recommendations:
+      - condition: "p95(http_request_duration_seconds) > 2"
+        action: "increase_cache_ttl"
+        parameters:
+          cache_ttl: 7200  # 2 hours
+      
+      - condition: "image_cache_hit_ratio < 0.8"
+        action: "implement_cache_warming"
+        parameters:
+          warming_schedule: "*/30 * * * *"  # Every 30 minutes
+      
+      - condition: "cpu_usage > 80"
+        action: "optimize_image_processing"
+        parameters:
+          reduce_quality: 5
+          enable_smart_cropping: true
+      
+      - condition: "memory_usage > 85"
+        action: "optimize_memory_usage"
+        parameters:
+          garbage_collection_frequency: "aggressive"
+          reduce_cache_size: 0.8
+  
+  # Manual optimization guidelines
+  manual_optimization:
+    guidelines:
+      - area: "Image Processing"
+        recommendations:
+          - "Use WebP format for modern browsers"
+          - "Implement progressive JPEG loading"
+          - "Optimize quality settings based on image content"
+          - "Use lazy loading for off-screen images"
+      
+      - area: "Caching"
+        recommendations:
+          - "Implement multi-level caching strategy"
+          - "Use cache warming for popular content"
+          - "Implement cache versioning for cache busting"
+          - "Monitor and optimize cache hit rates"
+      
+      - area: "Database"
+        recommendations:
+          - "Optimize Redis memory usage"
+          - "Implement connection pooling"
+          - "Use pipelining for batch operations"
+          - "Monitor slow queries and optimize"
+      
+      - area: "Network"
+        recommendations:
+          - "Enable HTTP/2 and compression"
+          - "Use CDN for static assets"
+          - "Implement proper caching headers"
+          - "Optimize API response payloads"
+
+# =============================================================================
+# REPORTING CONFIGURATION
+# =============================================================================
+
+reporting:
+  # Performance reports
+  performance_reports:
+    enabled: true
+    
+    # Daily performance summary
+    daily_summary:
+      enabled: true
+      schedule: "0 9 * * *"  # 9 AM daily
+      recipients: ["ops@company.com"]
+      metrics:
+        - average_response_time
+        - total_requests
+        - error_rate
+        - cache_hit_ratio
+        - top_endpoints
+    
+    # Weekly performance analysis
+    weekly_analysis:
+      enabled: true
+      schedule: "0 10 * * 1"  # 10 AM Monday
+      recipients: ["engineering@company.com"]
+      include:
+        - performance_trends
+        - optimization_opportunities
+        - capacity_planning
+        - cost_analysis
+    
+    # Monthly executive summary
+    monthly_executive:
+      enabled: true
+      schedule: "0 9 1 * *"  # 9 AM first day of month
+      recipients: ["leadership@company.com"]
+      format: "executive_summary"
+      include:
+        - key_performance_indicators
+        - business_impact_metrics
+        - optimization_achievements
+        - future_recommendations
+
+# =============================================================================
+# INTEGRATION CONFIGURATION
+# =============================================================================
+
+integrations:
+  # APM tools integration
+  apm_tools:
+    enabled: false  # Not using external APM currently
+    
+  # Log aggregation
+  log_aggregation:
+    enabled: true
+    retain_performance_logs: true
+    log_level: "info"
+    structured_logging: true
+    
+  # Real User Monitoring (RUM)
+  rum:
+    enabled: false  # Can be enabled for client-side monitoring
+    
+  # Business Intelligence
+  business_intelligence:
+    enabled: false  # Can be integrated with analytics tools
+
+# =============================================================================
+# IMPLEMENTATION NOTES
+# =============================================================================
+
+# Digital Ocean App Platform Implementation Notes:
+#
+# 1. Metrics Collection:
+#    - Use Prometheus client libraries in application code
+#    - Configure custom metrics endpoints
+#    - Set up Grafana dashboards for visualization
+#
+# 2. Auto-scaling:
+#    - Configure in app.yaml using instance_count and scaling rules
+#    - Use custom metrics for scaling decisions via webhooks
+#    - Monitor scaling events and adjust policies
+#
+# 3. Performance Testing:
+#    - Run load tests against staging environment first
+#    - Use CI/CD pipeline integration for automated testing
+#    - Monitor production performance continuously
+#
+# 4. Optimization:
+#    - Implement recommendations gradually
+#    - Monitor impact of each optimization
+#    - Document performance improvements
+#
+# 5. Alerting:
+#    - Configure alert channels (Slack, email, PagerDuty)
+#    - Set appropriate thresholds based on SLA requirements
+#    - Implement alert fatigue prevention

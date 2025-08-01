@@ -1,0 +1,322 @@
+# =============================================================================
+# AUTO-SCALING CONFIGURATION FOR DIGITAL OCEAN APP PLATFORM
+# =============================================================================
+# Horizontal Pod Autoscaler equivalent for DO App Platform services
+
+# Image Optimizer Service Auto-scaling
+image-optimizer:
+  # Auto-scaling configuration
+  autoscaling:
+    enabled: true
+    min_instance_count: 2
+    max_instance_count: 10
+    target_cpu_utilization: 70
+    target_memory_utilization: 80
+    
+  # Scaling policies
+  scaling_policies:
+    # Scale up policy - aggressive scaling for performance
+    scale_up:
+      # CPU threshold for scaling up
+      cpu_threshold: 70
+      memory_threshold: 80
+      # Custom metrics thresholds
+      queue_size_threshold: 50
+      response_time_threshold: 2.0  # 2 seconds
+      error_rate_threshold: 5       # 5%
+      
+      # Scaling behavior
+      scale_up_cooldown: 120  # 2 minutes
+      scale_up_increment: 2   # Add 2 instances at a time
+      scale_up_stabilization: 60  # 1 minute
+    
+    # Scale down policy - conservative scaling to avoid thrashing
+    scale_down:
+      cpu_threshold: 30
+      memory_threshold: 40
+      queue_size_threshold: 10
+      response_time_threshold: 0.5  # 500ms
+      
+      # Scaling behavior
+      scale_down_cooldown: 300  # 5 minutes
+      scale_down_decrement: 1   # Remove 1 instance at a time
+      scale_down_stabilization: 180  # 3 minutes
+
+# Image Worker Service Auto-scaling
+image-worker:
+  autoscaling:
+    enabled: true
+    min_instance_count: 2
+    max_instance_count: 20  # Higher max for processing workers
+    target_cpu_utilization: 75
+    target_memory_utilization: 85
+    
+  scaling_policies:
+    scale_up:
+      # Queue-based scaling for workers
+      queue_length_threshold: 100
+      queue_wait_time_threshold: 30  # 30 seconds
+      processing_time_threshold: 25  # 25 seconds
+      cpu_threshold: 75
+      memory_threshold: 85
+      
+      scale_up_cooldown: 90   # 1.5 minutes
+      scale_up_increment: 3   # Add 3 workers for burst capacity
+      scale_up_stabilization: 45
+    
+    scale_down:
+      queue_length_threshold: 5
+      idle_time_threshold: 300  # 5 minutes of idle time
+      cpu_threshold: 25
+      memory_threshold: 30
+      
+      scale_down_cooldown: 600  # 10 minutes
+      scale_down_decrement: 1
+      scale_down_stabilization: 300
+
+# Web Application Auto-scaling
+portfolio-web:
+  autoscaling:
+    enabled: true
+    min_instance_count: 2
+    max_instance_count: 8
+    target_cpu_utilization: 70
+    target_memory_utilization: 75
+    
+  scaling_policies:
+    scale_up:
+      # Request-based scaling
+      requests_per_second_threshold: 100
+      response_time_threshold: 1.5  # 1.5 seconds
+      cpu_threshold: 70
+      memory_threshold: 75
+      
+      scale_up_cooldown: 180  # 3 minutes
+      scale_up_increment: 2
+      scale_up_stabilization: 120
+    
+    scale_down:
+      requests_per_second_threshold: 20
+      response_time_threshold: 0.3  # 300ms
+      cpu_threshold: 30
+      memory_threshold: 40
+      
+      scale_down_cooldown: 600  # 10 minutes
+      scale_down_decrement: 1
+      scale_down_stabilization: 300
+
+# Monitoring Service (typically doesn't need auto-scaling)
+monitoring:
+  autoscaling:
+    enabled: false
+    min_instance_count: 1
+    max_instance_count: 2
+    # Only scale monitoring if under extreme load
+    target_cpu_utilization: 90
+    target_memory_utilization: 90
+
+# =============================================================================
+# CUSTOM METRICS FOR SCALING DECISIONS
+# =============================================================================
+
+custom_metrics:
+  # Image optimization specific metrics
+  image_processing:
+    queue_size:
+      metric_name: "image_processing_queue_size"
+      threshold_scale_up: 100
+      threshold_scale_down: 10
+      
+    processing_latency:
+      metric_name: "image_processing_duration_p95"
+      threshold_scale_up: 20.0  # 20 seconds
+      threshold_scale_down: 5.0  # 5 seconds
+      
+    error_rate:
+      metric_name: "image_processing_error_rate"
+      threshold_scale_up: 5.0   # 5%
+      threshold_scale_down: 1.0  # 1%
+  
+  # Application performance metrics
+  application:
+    response_time:
+      metric_name: "http_request_duration_p95"
+      threshold_scale_up: 2.0   # 2 seconds
+      threshold_scale_down: 0.5  # 500ms
+      
+    request_rate:
+      metric_name: "http_requests_per_second"
+      threshold_scale_up: 200
+      threshold_scale_down: 50
+      
+    concurrent_users:
+      metric_name: "active_user_sessions"
+      threshold_scale_up: 500
+      threshold_scale_down: 100
+
+# =============================================================================
+# PREDICTIVE SCALING CONFIGURATION
+# =============================================================================
+
+predictive_scaling:
+  enabled: true
+  
+  # Time-based patterns
+  time_patterns:
+    # Business hours scaling
+    business_hours:
+      enabled: true
+      timezone: "America/New_York"
+      weekdays:
+        start_time: "08:00"
+        end_time: "18:00"
+        scale_factor: 1.5  # 50% more instances during business hours
+      
+      weekends:
+        scale_factor: 0.8  # 20% fewer instances on weekends
+    
+    # Traffic pattern prediction
+    traffic_patterns:
+      enabled: true
+      historical_data_days: 14
+      prediction_window_hours: 2
+      confidence_threshold: 0.8
+  
+  # Load forecasting
+  load_forecasting:
+    enabled: true
+    forecasting_algorithm: "linear_regression"
+    training_data_days: 30
+    prediction_accuracy_threshold: 0.85
+
+# =============================================================================
+# RESOURCE OPTIMIZATION
+# =============================================================================
+
+resource_optimization:
+  # Memory optimization
+  memory:
+    # Automatic memory limit adjustment based on usage patterns
+    adaptive_limits: true
+    memory_buffer_percent: 20  # 20% buffer above peak usage
+    
+  # CPU optimization
+  cpu:
+    # Burst capability configuration
+    cpu_burst_enabled: true
+    burst_duration_minutes: 15
+    burst_multiplier: 2.0
+    
+  # Storage optimization
+  storage:
+    # Automatic cleanup of processed images
+    auto_cleanup: true
+    cleanup_age_days: 7
+    cleanup_size_threshold_gb: 10
+
+# =============================================================================
+# COST OPTIMIZATION
+# =============================================================================
+
+cost_optimization:
+  # Spot instance usage (if available in DO)
+  spot_instances:
+    enabled: false  # Not available in DO App Platform
+    
+  # Scheduled scaling for cost savings
+  scheduled_scaling:
+    enabled: true
+    
+    # Scale down during low-traffic periods
+    low_traffic_periods:
+      - name: "overnight"
+        schedule: "0 23 * * *"  # 11 PM daily
+        duration_hours: 8
+        scale_factor: 0.5  # Use half the instances
+        
+      - name: "weekend_nights"
+        schedule: "0 20 * * 6,0"  # 8 PM on weekends
+        duration_hours: 10
+        scale_factor: 0.3  # Use 30% of instances
+  
+  # Budget alerts
+  budget_alerts:
+    enabled: true
+    monthly_budget_usd: 200
+    alert_thresholds: [50, 75, 90]  # Alert at 50%, 75%, 90% of budget
+
+# =============================================================================
+# TESTING AND VALIDATION
+# =============================================================================
+
+testing:
+  # Load testing integration
+  load_testing:
+    enabled: true
+    # Scaling validation during load tests
+    validate_scaling_behavior: true
+    max_load_test_instances: 15
+    
+  # Chaos engineering
+  chaos_testing:
+    enabled: false  # Enable in staging first
+    failure_scenarios:
+      - random_instance_termination
+      - network_latency_injection
+      - memory_pressure_simulation
+
+# =============================================================================
+# MONITORING AND ALERTING FOR SCALING
+# =============================================================================
+
+scaling_monitoring:
+  # Scaling event logging
+  event_logging:
+    enabled: true
+    log_level: "info"
+    include_metrics: true
+    
+  # Scaling alerts
+  alerts:
+    # Alert when scaling limits are reached
+    max_instances_reached:
+      enabled: true
+      notification_channels: ["slack", "email"]
+      
+    # Alert on frequent scaling events
+    scaling_thrashing:
+      enabled: true
+      threshold_events_per_hour: 10
+      
+    # Alert on scaling failures
+    scaling_failures:
+      enabled: true
+      retry_attempts: 3
+
+# =============================================================================
+# IMPLEMENTATION NOTES
+# =============================================================================
+
+# Digital Ocean App Platform Implementation:
+# 
+# 1. Auto-scaling is configured in the app.yaml file using:
+#    - instance_count: 2 (minimum)
+#    - autoscaling.min_instance_count: 2
+#    - autoscaling.max_instance_count: 10
+#    - autoscaling.target_cpu_utilization: 70
+#    - autoscaling.target_memory_utilization: 80
+#
+# 2. Custom metrics require external monitoring:
+#    - Use Prometheus to collect custom metrics
+#    - Implement webhook-based scaling triggers
+#    - Use DO API to adjust instance counts
+#
+# 3. Predictive scaling requires custom implementation:
+#    - Scheduled jobs to analyze usage patterns
+#    - API calls to pre-scale resources
+#    - Integration with monitoring data
+#
+# 4. Cost optimization:
+#    - Monitor billing APIs
+#    - Implement budget alerts
+#    - Use smaller instance sizes where possible

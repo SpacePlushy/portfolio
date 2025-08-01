@@ -1,16 +1,16 @@
 #
-# Digital Ocean App Platform Deployment Configuration
+# Digital Ocean App Platform Staging Environment Configuration
 # Complete image optimization system with monitoring and caching
 #
-name: portfolio-image-optimization
+name: portfolio-image-optimization-staging
 region: nyc1
 
 # Environment variables shared across all services
 envs:
   - key: NODE_ENV
-    value: production
+    value: staging
   - key: LOG_LEVEL
-    value: info
+    value: debug
   - key: REDIS_URL
     scope: RUN_AND_BUILD_TIME
     type: SECRET
@@ -19,7 +19,7 @@ envs:
   - key: IMAGE_OPTIMIZATION_ENABLED
     value: "true"
   - key: CDN_ENABLED
-    value: "true"
+    value: "false"  # Disabled in staging
   - key: PERFORMANCE_MONITORING_URL
     scope: RUN_TIME
     type: SECRET
@@ -31,12 +31,12 @@ services:
     source_dir: /
     github:
       repo: SpacePlushy/portfolio
-      branch: main
+      branch: develop  # Use develop branch for staging
       deploy_on_push: true
     dockerfile_path: Dockerfile
     
     environment_slug: node-js
-    instance_count: 2
+    instance_count: 1  # Reduced for staging
     instance_size_slug: basic-xxs
     
     http_port: 8080
@@ -63,14 +63,21 @@ services:
         value: "${redis-cache.PRIVATE_URL}"
       - key: METRICS_ENDPOINT
         value: "${monitoring.PRIVATE_URL}/metrics"
+      # Staging-specific configurations
+      - key: DEBUG_MODE
+        value: "true"
+      - key: CACHE_TTL
+        value: "300"  # 5 minutes for staging
+      - key: MAX_IMAGE_SIZE
+        value: "5242880"  # 5MB for staging
     
     alerts:
       - rule: CPU_UTILIZATION
-        value: 80
+        value: 90  # Higher threshold for staging
       - rule: MEM_UTILIZATION  
-        value: 80
+        value: 90
       - rule: RESTART_COUNT
-        value: 10
+        value: 20
 
   # Image optimization service
   - name: image-optimizer
@@ -78,8 +85,8 @@ services:
     dockerfile_path: deploy/docker/Dockerfile.image-optimizer
     
     environment_slug: node-js
-    instance_count: 2
-    instance_size_slug: basic-xs
+    instance_count: 1  # Single instance for staging
+    instance_size_slug: basic-xxs
     
     http_port: 3001
     
@@ -97,46 +104,50 @@ services:
       - key: REDIS_URL
         value: "${redis-cache.PRIVATE_URL}"
       - key: MAX_IMAGE_SIZE
-        value: "10485760" # 10MB
+        value: "5242880" # 5MB for staging
       - key: SUPPORTED_FORMATS
         value: "jpeg,jpg,png,webp,avif,gif"
       - key: CACHE_TTL
-        value: "3600"
+        value: "1800"  # 30 minutes
       - key: WORKER_CONCURRENCY
-        value: "4"
+        value: "2"  # Reduced for staging
+      # Staging-specific configurations
+      - key: DEBUG_SHARP
+        value: "true"
+      - key: VERBOSE_LOGGING
+        value: "true"
     
     alerts:
       - rule: CPU_UTILIZATION
-        value: 85
+        value: 95
       - rule: MEM_UTILIZATION
-        value: 85
+        value: 95
 
-  # Image processing worker service
+  # Image processing worker service (single instance for staging)
   - name: image-worker
     source_dir: /
     dockerfile_path: deploy/docker/Dockerfile.image-worker
     
     environment_slug: node-js
-    instance_count: 2
-    instance_size_slug: basic-xs
+    instance_count: 1
+    instance_size_slug: basic-xxs
     
     envs:
       - key: REDIS_URL
         value: "${redis-cache.PRIVATE_URL}"
       - key: WORKER_CONCURRENCY
-        value: "2"
+        value: "1"  # Single worker for staging
       - key: PROCESS_TIMEOUT
-        value: "30000"
+        value: "60000"  # Longer timeout for debugging
       - key: MAX_RETRIES
-        value: "3"
-    
-    alerts:
-      - rule: CPU_UTILIZATION
-        value: 90
-      - rule: MEM_UTILIZATION
-        value: 90
+        value: "2"
+      # Staging-specific configurations
+      - key: WORKER_DEBUG
+        value: "true"
+      - key: PROCESS_MONITORING
+        value: "true"
 
-  # Monitoring and metrics service
+  # Monitoring and metrics service (optional in staging)
   - name: monitoring
     source_dir: /
     dockerfile_path: deploy/docker/Dockerfile.monitoring
@@ -166,23 +177,28 @@ services:
       - key: ALERT_WEBHOOK_URL
         scope: RUN_TIME
         type: SECRET
+      # Staging-specific configurations
+      - key: RETENTION_TIME
+        value: "7d"  # Shorter retention for staging
+      - key: SCRAPE_INTERVAL
+        value: "30s"
 
 # Databases and external services
 databases:
-  # Redis for caching and job queues
+  # Redis for caching and job queues (smaller instance for staging)
   - name: redis-cache
     engine: REDIS
     version: "7"
     size: basic
     num_nodes: 1
-    
-# Static assets and CDN
+
+# Static assets (optional in staging)
 static_sites:
   - name: static-assets
     source_dir: /public
     github:
       repo: SpacePlushy/portfolio
-      branch: main
+      branch: develop
       deploy_on_push: true
     
     routes:
@@ -192,9 +208,9 @@ static_sites:
     
     envs:
       - key: CDN_CACHE_CONTROL
-        value: "public, max-age=31536000, immutable"
+        value: "public, max-age=300"  # 5 minutes cache for staging
 
-# Jobs for maintenance and cleanup
+# Jobs for maintenance and cleanup (reduced frequency for staging)
 jobs:
   # Image cache cleanup job
   - name: cache-cleanup
@@ -209,15 +225,15 @@ jobs:
       - key: REDIS_URL
         value: "${redis-cache.PRIVATE_URL}"
       - key: CLEANUP_OLDER_THAN_DAYS
-        value: "7"
+        value: "3"  # More aggressive cleanup in staging
     
-  # Performance report job
+  # Performance report job (weekly in staging)
   - name: performance-report
     source_dir: /
     dockerfile_path: deploy/docker/Dockerfile.jobs
     
     kind: CRON
-    schedule: "0 6 * * *" # Daily at 6 AM UTC
+    schedule: "0 6 * * 0"  # Weekly on Sunday
     
     envs:
       - key: JOB_TYPE
@@ -247,7 +263,7 @@ ingress:
       component:
         name: portfolio-web
 
-# Alerts configuration
+# Alerts configuration (reduced for staging)
 alerts:
   - rule: DEPLOYMENT_FAILED
   - rule: DOMAIN_FAILED

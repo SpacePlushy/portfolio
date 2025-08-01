@@ -311,7 +311,7 @@ function detectBot(request, ip, config) {
   const accept = request.headers.get('accept') || '';
   const acceptLanguage = request.headers.get('accept-language') || '';
   const acceptEncoding = request.headers.get('accept-encoding') || '';
-  const referer = request.headers.get('referer') || '';
+  // const referer = request.headers.get('referer') || '';
   
   // Check cache first
   const cacheKey = `${ip}:${userAgent}`;
