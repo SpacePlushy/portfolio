@@ -470,8 +470,16 @@ export async function onRequest(context, next) {
   const path = url.pathname;
   const method = request.method;
 
-  // Skip heavy processing for health checks during startup
-  if (path === '/api/health' || path === '/api/readiness') {
+  // Skip middleware for static files and health checks
+  if (
+    path === '/api/health' || 
+    path === '/api/readiness' ||
+    path === '/favicon.ico' ||
+    path === '/manifest.json' ||
+    path.startsWith('/favicon-') ||
+    path === '/apple-touch-icon.png' ||
+    path === '/robots.txt'
+  ) {
     return await next();
   }
   
