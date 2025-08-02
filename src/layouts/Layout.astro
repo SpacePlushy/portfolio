@@ -1,7 +1,7 @@
 ---
 import '../styles/global.css';
-import Analytics from '@/components/Analytics.astro';
 import Favicon from '@/components/Favicon.astro';
+import Analytics from '@/components/Analytics.astro';
 ---
 
 <!doctype html>
@@ -10,6 +10,7 @@ import Favicon from '@/components/Favicon.astro';
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width" />
     <Favicon />
+    <link rel="manifest" href="/manifest.json" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
     <meta name="generator" content={Astro.generator} />
@@ -41,9 +42,11 @@ import Favicon from '@/components/Favicon.astro';
         localStorage.setItem('theme', theme);
       }
     </script>
+    
+    <!-- Analytics Integration -->
+    <Analytics />
   </head>
   <body>
     <slot />
-    <Analytics />
   </body>
 </html>

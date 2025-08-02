@@ -5,28 +5,29 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Project Overview
 
 This is a professional portfolio website for Frank Palmisano built with Astro, featuring:
-- Server-side rendering (SSR) with Vercel adapter
+
+- Server-side rendering (SSR) with Node.js adapter
 - Dual portfolio paths (Software Engineer & Customer Service Representative)
 - Dark/light theme support
-- Vercel Analytics integration
-- BotID protection for API endpoints
+- Advanced rate limiting and bot protection for API endpoints
 - Responsive design with Tailwind CSS
 - UI components from shadcn/ui
 
 ## Development Commands
 
-| Command | Purpose |
-|---------|---------|
-| `npm run dev` | Start development server at `localhost:4321` with hot reloading |
-| `npm run build` | Build production site to `./dist/` directory |
-| `npm run preview` | Preview production build locally |
-| `npm run astro` | Run Astro CLI commands (e.g., `npm run astro add tailwind`) |
-| `npm run lint` | Run ESLint to check code quality (if configured) |
-| `npm run typecheck` | Run TypeScript type checking (if configured) |
+| Command             | Purpose                                                         |
+| ------------------- | --------------------------------------------------------------- |
+| `npm run dev`       | Start development server at `localhost:4321` with hot reloading |
+| `npm run build`     | Build production site to `./dist/` directory                    |
+| `npm run preview`   | Preview production build locally                                |
+| `npm run astro`     | Run Astro CLI commands (e.g., `npm run astro add tailwind`)     |
+| `npm run lint`      | Run ESLint to check code quality (if configured)                |
+| `npm run typecheck` | Run TypeScript type checking (if configured)                    |
 
 ## Testing Commands
 
 **IMPORTANT**: Always run these commands after completing any task to ensure code quality:
+
 - `npm run lint` (if available) - Check for code style issues
 - `npm run typecheck` (if available) - Check for TypeScript errors
 - `npm run build` - Ensure the project builds successfully
@@ -39,8 +40,8 @@ This is a professional portfolio website for Frank Palmisano built with Astro, f
 
 1. **Astro CLI** - Use for all Astro integrations:
    - `npx astro add react --yes` - Add React support
-   - `npx astro add tailwind --yes` - Add Tailwind CSS  
-   - `npx astro add vercel --yes` - Add Vercel adapter
+   - `npx astro add tailwind --yes` - Add Tailwind CSS
+   - `npx astro add node --yes` - Add Node.js adapter
    - `npx astro add mdx --yes` - Add MDX support
    - `npx astro add sitemap --yes` - Add sitemap generation
    - **Always use `--yes` flag** to ensure config updates properly
@@ -56,11 +57,13 @@ This is a professional portfolio website for Frank Palmisano built with Astro, f
    - Custom webpack/vite configurations
 
 ### Other CLI Commands
+
 - `npm run astro check` - Check for TypeScript and configuration errors
 - `npm run astro sync` - Generate TypeScript definitions for content collections
 - `npm run astro info` - Display project information and environment details
 
 ### When Making Changes
+
 1. **Check for CLI tools first** - Never manually configure what a CLI can handle
 2. **Always test with `npm run dev`** after making changes
 3. **Run `npm run build`** to verify production builds work
@@ -71,18 +74,19 @@ This is a professional portfolio website for Frank Palmisano built with Astro, f
 ## Current Tech Stack
 
 ### Core Technologies
+
 - **Astro 5.x** - Static site generator with SSR support
 - **React 19** - For interactive components
 - **Tailwind CSS v4** - Utility-first CSS framework
 - **TypeScript** - Type safety throughout the project
 
 ### Key Integrations
-- **@astrojs/vercel** - SSR adapter with ISR and image optimization
-- **@vercel/analytics** - Web analytics tracking
-- **botid** - Bot protection for API endpoints
+
+- **@astrojs/node** - SSR adapter for Node.js environments
 - **shadcn/ui** - Component library built on Radix UI
 
 ### Project Structure
+
 ```
 src/
 ├── assets/           # Images and static assets
@@ -94,57 +98,65 @@ src/
 │   ├── api/         # API endpoints
 │   └── *.astro      # Page routes
 ├── styles/          # Global styles
-└── middleware.js    # Request middleware (BotID protection)
+└── middleware.js    # Request middleware (rate limiting & bot protection)
 ```
 
 ### Architecture Patterns
 
 #### Component Hydration
+
 - Use `client:load` for immediately interactive components
 - Use `client:visible` for components that hydrate when scrolled into view
 - Use `client:idle` for lower-priority interactive components
 - **Note**: Astro's `<Image>` component doesn't need client directives
 
 #### SSR Configuration
+
 ```javascript
 // astro.config.mjs
 export default defineConfig({
   output: 'server',
-  adapter: vercel({
-    isr: { expiration: 60 * 60 }, // 1 hour cache
-    imageService: true,
-    webAnalytics: { enabled: true }
-  })
+  adapter: node({
+    mode: 'standalone',
+  }),
 });
 ```
 
-#### Bot Protection
-- Client-side: `initBotId()` in BotIDProtection component
-- Server-side: Middleware checks API routes with `checkBotId()`
-- vercel.json configures required rewrites for production
+#### Rate Limiting & Bot Protection
+
+- Server-side: Advanced middleware implements rate limiting per IP address
+- Automatic bot detection using request patterns and user-agent analysis
+- API endpoints protected with configurable rate limits and timeouts
+- Request validation and sanitization for enhanced security
 
 ### Performance Optimizations
-- **Image Optimization**: Vercel automatically optimizes images on-demand
-- **ISR Caching**: Pages cached for 1 hour after first request
+
+- **Image Optimization**: Astro's built-in image optimization with modern formats
+- **Server-side Caching**: Efficient caching strategies for static and dynamic content
 - **Component Code Splitting**: Only loads JavaScript for interactive components
-- **Modern Image Formats**: Automatic AVIF/WebP conversion
+- **CDN Integration**: Static assets served via Digital Ocean's CDN
+- **Gzip Compression**: Automatic compression for faster load times
 
 ### Development Best Practices
+
 1. **Keep components as .astro files** when possible
 2. **Use shadcn components directly** in .astro files
 3. **Apply client directives strategically** - only for interactive components
-4. **Test bot protection locally** by checking middleware logs
+4. **Test rate limiting locally** by checking middleware logs
 5. **Verify SSR behavior** with `npm run build && npm run preview`
 
 ### Deployment Notes
-- Deploys automatically to Vercel on push to main branch
-- Environment variables managed in Vercel dashboard
-- Analytics enabled in Vercel project settings
-- Bot protection rules apply in production only
+
+- Deploys to Digital Ocean App Platform with automatic builds
+- Environment variables managed in Digital Ocean dashboard
+- Rate limiting and security features active in production
+- Node.js runtime with PM2 process management
+- SSL certificates automatically managed by Digital Ocean
 
 ### Common Tasks
 
 #### Adding a New shadcn Component
+
 ```bash
 npx shadcn@latest add dialog
 # Then import in .astro file:
@@ -152,18 +164,20 @@ npx shadcn@latest add dialog
 ```
 
 #### Creating a New API Endpoint
+
 ```javascript
 // src/pages/api/endpoint.js
 export async function POST({ request, locals }) {
-  // BotID check already done in middleware
-  if (locals.botCheck?.status === 'likely_bot') {
-    return new Response('Forbidden', { status: 403 });
+  // Rate limiting check already done in middleware
+  if (locals.rateLimited) {
+    return new Response('Rate limit exceeded', { status: 429 });
   }
   // Handle request...
 }
 ```
 
 #### Adding a New Page Section
+
 1. Create component in `src/components/SectionName.astro`
 2. Import and use in relevant page files
 3. Ensure proper styling with Tailwind classes

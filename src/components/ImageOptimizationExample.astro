@@ -1,0 +1,430 @@
+---
+/**
+ * Image Optimization System Examples
+ * 
+ * Demonstrates usage of OptimizedImage and LazyImage components
+ * with various optimization scenarios
+ */
+
+import OptimizedImage from './OptimizedImage.astro';
+import LazyImage from './LazyImage';
+
+// Example image sources
+const sampleImages = [
+  {
+    src: '/src/assets/frank-headshot.png',
+    alt: 'Frank Palmisano - Professional headshot',
+    width: 400,
+    height: 400,
+  },
+  {
+    src: '/src/assets/background.svg',
+    alt: 'Background pattern',
+    width: 800,
+    height: 600,
+  },
+];
+
+// Responsive breakpoints for different screen sizes
+const responsiveBreakpoints = [
+  { breakpoint: 'sm' as const, width: 320, height: 240, quality: 75 },
+  { breakpoint: 'md' as const, width: 640, height: 480, quality: 80 },
+  { breakpoint: 'lg' as const, width: 1024, height: 768, quality: 85 },
+  { breakpoint: 'xl' as const, width: 1280, height: 960, quality: 90 },
+];
+---
+
+<div class="image-optimization-examples">
+  <h2 class="text-2xl font-bold mb-6">Image Optimization Examples</h2>
+  
+  <!-- Example 1: Basic OptimizedImage with AVIF/WebP support -->
+  <section class="example-section mb-8">
+    <h3 class="text-xl font-semibold mb-4">1. Basic Optimized Image</h3>
+    <p class="text-gray-600 mb-4">
+      Automatically selects best format (AVIF → WebP → JPEG) based on browser support
+    </p>
+    
+    <div class="example-container">
+      <OptimizedImage
+        src={sampleImages[0].src}
+        alt={sampleImages[0].alt}
+        width={300}
+        height={300}
+        quality={85}
+        formats={['avif', 'webp', 'jpeg']}
+        className="rounded-lg shadow-md"
+        loading="eager"
+        priority="high"
+      />
+    </div>
+    
+    <details class="mt-4">
+      <summary class="cursor-pointer text-blue-600 hover:text-blue-800">View Code</summary>
+      <pre class="bg-gray-100 p-4 rounded-lg mt-2 overflow-x-auto"><code>{`<OptimizedImage
+  src="/src/assets/frank-headshot.png"
+  alt="Frank Palmisano - Professional headshot"
+  width={300}
+  height={300}
+  quality={85}
+  formats={['avif', 'webp', 'jpeg']}
+  className="rounded-lg shadow-md"
+  loading="eager"
+  priority="high"
+/>`}</code></pre>
+    </details>
+  </section>
+
+  <!-- Example 2: Responsive OptimizedImage -->
+  <section class="example-section mb-8">
+    <h3 class="text-xl font-semibold mb-4">2. Responsive Optimized Image</h3>
+    <p class="text-gray-600 mb-4">
+      Serves different image sizes based on screen width and device pixel ratio
+    </p>
+    
+    <div class="example-container">
+      <OptimizedImage
+        src={sampleImages[1].src}
+        alt={sampleImages[1].alt}
+        width={800}
+        height={600}
+        responsive={responsiveBreakpoints}
+        sizes="(max-width: 640px) 320px, (max-width: 1024px) 640px, 800px"
+        className="w-full h-auto rounded-lg shadow-md"
+        placeholder={true}
+      />
+    </div>
+    
+    <details class="mt-4">
+      <summary class="cursor-pointer text-blue-600 hover:text-blue-800">View Code</summary>
+      <pre class="bg-gray-100 p-4 rounded-lg mt-2 overflow-x-auto"><code>{`const responsiveBreakpoints = [
+  { breakpoint: 'sm', width: 320, height: 240, quality: 75 },
+  { breakpoint: 'md', width: 640, height: 480, quality: 80 },
+  { breakpoint: 'lg', width: 1024, height: 768, quality: 85 },
+  { breakpoint: 'xl', width: 1280, height: 960, quality: 90 },
+];
+
+<OptimizedImage
+  src="/src/assets/background.svg"
+  alt="Background pattern"
+  width={800}
+  height={600}
+  responsive={responsiveBreakpoints}
+  sizes="(max-width: 640px) 320px, (max-width: 1024px) 640px, 800px"
+  className="w-full h-auto rounded-lg shadow-md"
+  placeholder={true}
+/>`}</code></pre>
+    </details>
+  </section>
+
+  <!-- Example 3: LazyImage with Intersection Observer -->
+  <section class="example-section mb-8">
+    <h3 class="text-xl font-semibold mb-4">3. Lazy Loading with React Component</h3>
+    <p class="text-gray-600 mb-4">
+      Advanced lazy loading with Intersection Observer, blur placeholder, and error handling
+    </p>
+    
+    <div class="example-container">
+      <LazyImage
+        src={sampleImages[0].src}
+        alt={sampleImages[0].alt}
+        width={400}
+        height={400}
+        className="rounded-lg shadow-md"
+        optimization={{
+          quality: 80,
+          format: 'webp',
+          fit: 'cover'
+        }}
+        loadingConfig={{
+          rootMargin: '100px',
+          threshold: 0.1,
+          lazy: true,
+        }}
+        errorConfig={{
+          retryAttempts: 3,
+          retryDelay: 1000,
+          fallbackSrc: '/placeholder-image.jpg'
+        }}
+        placeholder={true}
+        showLoadingSpinner={true}
+        client:load
+      />
+    </div>
+    
+    <details class="mt-4">
+      <summary class="cursor-pointer text-blue-600 hover:text-blue-800">View Code</summary>
+      <pre class="bg-gray-100 p-4 rounded-lg mt-2 overflow-x-auto"><code>{`<LazyImage
+  src="/src/assets/frank-headshot.png"
+  alt="Frank Palmisano - Professional headshot"
+  width={400}
+  height={400}
+  className="rounded-lg shadow-md"
+  optimization={{
+    quality: 80,
+    format: 'webp',
+    fit: 'cover'
+  }}
+  loadingConfig={{
+    rootMargin: '100px',
+    threshold: 0.1,
+    lazy: true,
+  }}
+  errorConfig={{
+    retryAttempts: 3,
+    retryDelay: 1000,
+    fallbackSrc: '/placeholder-image.jpg'
+  }}
+  placeholder={true}
+  showLoadingSpinner={true}
+  client:load
+/>`}</code></pre>
+    </details>
+  </section>
+
+  <!-- Example 4: Performance Comparison -->
+  <section class="example-section mb-8">
+    <h3 class="text-xl font-semibold mb-4">4. Performance Comparison</h3>
+    <p class="text-gray-600 mb-4">
+      Side-by-side comparison of standard img vs optimized image
+    </p>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <!-- Standard Image -->
+      <div class="comparison-item">
+        <h4 class="font-medium mb-2">Standard &lt;img&gt; Tag</h4>
+        <img
+          src={sampleImages[0].src}
+          alt={sampleImages[0].alt}
+          width="200"
+          height="200"
+          class="w-full h-auto rounded-lg shadow-md"
+        />
+        <p class="text-sm text-gray-500 mt-2">
+          • Original file format<br>
+          • No optimization<br>
+          • Single resolution
+        </p>
+      </div>
+      
+      <!-- Optimized Image -->
+      <div class="comparison-item">
+        <h4 class="font-medium mb-2">OptimizedImage Component</h4>
+        <OptimizedImage
+          src={sampleImages[0].src}
+          alt={sampleImages[0].alt}
+          width={200}
+          height={200}
+          quality={80}
+          formats={['avif', 'webp', 'jpeg']}
+          className="w-full h-auto rounded-lg shadow-md"
+          placeholder={true}
+        />
+        <p class="text-sm text-gray-500 mt-2">
+          • Modern formats (AVIF/WebP)<br>
+          • Quality optimization<br>
+          • Responsive sizing<br>
+          • Blur placeholder
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Example 5: Advanced Features -->
+  <section class="example-section mb-8">
+    <h3 class="text-xl font-semibold mb-4">5. Advanced Features</h3>
+    <p class="text-gray-600 mb-4">
+      Demonstrating blur effects, brightness adjustments, and custom placeholders
+    </p>
+    
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <!-- Blur Effect -->
+      <div class="feature-demo">
+        <h4 class="font-medium mb-2">Blur Effect</h4>
+        <OptimizedImage
+          src={sampleImages[1].src}
+          alt="Blurred background"
+          width={200}
+          height={150}
+          quality={70}
+          className="w-full h-auto rounded-lg"
+          style={{ filter: 'blur(2px)' }}
+        />
+      </div>
+      
+      <!-- Brightness Adjustment -->
+      <div class="feature-demo">
+        <h4 class="font-medium mb-2">Brightness Adjustment</h4>
+        <OptimizedImage
+          src={sampleImages[0].src}
+          alt="Brightened image"
+          width={200}
+          height={200}
+          quality={80}
+          className="w-full h-auto rounded-lg"
+          style={{ filter: 'brightness(1.2)' }}
+        />
+      </div>
+      
+      <!-- Custom Aspect Ratio -->
+      <div class="feature-demo">
+        <h4 class="font-medium mb-2">Custom Aspect Ratio</h4>
+        <OptimizedImage
+          src={sampleImages[0].src}
+          alt="Square aspect ratio"
+          width={200}
+          height={200}
+          fit="cover"
+          quality={85}
+          className="w-full aspect-square object-cover rounded-lg"
+        />
+      </div>
+    </div>
+  </section>
+
+  <!-- Example 6: API Integration -->
+  <section class="example-section mb-8">
+    <h3 class="text-xl font-semibold mb-4">6. API Integration Example</h3>
+    <p class="text-gray-600 mb-4">
+      Direct API usage for custom optimization workflows
+    </p>
+    
+    <div class="api-example">
+      <details>
+        <summary class="cursor-pointer text-blue-600 hover:text-blue-800 mb-4">
+          View API Integration Code
+        </summary>
+        <pre class="bg-gray-100 p-4 rounded-lg overflow-x-auto"><code>{`// Using the Image Optimization Service
+import { imageOptimizationService } from '../services/imageOptimization';
+
+// Single image optimization
+const optimizedData = await imageOptimizationService.optimizeImage(
+  '/src/assets/frank-headshot.png',
+  {
+    width: 400,
+    height: 400,
+    quality: 85,
+    format: 'webp',
+    fit: 'cover'
+  }
+);
+
+// Batch optimization
+const batchRequests = [
+  { src: '/image1.jpg', params: { width: 300, quality: 80 } },
+  { src: '/image2.jpg', params: { width: 600, quality: 85 } },
+];
+
+const batchResults = await imageOptimizationService.optimizeImagesBatch(batchRequests);
+
+// Performance monitoring
+const stats = imageOptimizationService.getPerformanceStats();
+console.log('Average load time:', stats.averageLoadTime);
+console.log('Cache hit rate:', stats.cacheHitRate);`}</code></pre>
+      </details>
+    </div>
+  </section>
+</div>
+
+<style>
+  .image-optimization-examples {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+  }
+  
+  .example-section {
+    border: 1px solid #e5e7eb;
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    background-color: #fafafa;
+  }
+  
+  .example-container {
+    background-color: white;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    border: 2px dashed #d1d5db;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 200px;
+  }
+  
+  .comparison-item {
+    background-color: white;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    border: 1px solid #e5e7eb;
+  }
+  
+  .feature-demo {
+    background-color: white;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    border: 1px solid #e5e7eb;
+    text-align: center;
+  }
+  
+  .api-example {
+    background-color: white;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    border: 1px solid #e5e7eb;
+  }
+  
+  pre {
+    font-size: 0.85rem;
+    line-height: 1.4;
+  }
+  
+  code {
+    color: #1f2937;
+  }
+  
+  details summary {
+    font-weight: 500;
+  }
+  
+  /* Dark mode support */
+  @media (prefers-color-scheme: dark) {
+    .example-section {
+      background-color: #1f2937;
+      border-color: #374151;
+    }
+    
+    .example-container,
+    .comparison-item,
+    .feature-demo,
+    .api-example {
+      background-color: #111827;
+      border-color: #374151;
+    }
+    
+    pre {
+      background-color: #1f2937 !important;
+    }
+    
+    code {
+      color: #f9fafb;
+    }
+  }
+</style>
+
+<script>
+  // Performance monitoring example
+  document.addEventListener('DOMContentLoaded', () => {
+    // Listen for image performance events
+    document.addEventListener('optimized-image-loaded', (event: Event) => {
+      console.log('Optimized image loaded:', (event as CustomEvent).detail);
+    });
+    
+    document.addEventListener('lazy-image-loaded', (event: Event) => {
+      console.log('Lazy image loaded:', (event as CustomEvent).detail);
+    });
+    
+    // Monitor image performance metrics
+    window.addEventListener('image-performance-metric', (event: Event) => {
+      console.log('Image performance metric:', (event as CustomEvent).detail);
+    });
+  });
+</script>

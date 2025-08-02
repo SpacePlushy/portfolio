@@ -1,0 +1,97 @@
+#
+# Digital Ocean App Platform Deployment Configuration - FIXED VERSION
+# Simplified configuration focusing on the main application
+#
+name: portfolio-optimized
+region: nyc1
+
+# Environment variables
+envs:
+  - key: NODE_ENV
+    value: production
+  - key: LOG_LEVEL
+    value: info
+  - key: REDIS_URL
+    scope: RUN_AND_BUILD_TIME
+    type: SECRET
+  - key: SHARP_CACHE_SIZE
+    value: "100"
+  - key: SHARP_CONCURRENCY
+    value: "2"
+
+# Main portfolio application with image optimization built-in
+services:
+  # Primary web application with integrated image processing
+  - name: portfolio-web
+    source_dir: /
+    github:
+      repo: SpacePlushy/portfolio
+      branch: main
+      deploy_on_push: true
+    dockerfile_path: Dockerfile.optimized
+    
+    environment_slug: node-js
+    instance_count: 1
+    instance_size_slug: basic-s  # Increased from basic-xxs for Sharp compatibility
+    
+    http_port: 4321
+    
+    health_check:
+      http_path: /api/health
+      initial_delay_seconds: 30
+      period_seconds: 15
+      timeout_seconds: 10
+      success_threshold: 1
+      failure_threshold: 3
+    
+    routes:
+      - path: /
+    
+    envs:
+      - key: HOST
+        value: "0.0.0.0"
+      - key: PORT
+        value: "4321"
+      - key: REDIS_URL
+        value: "${redis-cache.PRIVATE_URL}"
+      - key: NODE_OPTIONS
+        value: "--max-old-space-size=1536"
+    
+    alerts:
+      - rule: CPU_UTILIZATION
+        value: 85
+      - rule: MEM_UTILIZATION  
+        value: 85
+      - rule: RESTART_COUNT
+        value: 5
+
+# Redis for caching
+databases:
+  - name: redis-cache
+    engine: REDIS
+    version: "7"
+    size: basic
+    num_nodes: 1
+
+# Static assets
+static_sites:
+  - name: static-assets
+    source_dir: /public
+    github:
+      repo: SpacePlushy/portfolio
+      branch: main
+      deploy_on_push: true
+    
+    routes:
+      - path: /assets
+      - path: /images
+      - path: /fonts
+    
+    envs:
+      - key: CDN_CACHE_CONTROL
+        value: "public, max-age=31536000, immutable"
+
+# Alerts configuration
+alerts:
+  - rule: DEPLOYMENT_FAILED
+  - rule: DOMAIN_FAILED

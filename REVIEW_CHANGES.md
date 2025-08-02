@@ -50,7 +50,6 @@ export default defineConfig({
   adapter: vercel({
     isr: { expiration: 60 * 60 }, // 1 hour cache
     imageService: true,
-    webAnalytics: { enabled: true },
   }),
 });
 ```
@@ -318,7 +317,6 @@ export const collections = {
 
 - Web Vitals tracking
 - Error monitoring (Sentry)
-- Custom analytics events
 
 ### 18. Route Structure Scalability
 

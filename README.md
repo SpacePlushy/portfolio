@@ -22,12 +22,12 @@ A professional portfolio website built with Astro, showcasing expertise in both 
 
 All commands are run from the root of the project:
 
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:4321`      |
-| `npm run build`           | Build your production site to `./dist/`          |
-| `npm run preview`         | Preview your build locally, before deploying     |
+| Command           | Action                                       |
+| :---------------- | :------------------------------------------- |
+| `npm install`     | Installs dependencies                        |
+| `npm run dev`     | Starts local dev server at `localhost:4321`  |
+| `npm run build`   | Build your production site to `./dist/`      |
+| `npm run preview` | Preview your build locally, before deploying |
 
 ## 📝 Development Notes
 
@@ -38,4 +38,30 @@ All commands are run from the root of the project:
 
 ## 🌐 Deployment
 
-This site is deployed on Vercel with automatic deployments from the main branch.
+This site is deployed on Digital Ocean App Platform with CDN optimization for maximum performance.
+
+### CDN Configuration
+
+The portfolio includes comprehensive CDN configuration for optimal performance:
+
+- **Cache Strategy**: Intelligent caching for different asset types
+- **Compression**: Brotli and Gzip compression for all text-based assets
+- **Security Headers**: CDN-compatible security headers
+- **Performance Monitoring**: Built-in performance testing and monitoring
+
+### CDN Commands
+
+| Command              | Action                                        |
+| :------------------- | :-------------------------------------------- |
+| `npm run test:cdn`   | Test CDN performance and configuration       |
+| `npm run deploy:cdn` | Deploy with automatic CDN cache purging      |
+| `npm run deploy:test`| Run deployment tests only                     |
+| `npm run purge:cdn`  | Purge CDN caches manually                     |
+
+### Supported CDN Providers
+
+- **Cloudflare**: Full configuration with security and performance features
+- **Digital Ocean Spaces CDN**: Optimized for Digital Ocean App Platform
+- **Generic CDN**: Compatible with most CDN providers
+
+For detailed CDN setup instructions, see [CDN_SETUP_GUIDE.md](./CDN_SETUP_GUIDE.md).
