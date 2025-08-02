@@ -98,7 +98,9 @@ WORKDIR /app
 # Copy production files with proper ownership
 COPY --from=dependencies --chown=nodejs:nodejs /app/node_modules ./node_modules
 COPY --from=builder --chown=nodejs:nodejs /app/dist ./dist
+COPY --from=builder --chown=nodejs:nodejs /app/public ./public
 COPY --chown=nodejs:nodejs package*.json ./
+COPY --chown=nodejs:nodejs server.js ./
 
 # Create cache directory for Sharp
 RUN mkdir -p /app/.cache && chown -R nodejs:nodejs /app/.cache
@@ -130,5 +132,5 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=45s --retries=3 \
 # Use tini for proper signal handling
 ENTRYPOINT ["/sbin/tini", "--"]
 
-# Start the Astro server
-CMD ["node", "./dist/server/entry.mjs"]
+# Start the custom server
+CMD ["node", "server.js"]

@@ -72,22 +72,7 @@ services:
         scope: RUN_AND_BUILD_TIME
         type: SECRET
 
-# Static file serving (offload from main app)
-static_sites:
-  - name: portfolio-static
-    github:
-      repo: SpacePlushy/portfolio
-      branch: build-fixes
-      deploy_on_push: true
-    
-    source_dir: /public
-    
-    routes:
-      - path: /assets
-      - path: /images
-      - path: /fonts
-      - path: /favicon.ico
-      - path: /robots.txt
+# Static file serving (removed - handled by Node.js adapter)
 
 # Alerts for monitoring
 alerts:
