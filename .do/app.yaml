@@ -1,145 +1,96 @@
 #
-# Digital Ocean App Platform Deployment Configuration - FIXED VERSION
-# Simplified configuration focusing on the main application
+# Digital Ocean App Platform - OPTIMIZED CONFIGURATION
+# Fixes for 504 errors and health check timeouts
 #
-name: portfolio-optimized
+name: portfolio-app
 region: nyc1
 
-# Environment variables
+# Global environment variables
 envs:
   - key: NODE_ENV
     value: production
   - key: LOG_LEVEL
     value: info
-  - key: REDIS_URL
-    scope: RUN_AND_BUILD_TIME
-    type: SECRET
+  - key: HOST
+    value: "0.0.0.0"
+  - key: PORT
+    value: "8080"
+  # Sharp optimizations for small instances
+  - key: SHARP_IGNORE_GLOBAL_LIBVIPS
+    value: "1"
   - key: SHARP_CACHE_SIZE
-    value: "100"
+    value: "50"
   - key: SHARP_CONCURRENCY
-    value: "2"
-  # Monitoring and feature flags
-  - key: ENABLE_MONITORING
-    value: "true"
-  - key: ENABLE_PROMETHEUS_METRICS
-    value: "true"
-  - key: HEALTH_CHECK_TIMEOUT
-    value: "30000"
+    value: "1"
+  - key: SHARP_SIMD
+    value: "false"  # Disable SIMD on small instances
+  # Node.js memory optimization
+  - key: NODE_OPTIONS
+    value: "--max-old-space-size=400"  # Leave headroom for 0.5GB instance
+  # Startup optimization
+  - key: STARTUP_GRACE_PERIOD
+    value: "30"  # Seconds to wait before full health checks
   - key: STARTUP_TIMEOUT
-    value: "120000"
-  - key: GRACEFUL_SHUTDOWN_TIMEOUT
-    value: "15000"
-  # Feature flags for gradual rollout
-  - key: FEATURE_IMAGE_OPTIMIZATION_V2
-    value: "true"
-  - key: FEATURE_ENHANCED_CACHING
-    value: "true"
-  - key: FEATURE_PERFORMANCE_MONITORING
-    value: "true"
+    value: "120000"  # 2 minutes max startup time
 
-# Main portfolio application with image optimization built-in
+# Main application service
 services:
-  # Primary web application with integrated image processing
-  - name: portfolio-web
-    source_dir: /
+  - name: portfolio
     github:
       repo: SpacePlushy/portfolio
       branch: build-fixes
       deploy_on_push: true
+    
+    # Build configuration
+    build_command: npm ci --production=false && npm run build
+    run_command: npm start
+    
+    # Use Dockerfile for optimized builds
     dockerfile_path: Dockerfile
     
+    # Instance configuration
     environment_slug: node-js
     instance_count: 1
-    instance_size_slug: basic-s  # Increased from basic-xxs for Sharp compatibility
+    instance_size_slug: basic-xxs  # 0.5GB RAM, 1 vCPU
     
+    # Port configuration
     http_port: 8080
     
+    # Optimized health checks for fast startup
     health_check:
-      http_path: /api/readiness  # Use readiness for faster startup
-      initial_delay_seconds: 30  # Reduced with new lifecycle management
-      period_seconds: 15         # More frequent checks
-      timeout_seconds: 10        # Reasonable timeout
-      success_threshold: 1       # Single success needed
-      failure_threshold: 3       # Quick failure detection
+      # Use quick mode of unified health endpoint
+      http_path: /api/health?quick=true
+      initial_delay_seconds: 10   # Quick initial check
+      period_seconds: 10          # Frequent checks
+      timeout_seconds: 5          # Fast timeout
+      success_threshold: 1        # Single success is enough
+      failure_threshold: 3        # Allow some failures during startup
     
-    # Liveness probe for ongoing health
-    liveness_check:
-      http_path: /api/health     # Comprehensive health check
-      initial_delay_seconds: 60  # Allow startup time
-      period_seconds: 30         # Check every 30 seconds
-      timeout_seconds: 15        # Longer timeout for full check
-      success_threshold: 1
-      failure_threshold: 3
-    
-    routes:
-      - path: /
-      # Monitoring and health check routes
-      - path: /api/health
-      - path: /api/readiness
-      - path: /api/monitoring
-      - path: /metrics
-      - path: /health-status
-      - path: /monitoring
-    
+    # Service-specific environment variables
     envs:
-      - key: HOST
-        value: "0.0.0.0"
-      - key: PORT
-        value: "8080"
       - key: REDIS_URL
-        value: "${redis-cache.PRIVATE_URL}"
-      - key: NODE_OPTIONS
-        value: "--max-old-space-size=1536"
-      # Application lifecycle settings
-      - key: ENABLE_GRACEFUL_SHUTDOWN
-        value: "true"
-      - key: SHUTDOWN_TIMEOUT_MS
-        value: "15000"
-      - key: STARTUP_PROBE_DELAY_MS
-        value: "5000"
-      # Monitoring configuration
-      - key: METRICS_PORT
-        value: "9090"
-      - key: ENABLE_REQUEST_LOGGING
-        value: "true"
-      - key: ENABLE_PERFORMANCE_TRACKING
-        value: "true"
-    
-    alerts:
-      - rule: CPU_UTILIZATION
-        value: 85
-      - rule: MEM_UTILIZATION  
-        value: 85
-      - rule: RESTART_COUNT
-        value: 5
+        scope: RUN_AND_BUILD_TIME
+        type: SECRET
 
-# Redis for caching
-databases:
-  - name: redis-cache
-    engine: REDIS
-    version: "7"
-    size: basic
-    num_nodes: 1
-
-# Static assets
+# Static file serving (offload from main app)
 static_sites:
-  - name: static-assets
-    source_dir: /public
+  - name: portfolio-static
     github:
       repo: SpacePlushy/portfolio
       branch: build-fixes
       deploy_on_push: true
+    
+    source_dir: /public
     
     routes:
       - path: /assets
       - path: /images
       - path: /fonts
-    
-    envs:
-      - key: CDN_CACHE_CONTROL
-        value: "public, max-age=31536000, immutable"
+      - path: /favicon.ico
+      - path: /robots.txt
 
-# Alerts configuration
+# Alerts for monitoring
 alerts:
   - rule: DEPLOYMENT_FAILED
   - rule: DOMAIN_FAILED
+  - rule: DEPLOYMENT_LIVE

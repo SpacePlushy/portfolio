@@ -1,359 +1,204 @@
+/**
+ * Unified health check endpoint for Digital Ocean deployment
+ * Provides configurable verbosity levels and graceful startup handling
+ */
+
+import { getSharpStatus, prewarmSharp } from '../../utils/sharp-loader.js';
+import { createClient } from 'redis';
+
 // Global state for tracking initialization
-let applicationReady = false;
-let sharpReady = false;
-let redisReady = false;
-let startupTime = Date.now();
+const appState = {
+  startupTime: Date.now(),
+  initialized: false,
+  services: {
+    sharp: { status: 'initializing', message: 'Not initialized' },
+    redis: { status: 'initializing', message: 'Not initialized' },
+    application: { status: 'starting', message: 'Application starting' }
+  }
+};
 
-// Initialize dependencies asynchronously on startup
-initializeDependencies();
+// Start background initialization
+initializeServices();
 
-export async function GET() {
-  const startTime = Date.now();
-  const uptime = (Date.now() - startupTime) / 1000;
-  const startupGracePeriod = parseInt(process.env.STARTUP_GRACE_PERIOD || '10', 10);
+export async function GET({ url }) {
+  const query = new URL(url).searchParams;
+  const verbose = query.get('verbose') === 'true';
+  const quick = query.get('quick') === 'true';
   
-  // CRITICAL: Respond immediately during early startup
-  if (uptime < startupGracePeriod) {
-    return new Response(JSON.stringify({
-      status: 'starting',
-      timestamp: new Date().toISOString(),
-      startup_time_seconds: Math.round(uptime),
-      message: 'Application starting up'
-    }), {
-      status: 503,
+  const startTime = Date.now();
+  const uptime = (Date.now() - appState.startupTime) / 1000;
+  
+  // Quick response mode for load balancers
+  if (quick) {
+    return new Response('OK', {
+      status: 200,
       headers: {
-        'Content-Type': 'application/json',
-        'Cache-Control': 'no-cache, no-store, must-revalidate',
-        'Retry-After': '5'
+        'Content-Type': 'text/plain',
+        'Cache-Control': 'no-cache',
+        'X-Uptime': Math.round(uptime).toString()
       }
     });
   }
-
-  const checks = {};
-  let overallStatus = 'healthy';
-
-  try {
-    // Basic application health - always healthy if we can respond
-    checks.application = {
-      status: 'healthy',
-      timestamp: new Date().toISOString(),
-      uptime: process.uptime(),
-      startup_time: uptime,
-      memory: getMemoryUsage(),
-      version: process.env.npm_package_version || '1.0.0',
-      ready: applicationReady
-    };
-
-    // Environment check
-    checks.environment = {
-      status: 'healthy',
-      node_version: process.version,
-      environment: process.env.NODE_ENV || 'production',
-      port: process.env.PORT || 8080,
-      host: process.env.HOST || '0.0.0.0',
-      // Add app version if available
-      app_version: process.env.APP_VERSION || process.env.GITHUB_SHA || 'unknown',
-      deployment_time: startupTime
-    };
-
-    // Quick Sharp check (non-blocking)
-    checks.sharp = getSharpStatus();
-
-    // Quick Redis check (non-blocking)
-    checks.redis = getRedisStatus();
-
-    // Skip filesystem check during startup to avoid delays
-    if (uptime > 30) {
-      checks.filesystem = await checkFileSystemQuick();
-    }
-
-    // For startup period, be more lenient
-    if (uptime < 60) { // First 60 seconds
-      // Only fail if critical errors exist
-      const criticalChecks = [checks.application, checks.environment];
-      if (criticalChecks.some(check => check && check.status === 'unhealthy')) {
-        overallStatus = 'unhealthy';
-      } else {
-        overallStatus = 'healthy'; // Allow degraded services during startup
-      }
-    } else {
-      // Normal health check logic after startup period
-      const allChecks = Object.values(checks);
-      if (allChecks.some(check => check && check.status === 'unhealthy')) {
-        overallStatus = 'unhealthy';
-      } else if (allChecks.some(check => check && check.status === 'degraded')) {
-        overallStatus = 'degraded';
-      }
-    }
-
-  } catch (error) {
-    // Don't fail health check for non-critical errors during startup
-    if (uptime < 60) {
-      overallStatus = 'degraded';
-      checks.startup_error = {
-        status: 'degraded',
-        message: 'Startup in progress',
-        error: error.message
-      };
-    } else {
-      overallStatus = 'unhealthy';
-      checks.error = {
-        status: 'unhealthy',
-        message: error.message,
-        stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
-      };
-    }
-  }
-
-  const responseTime = Date.now() - startTime;
   
-  // Always return 200 during startup period for health checks
-  const status = (uptime < 60 || overallStatus === 'healthy') ? 200 : 503;
-
-  return new Response(JSON.stringify({
-    status: overallStatus,
+  // Build health response
+  const health = {
+    status: determineOverallStatus(),
     timestamp: new Date().toISOString(),
-    response_time_ms: responseTime,
-    startup_time_seconds: Math.round(uptime),
-    checks
-  }, null, 2), {
-    status,
+    uptime: Math.round(uptime),
+    ready: appState.initialized
+  };
+  
+  // Add verbose details if requested
+  if (verbose) {
+    health.services = { ...appState.services };
+    health.memory = getMemoryInfo();
+    health.environment = {
+      node_version: process.version,
+      port: process.env.PORT || 8080,
+      environment: process.env.NODE_ENV || 'production'
+    };
+    health.response_time_ms = Date.now() - startTime;
+  }
+  
+  const httpStatus = health.status === 'healthy' || uptime < 30 ? 200 : 503;
+  
+  return new Response(JSON.stringify(health, null, 2), {
+    status: httpStatus,
     headers: {
       'Content-Type': 'application/json',
-      'Cache-Control': 'no-cache, no-store, must-revalidate'
+      'Cache-Control': 'no-cache, no-store, must-revalidate',
+      'X-Health-Status': health.status
     }
   });
 }
 
-// Initialize dependencies asynchronously to avoid blocking health checks
-async function initializeDependencies() {
-  console.log('Starting dependency initialization...');
+/**
+ * Initialize services in background without blocking health checks
+ */
+async function initializeServices() {
+  console.log('[Health] Starting service initialization...');
+  
+  // Mark application as ready after basic startup
+  setTimeout(() => {
+    appState.services.application = {
+      status: 'healthy',
+      message: 'Application ready',
+      uptime: process.uptime()
+    };
+    updateInitializedState();
+  }, 3000);
   
   // Initialize Sharp
-  try {
-    console.log('Initializing Sharp...');
-    await initializeSharp();
-    sharpReady = true;
-    console.log('Sharp initialized successfully');
-  } catch (error) {
-    console.error('Sharp initialization failed:', error.message);
-    sharpReady = false;
-  }
-
-  // Initialize Redis
-  try {
-    console.log('Initializing Redis connection...');
-    await initializeRedis();
-    redisReady = true;
-    console.log('Redis initialized successfully');
-  } catch (error) {
-    console.error('Redis initialization failed:', error.message);
-    redisReady = false;
-  }
-
-  applicationReady = true;
-  console.log('Application dependencies initialized');
-}
-
-// Quick, non-blocking status checks
-function getSharpStatus() {
-  if (!sharpReady) {
-    return {
-      status: 'degraded',
-      message: 'Sharp initialization in progress',
-      ready: false
-    };
-  }
-  return {
-    status: 'healthy',
-    message: 'Sharp image processing ready',
-    ready: true
-  };
-}
-
-function getRedisStatus() {
-  const redisUrl = process.env.REDIS_URL;
-  if (!redisUrl) {
-    return {
-      status: 'degraded',
-      message: 'Redis not configured',
-      ready: false
-    };
-  }
-  
-  if (!redisReady) {
-    return {
-      status: 'degraded',
-      message: 'Redis connection in progress',
-      ready: false,
-      url: redisUrl.replace(/:[^:]*@/, ':***@')
-    };
-  }
-  
-  return {
-    status: 'healthy',
-    message: 'Redis connection ready',
-    ready: true,
-    url: redisUrl.replace(/:[^:]*@/, ':***@')
-  };
-}
-
-function getMemoryUsage() {
-  const usage = process.memoryUsage();
-  return {
-    rss: Math.round(usage.rss / 1024 / 1024), // MB
-    heapUsed: Math.round(usage.heapUsed / 1024 / 1024), // MB
-    heapTotal: Math.round(usage.heapTotal / 1024 / 1024), // MB
-    external: Math.round(usage.external / 1024 / 1024) // MB
-  };
-}
-
-async function checkFileSystemQuick() {
-  // Use a timeout to prevent blocking health checks
-  const timeoutMs = 500;
-  const timeoutPromise = new Promise(resolve => 
-    setTimeout(() => resolve({
-      status: 'degraded',
-      message: 'File system check timeout',
-      timeout: true,
-      timeoutMs
-    }), timeoutMs)
-  );
-  
-  try {
-    return await Promise.race([
-      checkFileSystem(),
-      timeoutPromise
-    ]);
-  } catch (error) {
-    return {
-      status: 'unhealthy',
-      message: 'File system check failed',
-      error: error.message
-    };
-  }
-}
-
-async function checkFileSystem() {
-  try {
-    const fs = await import('fs/promises');
-    await fs.access('./dist/server/entry.mjs');
-    return {
-      status: 'healthy',
-      message: 'Application files accessible'
-    };
-  } catch (error) {
-    // During startup, this might be expected
-    return {
-      status: 'degraded',
-      message: 'Application files check failed',
-      error: error.message
-    };
-  }
-}
-
-// Async Sharp initialization with proper error handling
-async function initializeSharp() {
-  try {
-    console.log('Loading Sharp module...');
-    const sharp = await import('sharp');
-    
-    if (!sharp.default) {
-      throw new Error('Sharp module not available');
+  setTimeout(async () => {
+    try {
+      await prewarmSharp();
+      appState.services.sharp = getSharpStatus();
+      console.log('[Health] Sharp initialized successfully');
+    } catch (error) {
+      appState.services.sharp = {
+        status: 'degraded',
+        message: 'Sharp initialization failed',
+        error: error.message
+      };
+      console.error('[Health] Sharp initialization error:', error.message);
     }
-    
-    // Test basic Sharp functionality with timeout
-    console.log('Testing Sharp functionality...');
-    // Create a minimal valid PNG buffer (8x8 red square)
-    const testImage = Buffer.from([
-      0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A, // PNG signature
-      0x00, 0x00, 0x00, 0x0D, 0x49, 0x48, 0x44, 0x52, // IHDR chunk
-      0x00, 0x00, 0x00, 0x08, 0x00, 0x00, 0x00, 0x08,
-      0x08, 0x02, 0x00, 0x00, 0x00, 0x4B, 0x6D, 0x29,
-      0xDC, 0x00, 0x00, 0x00, 0x1C, 0x49, 0x44, 0x41, // IDAT chunk
-      0x54, 0x78, 0x9C, 0x62, 0xF8, 0xCF, 0xC0, 0x00,
-      0x00, 0x03, 0x01, 0x01, 0x00, 0x18, 0xDD, 0x8D,
-      0xB4, 0x00, 0x00, 0x00, 0x00, 0x49, 0x45, 0x4E, // IEND chunk
-      0x44, 0xAE, 0x42, 0x60, 0x82
-    ]);
-    
-    // Use a timeout to prevent hanging
-    await Promise.race([
-      sharp.default(testImage, { failOnError: false }).metadata(),
-      new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Sharp test timeout')), 5000)
-      )
-    ]);
-    
-    console.log('Sharp test completed successfully');
-    return true;
-  } catch (error) {
-    console.error('Sharp initialization error:', error.message);
-    throw error;
+    updateInitializedState();
+  }, 5000);
+  
+  // Initialize Redis if configured
+  if (process.env.REDIS_URL) {
+    setTimeout(async () => {
+      await checkRedisConnection();
+      updateInitializedState();
+    }, 7000);
+  } else {
+    appState.services.redis = {
+      status: 'disabled',
+      message: 'Redis not configured'
+    };
   }
 }
 
-// Async Redis initialization with connection testing
-async function initializeRedis() {
-  const redisUrl = process.env.REDIS_URL;
-  if (!redisUrl) {
-    console.log('Redis URL not configured, skipping Redis initialization');
-    return false;
-  }
-  
+/**
+ * Check Redis connection
+ */
+async function checkRedisConnection() {
   try {
-    console.log('Testing Redis connection...');
-    
-    // Import Redis client dynamically
-    const redisModule = await import('redis');
-    const { createClient } = redisModule;
-    
-    // Create test client with aggressive timeouts
-    const testClient = createClient({
-      url: redisUrl,
+    const client = createClient({
+      url: process.env.REDIS_URL,
       socket: {
-        connectTimeout: 3000, // 3 seconds
-        commandTimeout: 2000  // 2 seconds
-      },
-      // Don't retry during health check
-      retryDelayOnFailover: 0,
-      maxRetriesPerRequest: 1
+        connectTimeout: 2000,
+        commandTimeout: 1000
+      }
     });
     
-    // Test connection with timeout
-    await Promise.race([
-      (async () => {
-        await testClient.connect();
-        await testClient.ping();
-        await testClient.quit();
-      })(),
-      new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Redis connection timeout')), 5000)
-      )
-    ]);
+    await client.connect();
+    await client.ping();
+    await client.quit();
     
-    console.log('Redis connection test successful');
-    return true;
+    appState.services.redis = {
+      status: 'healthy',
+      message: 'Redis connection established'
+    };
+    console.log('[Health] Redis connection verified');
   } catch (error) {
-    console.error('Redis connection test failed:', error.message);
-    // Don't throw - Redis is optional for basic functionality
-    return false;
+    appState.services.redis = {
+      status: 'degraded',
+      message: 'Redis connection failed',
+      error: error.message
+    };
+    console.error('[Health] Redis check failed:', error.message);
   }
 }
 
-// Add a simple readiness endpoint that's even lighter
-export function readiness() {
-  const uptime = (Date.now() - startupTime) / 1000;
+/**
+ * Update overall initialization state
+ */
+function updateInitializedState() {
+  const criticalServices = ['application'];
+  const allHealthy = criticalServices.every(
+    service => appState.services[service]?.status === 'healthy'
+  );
   
-  return new Response(JSON.stringify({
-    ready: uptime > 5, // Ready after 5 seconds minimum
-    uptime: Math.round(uptime),
-    timestamp: new Date().toISOString()
-  }), {
-    status: uptime > 5 ? 200 : 503,
-    headers: {
-      'Content-Type': 'application/json',
-      'Cache-Control': 'no-cache, no-store, must-revalidate'
-    }
-  });
+  if (allHealthy && !appState.initialized) {
+    appState.initialized = true;
+    console.log('[Health] Application fully initialized');
+  }
+}
+
+/**
+ * Determine overall health status
+ */
+function determineOverallStatus() {
+  const statuses = Object.values(appState.services).map(s => s.status);
+  
+  if (statuses.includes('unhealthy')) {
+    return 'unhealthy';
+  }
+  
+  // During startup, be lenient
+  const uptime = (Date.now() - appState.startupTime) / 1000;
+  if (uptime < 30) {
+    return appState.services.application.status === 'healthy' ? 'healthy' : 'starting';
+  }
+  
+  if (statuses.includes('degraded') || statuses.includes('initializing')) {
+    return 'degraded';
+  }
+  
+  return 'healthy';
+}
+
+/**
+ * Get memory information
+ */
+function getMemoryInfo() {
+  const usage = process.memoryUsage();
+  return {
+    rss_mb: Math.round(usage.rss / 1024 / 1024),
+    heap_used_mb: Math.round(usage.heapUsed / 1024 / 1024),
+    heap_total_mb: Math.round(usage.heapTotal / 1024 / 1024),
+    external_mb: Math.round(usage.external / 1024 / 1024),
+    heap_percent: Math.round((usage.heapUsed / usage.heapTotal) * 100)
+  };
 }
