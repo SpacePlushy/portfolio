@@ -4,12 +4,21 @@
 # Stage 1: Dependencies
 FROM node:20-alpine AS dependencies
 
-# Install build dependencies for native modules
+# Install build dependencies for native modules including canvas requirements
 RUN apk add --no-cache \
     python3 \
     make \
     g++ \
-    libc6-compat
+    libc6-compat \
+    cairo-dev \
+    jpeg-dev \
+    pango-dev \
+    giflib-dev \
+    pixman-dev \
+    pangomm-dev \
+    libjpeg-turbo-dev \
+    freetype-dev \
+    pkgconfig
 
 WORKDIR /app
 
@@ -29,12 +38,21 @@ RUN npm ci --production --no-audit --no-fund
 # Stage 2: Build
 FROM node:20-alpine AS builder
 
-# Install build dependencies
+# Install build dependencies including canvas requirements
 RUN apk add --no-cache \
     python3 \
     make \
     g++ \
-    libc6-compat
+    libc6-compat \
+    cairo-dev \
+    jpeg-dev \
+    pango-dev \
+    giflib-dev \
+    pixman-dev \
+    pangomm-dev \
+    libjpeg-turbo-dev \
+    freetype-dev \
+    pkgconfig
 
 WORKDIR /app
 
@@ -57,11 +75,19 @@ RUN npm run build
 # Stage 3: Production Runtime
 FROM node:20-alpine AS runtime
 
-# Install runtime dependencies only
+# Install runtime dependencies including canvas runtime libraries
 RUN apk add --no-cache \
     libc6-compat \
     tini \
-    curl
+    curl \
+    cairo \
+    jpeg \
+    pango \
+    giflib \
+    pixman \
+    pangomm \
+    libjpeg-turbo \
+    freetype
 
 # Create non-root user
 RUN addgroup -g 1001 -S nodejs && \
