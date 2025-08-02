@@ -9,9 +9,28 @@ initializeDependencies();
 
 export async function GET() {
   const startTime = Date.now();
+  const uptime = (Date.now() - startupTime) / 1000;
+  const startupGracePeriod = parseInt(process.env.STARTUP_GRACE_PERIOD || '10', 10);
+  
+  // CRITICAL: Respond immediately during early startup
+  if (uptime < startupGracePeriod) {
+    return new Response(JSON.stringify({
+      status: 'starting',
+      timestamp: new Date().toISOString(),
+      startup_time_seconds: Math.round(uptime),
+      message: 'Application starting up'
+    }), {
+      status: 503,
+      headers: {
+        'Content-Type': 'application/json',
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Retry-After': '5'
+      }
+    });
+  }
+
   const checks = {};
   let overallStatus = 'healthy';
-  const uptime = (Date.now() - startupTime) / 1000;
 
   try {
     // Basic application health - always healthy if we can respond
@@ -30,8 +49,11 @@ export async function GET() {
       status: 'healthy',
       node_version: process.version,
       environment: process.env.NODE_ENV || 'production',
-      port: process.env.PORT || 4321,
-      host: process.env.HOST || '0.0.0.0'
+      port: process.env.PORT || 8080,
+      host: process.env.HOST || '0.0.0.0',
+      // Add app version if available
+      app_version: process.env.APP_VERSION || process.env.GITHUB_SHA || 'unknown',
+      deployment_time: startupTime
     };
 
     // Quick Sharp check (non-blocking)
@@ -40,14 +62,16 @@ export async function GET() {
     // Quick Redis check (non-blocking)
     checks.redis = getRedisStatus();
 
-    // File system check with timeout
-    checks.filesystem = await checkFileSystemQuick();
+    // Skip filesystem check during startup to avoid delays
+    if (uptime > 30) {
+      checks.filesystem = await checkFileSystemQuick();
+    }
 
     // For startup period, be more lenient
     if (uptime < 60) { // First 60 seconds
       // Only fail if critical errors exist
-      const criticalChecks = [checks.application, checks.environment, checks.filesystem];
-      if (criticalChecks.some(check => check.status === 'unhealthy')) {
+      const criticalChecks = [checks.application, checks.environment];
+      if (criticalChecks.some(check => check && check.status === 'unhealthy')) {
         overallStatus = 'unhealthy';
       } else {
         overallStatus = 'healthy'; // Allow degraded services during startup
@@ -55,9 +79,9 @@ export async function GET() {
     } else {
       // Normal health check logic after startup period
       const allChecks = Object.values(checks);
-      if (allChecks.some(check => check.status === 'unhealthy')) {
+      if (allChecks.some(check => check && check.status === 'unhealthy')) {
         overallStatus = 'unhealthy';
-      } else if (allChecks.some(check => check.status === 'degraded')) {
+      } else if (allChecks.some(check => check && check.status === 'degraded')) {
         overallStatus = 'degraded';
       }
     }
@@ -186,16 +210,28 @@ function getMemoryUsage() {
 
 async function checkFileSystemQuick() {
   // Use a timeout to prevent blocking health checks
-  return Promise.race([
-    checkFileSystem(),
-    new Promise(resolve => 
-      setTimeout(() => resolve({
-        status: 'degraded',
-        message: 'File system check timeout',
-        timeout: true
-      }), 2000) // 2-second timeout
-    )
-  ]);
+  const timeoutMs = 500;
+  const timeoutPromise = new Promise(resolve => 
+    setTimeout(() => resolve({
+      status: 'degraded',
+      message: 'File system check timeout',
+      timeout: true,
+      timeoutMs
+    }), timeoutMs)
+  );
+  
+  try {
+    return await Promise.race([
+      checkFileSystem(),
+      timeoutPromise
+    ]);
+  } catch (error) {
+    return {
+      status: 'unhealthy',
+      message: 'File system check failed',
+      error: error.message
+    };
+  }
 }
 
 async function checkFileSystem() {
@@ -314,7 +350,7 @@ export function readiness() {
     uptime: Math.round(uptime),
     timestamp: new Date().toISOString()
   }), {
-    status: 200,
+    status: uptime > 5 ? 200 : 503,
     headers: {
       'Content-Type': 'application/json',
       'Cache-Control': 'no-cache, no-store, must-revalidate'

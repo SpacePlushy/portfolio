@@ -476,6 +476,8 @@ export async function onRequest(context, next) {
   // Skip middleware for static files and health checks
   if (
     path === '/api/health' || 
+    path === '/api/health-simple' ||
+    path === '/api/ready' ||
     path === '/api/readiness' ||
     path === '/favicon.ico' ||
     path === '/manifest.json' ||
