@@ -6,12 +6,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This is a professional portfolio website for Frank Palmisano built with Astro, featuring:
 
-- Server-side rendering (SSR) with Node.js adapter
+- Server-side rendering (SSR) with Node.js adapter and custom Express server
 - Dual portfolio paths (Software Engineer & Customer Service Representative)
 - Dark/light theme support
 - Advanced rate limiting and bot protection for API endpoints
-- Responsive design with Tailwind CSS
+- Responsive design with Tailwind CSS v4
 - UI components from shadcn/ui
+- Deployed on Digital Ocean App Platform
 
 ## Development Commands
 
@@ -77,13 +78,15 @@ This is a professional portfolio website for Frank Palmisano built with Astro, f
 
 - **Astro 5.x** - Static site generator with SSR support
 - **React 19** - For interactive components
-- **Tailwind CSS v4** - Utility-first CSS framework
+- **Tailwind CSS v4** - Utility-first CSS framework (using @tailwindcss/vite)
 - **TypeScript** - Type safety throughout the project
+- **Express 5** - Custom server for static asset serving in production
 
 ### Key Integrations
 
 - **@astrojs/node** - SSR adapter for Node.js environments
 - **shadcn/ui** - Component library built on Radix UI
+- **Sharp** - Image optimization with memory constraints for small instances
 
 ### Project Structure
 
@@ -147,11 +150,14 @@ export default defineConfig({
 
 ### Deployment Notes
 
-- Deploys to Digital Ocean App Platform with automatic builds
+- Deploys to Digital Ocean App Platform with automatic builds from `build-fixes` branch
+- Uses custom Express server (`server.js`) to serve static assets
+- Docker-based deployment with multi-stage build
+- Instance: basic-xxs (0.5GB RAM, 1 vCPU)
 - Environment variables managed in Digital Ocean dashboard
 - Rate limiting and security features active in production
-- Node.js runtime with PM2 process management
 - SSL certificates automatically managed by Digital Ocean
+- Live URL: https://portfolio-ph867.ondigitalocean.app
 
 ### Common Tasks
 
@@ -182,3 +188,57 @@ export async function POST({ request, locals }) {
 2. Import and use in relevant page files
 3. Ensure proper styling with Tailwind classes
 4. Add appropriate client directives if interactive
+
+## Important: Production Static Asset Serving
+
+**CRITICAL**: This project uses a custom Express server (`server.js`) to serve static assets in production. The standard Astro Node adapter alone does not serve client-side assets.
+
+### Why Custom Server?
+- Astro's Node adapter expects a reverse proxy (nginx/Apache) to serve static files
+- Digital Ocean App Platform doesn't provide this by default
+- Our Express server bridges this gap by serving `/_astro/*` files
+
+### Server Configuration
+```javascript
+// server.js handles:
+- Static assets from dist/client/_astro
+- Public files (favicon, manifest, etc.)
+- All SSR routes through Astro's handler
+```
+
+### If CSS/JS Not Loading in Production
+1. Check that `server.js` is included in the Docker build
+2. Verify Express is serving `/_astro` routes
+3. Ensure `dist/client` is copied in Dockerfile
+4. Check Digital Ocean logs for static asset 404s
+
+## Recent Deployment Fixes (August 2, 2025)
+
+### Issues Resolved
+1. **CSS not loading**: Implemented custom Express server
+2. **Missing dependencies**: Added @testing-library/dom
+3. **Build failures**: Updated Dockerfile with Canvas dependencies
+4. **Static serving**: Removed conflicting static_sites from app.yaml
+
+### Key Changes Made
+- Created `server.js` for static asset serving
+- Updated `package.json` start script to use custom server
+- Modified Dockerfile to include public directory and server.js
+- Simplified Digital Ocean configuration
+
+## Troubleshooting
+
+### CSS Not Loading
+1. Check build logs: `doctl apps logs <app-id> --type build`
+2. Verify CSS file exists: `curl -I https://your-app.ondigitalocean.app/_astro/<css-file>`
+3. Check runtime logs: `doctl apps logs <app-id> --type run`
+
+### Build Failures
+1. Missing dependencies: Check package.json and npm install logs
+2. Memory issues: Dockerfile sets NODE_OPTIONS="--max-old-space-size=400"
+3. Canvas errors: Ensure all system dependencies in Dockerfile
+
+### Health Check Failures
+- Endpoint: `/api/health?quick=true`
+- Startup time: Allow 45 seconds
+- Check middleware isn't blocking health endpoint
