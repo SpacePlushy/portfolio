@@ -1,4 +1,9 @@
-import { checkBotId } from 'botid';
+// Import the server-side helper from the botid package. The default
+// entry point of `botid` only exports a noop stub which causes a
+// "Named export 'checkBotId' not found" error during SSR.
+// Using the explicit server subpath provides the actual function
+// implemented for runtime environments like Vercel.
+import { checkBotId } from 'botid/server';
 
 export async function onRequest(context, next) {
   // Handle Chrome DevTools requests cleanly
