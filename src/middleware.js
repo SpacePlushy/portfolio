@@ -1,4 +1,4 @@
-import { checkBotId } from 'botid';
+import { checkBotId } from 'botid/server';
 
 export async function onRequest(context, next) {
   // Handle Chrome DevTools requests cleanly
@@ -11,13 +11,13 @@ export async function onRequest(context, next) {
   if (context.url.pathname.startsWith('/api/')) {
     try {
       // Check for bot using botid package
-      const botCheck = await checkBotId(context.request);
+      const botCheck = await checkBotId();
 
       // Store bot check result in locals for API handlers to use
       context.locals.botCheck = botCheck;
 
       // Optional: Block likely bots (uncomment if desired)
-      // if (botCheck.status === 'likely_bot') {
+      // if (botCheck.isBot && !botCheck.isGoodBot) {
       //   return new Response('Forbidden', {
       //     status: 403,
       //     headers: { 'Content-Type': 'text/plain' }
@@ -26,7 +26,7 @@ export async function onRequest(context, next) {
     } catch (error) {
       // Log error but don't block request on bot check failure
       console.warn('Bot check failed:', error);
-      context.locals.botCheck = { status: 'unknown', error: error.message };
+      context.locals.botCheck = { isHuman: true, isBot: false, error: error.message };
     }
   }
 
