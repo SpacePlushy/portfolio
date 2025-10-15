@@ -11,7 +11,7 @@ const { className = "", priority = false } = Astro.props;
 ---
 
 <div class={`relative overflow-hidden rounded-full ${className}`}>
-  <Image 
+  <Image
     src={frankHeadshot}
     alt="Frank Palmisano - Software Engineer & Customer Service Expert"
     widths={[96, 192, 256, 384]}
@@ -19,7 +19,7 @@ const { className = "", priority = false } = Astro.props;
     width={256}
     height={256}
     quality="mid"
-    formats={['avif', 'webp']}
+    format="avif"
     priority={priority}
     class="w-full h-full object-cover"
   />

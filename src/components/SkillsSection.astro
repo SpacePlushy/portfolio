@@ -2,40 +2,42 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
-const levelOrder = { "Expert": 1, "Advanced": 2, "Intermediate": 3 };
+type SkillLevel = "Expert" | "Advanced" | "Intermediate";
+
+const levelOrder: Record<SkillLevel, number> = { "Expert": 1, "Advanced": 2, "Intermediate": 3 };
 
 const skillCategories = [
   {
     name: "Programming Languages",
     items: [
-      { name: "Python", level: "Expert" },
-      { name: "C++", level: "Expert" },
-      { name: "TypeScript", level: "Advanced" },
-      { name: "JavaScript", level: "Advanced" },
-      { name: "C", level: "Advanced" },
-      { name: "Rust", level: "Intermediate" }
+      { name: "Python", level: "Expert" as SkillLevel },
+      { name: "C++", level: "Expert" as SkillLevel },
+      { name: "TypeScript", level: "Advanced" as SkillLevel },
+      { name: "JavaScript", level: "Advanced" as SkillLevel },
+      { name: "C", level: "Advanced" as SkillLevel },
+      { name: "Rust", level: "Intermediate" as SkillLevel }
     ]
   },
   {
     name: "Technologies & Frameworks",
     items: [
-      { name: "Embedded Systems", level: "Expert" },
-      { name: "RTOS", level: "Expert" },
-      { name: "Git", level: "Expert" },
-      { name: "React/Next.js", level: "Advanced" },
-      { name: "Node.js", level: "Advanced" },
-      { name: "Docker", level: "Advanced" }
+      { name: "Embedded Systems", level: "Expert" as SkillLevel },
+      { name: "RTOS", level: "Expert" as SkillLevel },
+      { name: "Git", level: "Expert" as SkillLevel },
+      { name: "React/Next.js", level: "Advanced" as SkillLevel },
+      { name: "Node.js", level: "Advanced" as SkillLevel },
+      { name: "Docker", level: "Advanced" as SkillLevel }
     ]
   },
   {
     name: "Customer Service Excellence",
     items: [
-      { name: "First-Contact Resolution", level: "Expert" },
-      { name: "De-escalation", level: "Expert" },
-      { name: "Empathy & Active Listening", level: "Expert" },
-      { name: "CSAT Management", level: "Expert" },
-      { name: "Salesforce", level: "Advanced" },
-      { name: "Zendesk", level: "Advanced" }
+      { name: "First-Contact Resolution", level: "Expert" as SkillLevel },
+      { name: "De-escalation", level: "Expert" as SkillLevel },
+      { name: "Empathy & Active Listening", level: "Expert" as SkillLevel },
+      { name: "CSAT Management", level: "Expert" as SkillLevel },
+      { name: "Salesforce", level: "Advanced" as SkillLevel },
+      { name: "Zendesk", level: "Advanced" as SkillLevel }
     ]
   }
 ];
@@ -81,11 +83,11 @@ const getLevelColor = (level: string) => {
 					</CardHeader>
 					<CardContent>
 						<div class="space-y-3">
-							{category.items.map((skill, i) => (
-								<div key={i} class="flex items-center justify-between">
+							{category.items.map((skill) => (
+								<div class="flex items-center justify-between">
 									<span class="text-sm font-medium">{skill.name}</span>
-									<Badge 
-										variant="outline" 
+									<Badge
+										variant="outline"
 										className={`text-xs ${getLevelColor(skill.level)}`}
 									>
 										{skill.level}
