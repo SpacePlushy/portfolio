@@ -39,8 +39,8 @@ import { RESUME_DATA } from '@/config/resume-data';
               <p class="text-muted-foreground">{exp.description}</p>
               <ul class="space-y-2">
                 {exp.achievements.map((achievement) => (
-                  <li class="flex items-start">
-                    <span class="text-primary mr-2 mt-1">•</span>
+                  <li class="flex gap-2">
+                    <span class="text-primary flex-shrink-0 text-sm">•</span>
                     <span class="text-muted-foreground text-sm">{achievement}</span>
                   </li>
                 ))}

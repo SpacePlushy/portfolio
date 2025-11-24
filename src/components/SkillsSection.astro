@@ -9,10 +9,6 @@ const skillCategories = [
     items: RESUME_DATA.skills.languages,
   },
   {
-    name: 'Frameworks & Technologies',
-    items: RESUME_DATA.skills.frameworks,
-  },
-  {
     name: 'Testing & Quality Assurance',
     items: RESUME_DATA.skills.testing,
   },
@@ -52,7 +48,7 @@ const skillCategories = [
             <CardContent>
               <div class="flex flex-wrap gap-2">
                 {category.items.map((skill) => (
-                  <Badge variant="secondary" className="text-sm">
+                  <Badge variant="secondary" className="text-sm break-words whitespace-normal">
                     {skill}
                   </Badge>
                 ))}

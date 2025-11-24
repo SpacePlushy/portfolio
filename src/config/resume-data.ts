@@ -109,7 +109,7 @@ export const RESUME_DATA: ResumeData = {
       startDate: 'May 2018',
       endDate: 'June 2024',
       description:
-        'Test equipment support and validation engineer for NASA programs including ISS and Orion missions. Advanced from Software Engineer I (2018-2022) to Software Engineer II (2022-2024), focusing on system validation, test infrastructure, and quality assurance for mission-critical aerospace systems.',
+        'Test equipment support and validation engineer for NASA programs including ISS and Orion missions, focusing on system validation, test infrastructure, and quality assurance for mission-critical aerospace systems.',
       achievements: [
         'Developed Python-based file validation software using checksum verification to ensure system integrity across multiple test environments for NASA ISS and Orion programs, improving validation efficiency by 40%',
         'Executed comprehensive validation procedures on aerospace test equipment, documenting test results and system configurations for engineering teams supporting mission-critical NASA missions',
@@ -207,6 +207,9 @@ export const RESUME_DATA: ResumeData = {
       'Test Case Execution',
       'Bug Documentation',
       'Root Cause Analysis',
+      'Embedded System Testing',
+      'Automated Testing Framework Implementation',
+      'Regression Testing Strategy Development',
     ],
     tools: [
       'Linux/Unix',
@@ -217,7 +220,7 @@ export const RESUME_DATA: ResumeData = {
       'LabVIEW',
       'Simics',
       'PMTE (Programmable Modular Test Equipment)',
-      'Xcode',
+      'SSH/Terminal',
     ],
     methodologies: [
       'Agile',
@@ -226,6 +229,12 @@ export const RESUME_DATA: ResumeData = {
       'Quality Assurance',
       'Infrastructure Administration',
       'Cross-functional Collaboration',
+      'Embedded Software Testing Process Optimization',
+      'System Analysis',
+      'Issue Identification and Resolution',
+      'System Design Enhancement',
+      'System Documentation Development',
+      'Performance Improvement Strategies',
     ],
   },
 
