@@ -2,6 +2,42 @@
 import '../styles/global.css';
 import Analytics from '@/components/Analytics.astro';
 import Favicon from '@/components/Favicon.astro';
+import { RESUME_DATA } from '@/config/resume-data';
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const {
+  title = 'Frank Palmisano - Professional Portfolio',
+  description = 'Versatile professional with expertise in both software engineering and customer service excellence. Explore my diverse skill set and achievements.',
+} = Astro.props;
+
+// Production URL configuration
+const siteUrl = 'https://frankpalmisano.com';
+const canonicalUrl = siteUrl;
+
+// JSON-LD structured data for Person schema
+const personSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  name: RESUME_DATA.personal.name,
+  jobTitle: RESUME_DATA.personal.title,
+  url: siteUrl,
+  sameAs: [RESUME_DATA.personal.linkedin, RESUME_DATA.personal.github].filter(Boolean),
+  alumniOf: {
+    '@type': 'EducationalOrganization',
+    name: RESUME_DATA.education[0]?.institution || 'Arizona State University',
+  },
+  description: RESUME_DATA.about.summary.substring(0, 160),
+  email: RESUME_DATA.personal.email,
+  address: {
+    '@type': 'PostalAddress',
+    addressLocality: 'Phoenix',
+    addressRegion: 'Arizona',
+  },
+};
 ---
 
 <!doctype html>
@@ -13,11 +49,32 @@ import Favicon from '@/components/Favicon.astro';
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
     <meta name="generator" content={Astro.generator} />
-    <title>Frank Palmisano - Professional Portfolio</title>
-    <meta
-      name="description"
-      content="Versatile professional with expertise in both software engineering and customer service excellence. Explore my diverse skill set and achievements."
-    />
+
+    <!-- Primary Meta Tags -->
+    <title>{title}</title>
+    <meta name="title" content={title} />
+    <meta name="description" content={description} />
+    <meta name="keywords" content={RESUME_DATA.seo.keywords.join(', ')} />
+
+    <!-- Canonical URL -->
+    <link rel="canonical" href={canonicalUrl} />
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={siteUrl} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:site_name" content="Frank Palmisano Portfolio" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:url" content={siteUrl} />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+
+    <!-- JSON-LD Structured Data -->
+    <script is:inline type="application/ld+json" set:html={JSON.stringify(personSchema)} />
+
     <script is:inline>
       // Theme initialization using ThemeService logic
       const theme = (() => {

@@ -1,103 +1,66 @@
 ---
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-
-type SkillLevel = "Expert" | "Advanced" | "Intermediate";
-
-const levelOrder: Record<SkillLevel, number> = { "Expert": 1, "Advanced": 2, "Intermediate": 3 };
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { RESUME_DATA } from '@/config/resume-data';
 
 const skillCategories = [
   {
-    name: "Programming Languages",
-    items: [
-      { name: "Python", level: "Expert" as SkillLevel },
-      { name: "C++", level: "Expert" as SkillLevel },
-      { name: "TypeScript", level: "Advanced" as SkillLevel },
-      { name: "JavaScript", level: "Advanced" as SkillLevel },
-      { name: "C", level: "Advanced" as SkillLevel },
-      { name: "Rust", level: "Intermediate" as SkillLevel }
-    ]
+    name: 'Languages',
+    items: RESUME_DATA.skills.languages,
   },
   {
-    name: "Technologies & Frameworks",
-    items: [
-      { name: "Embedded Systems", level: "Expert" as SkillLevel },
-      { name: "RTOS", level: "Expert" as SkillLevel },
-      { name: "Git", level: "Expert" as SkillLevel },
-      { name: "React/Next.js", level: "Advanced" as SkillLevel },
-      { name: "Node.js", level: "Advanced" as SkillLevel },
-      { name: "Docker", level: "Advanced" as SkillLevel }
-    ]
+    name: 'Frameworks & Technologies',
+    items: RESUME_DATA.skills.frameworks,
   },
   {
-    name: "Customer Service Excellence",
-    items: [
-      { name: "First-Contact Resolution", level: "Expert" as SkillLevel },
-      { name: "De-escalation", level: "Expert" as SkillLevel },
-      { name: "Empathy & Active Listening", level: "Expert" as SkillLevel },
-      { name: "CSAT Management", level: "Expert" as SkillLevel },
-      { name: "Salesforce", level: "Advanced" as SkillLevel },
-      { name: "Zendesk", level: "Advanced" as SkillLevel }
-    ]
-  }
+    name: 'Testing & Quality Assurance',
+    items: RESUME_DATA.skills.testing,
+  },
+  {
+    name: 'Tools',
+    items: RESUME_DATA.skills.tools,
+  },
+  {
+    name: 'Methodologies',
+    items: RESUME_DATA.skills.methodologies,
+  },
 ];
-
-// Sort each category's items by level
-skillCategories.forEach(category => {
-  category.items.sort((a, b) => levelOrder[a.level] - levelOrder[b.level]);
-});
-
-const getLevelColor = (level: string) => {
-  switch (level) {
-    case "Expert":
-      return "bg-green-500/10 text-green-700 border-green-500/20 dark:bg-green-500/20 dark:text-green-400 dark:border-green-500/30";
-    case "Advanced":
-      return "bg-blue-500/10 text-blue-700 border-blue-500/20 dark:bg-blue-500/20 dark:text-blue-400 dark:border-blue-500/30";
-    case "Intermediate":
-      return "bg-yellow-500/10 text-yellow-700 border-yellow-500/20 dark:bg-yellow-500/20 dark:text-yellow-400 dark:border-yellow-500/30";
-    default:
-      return "bg-gray-500/10 text-gray-700 border-gray-500/20 dark:bg-gray-500/20 dark:text-gray-400 dark:border-gray-500/30";
-  }
-};
 ---
 
 <section class="container mx-auto px-4 py-16" id="skills">
-	<div class="max-w-6xl mx-auto space-y-12">
-		<div class="text-center space-y-4">
-			<Badge variant="outline" className="text-sm">
-				Skills
-			</Badge>
-			<h2 class="text-3xl md:text-4xl font-bold">
-				Technical & Professional Skills
-			</h2>
-			<p class="text-lg text-muted-foreground max-w-3xl mx-auto">
-				A comprehensive skill set spanning software engineering, embedded systems, and customer service excellence.
-			</p>
-		</div>
+  <div class="max-w-6xl mx-auto space-y-12">
+    <div class="text-center space-y-4">
+      <Badge variant="outline" className="text-sm"> Skills </Badge>
+      <h2 class="text-3xl md:text-4xl font-bold">Technical & Professional Skills</h2>
+      <p class="text-lg text-muted-foreground max-w-3xl mx-auto">
+        A comprehensive skill set spanning validation engineering, test automation, and software
+        development.
+      </p>
+    </div>
 
-		<div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-			{skillCategories.map((category, index) => (
-				<Card key={index} className="hover:shadow-lg transition-all duration-200 dark:border-muted dark:hover:border-primary/20 dark:hover:shadow-xl dark:hover:shadow-primary/5" client:load>
-					<CardHeader>
-						<CardTitle className="text-lg">{category.name}</CardTitle>
-					</CardHeader>
-					<CardContent>
-						<div class="space-y-3">
-							{category.items.map((skill) => (
-								<div class="flex items-center justify-between">
-									<span class="text-sm font-medium">{skill.name}</span>
-									<Badge
-										variant="outline"
-										className={`text-xs ${getLevelColor(skill.level)}`}
-									>
-										{skill.level}
-									</Badge>
-								</div>
-							))}
-						</div>
-					</CardContent>
-				</Card>
-			))}
-		</div>
-	</div>
+    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {
+        skillCategories.map((category, index) => (
+          <Card
+            key={index}
+            className="hover:shadow-lg transition-all duration-200 dark:border-muted dark:hover:border-primary/20 dark:hover:shadow-xl dark:hover:shadow-primary/5"
+            client:load
+          >
+            <CardHeader>
+              <CardTitle className="text-lg">{category.name}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div class="flex flex-wrap gap-2">
+                {category.items.map((skill) => (
+                  <Badge variant="secondary" className="text-sm">
+                    {skill}
+                  </Badge>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        ))
+      }
+    </div>
+  </div>
 </section>

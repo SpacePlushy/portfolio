@@ -1,102 +1,103 @@
 ---
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Rocket, Star, Trophy, DollarSign, Award, BookOpen } from "lucide-react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Rocket, Star, Trophy, DollarSign, Award, BookOpen } from 'lucide-react';
 
 const achievements = [
   {
-    title: "NASA Orion Spacecraft Contributor",
-    description: "Lead developer for mission-critical life support software",
-    impact: "Advancing human spaceflight capabilities for deep space exploration",
+    title: 'NASA Orion Spacecraft Contributor',
+    description: 'Lead developer for mission-critical life support software',
+    impact: 'Advancing human spaceflight capabilities for deep space exploration',
     icon: Rocket,
-    iconColor: "text-blue-500",
-    bgColor: "bg-blue-500/10"
+    iconColor: 'text-blue-500',
+    bgColor: 'bg-blue-500/10',
   },
   {
-    title: "99% Customer Satisfaction",
-    description: "Achieved and maintained exceptional CSAT rating at Apple",
-    impact: "Built lasting customer loyalty and trust through excellence",
+    title: '99% Customer Satisfaction',
+    description: 'Achieved and maintained exceptional CSAT rating at Apple',
+    impact: 'Built lasting customer loyalty and trust through excellence',
     icon: Star,
-    iconColor: "text-yellow-500",
-    bgColor: "bg-yellow-500/10"
+    iconColor: 'text-yellow-500',
+    bgColor: 'bg-yellow-500/10',
   },
   {
-    title: "Apple Top 4% Nationally",
-    description: "Ranked in the top 4% of Customer Service Advisors nationwide",
-    impact: "Consistently exceeded performance metrics and quality standards",
+    title: 'Apple Top 4% Nationally',
+    description: 'Ranked in the top 4% of Customer Service Advisors nationwide',
+    impact: 'Consistently exceeded performance metrics and quality standards',
     icon: Trophy,
-    iconColor: "text-amber-500",
-    bgColor: "bg-amber-500/10"
+    iconColor: 'text-amber-500',
+    bgColor: 'bg-amber-500/10',
   },
   {
-    title: "$2.4M Cost Savings",
-    description: "Architected virtualization solution for hardware testing",
-    impact: "Reduced testing infrastructure costs by 75% while improving efficiency",
+    title: '$2.4M Cost Savings',
+    description: 'Architected virtualization solution for hardware testing',
+    impact: 'Reduced testing infrastructure costs by 75% while improving efficiency',
     icon: DollarSign,
-    iconColor: "text-green-500",
-    bgColor: "bg-green-500/10"
+    iconColor: 'text-green-500',
+    bgColor: 'bg-green-500/10',
   },
   {
-    title: "16 Outstanding Service Awards",
-    description: "Received 16 Outstanding Customer Service Awards at Apple",
-    impact: "Recognized for exceptional dedication to customer success",
+    title: '16 Outstanding Service Awards',
+    description: 'Received 16 Outstanding Customer Service Awards at Apple',
+    impact: 'Recognized for exceptional dedication to customer success',
     icon: Award,
-    iconColor: "text-purple-500",
-    bgColor: "bg-purple-500/10"
+    iconColor: 'text-purple-500',
+    bgColor: 'bg-purple-500/10',
   },
   {
-    title: "Knowledge Base Contributor",
-    description: "Authored 30+ articles that reduced average handle time by 12%",
-    impact: "Improved team efficiency and first-contact resolution rates",
+    title: 'Knowledge Base Contributor',
+    description: 'Authored 30+ articles that reduced average handle time by 12%',
+    impact: 'Improved team efficiency and first-contact resolution rates',
     icon: BookOpen,
-    iconColor: "text-indigo-500",
-    bgColor: "bg-indigo-500/10"
-  }
+    iconColor: 'text-indigo-500',
+    bgColor: 'bg-indigo-500/10',
+  },
 ];
 ---
 
 <section class="container mx-auto px-4 py-16" id="achievements">
-	<div class="max-w-6xl mx-auto space-y-12">
-		<div class="text-center space-y-4">
-			<Badge variant="outline" className="text-sm">
-				Achievements
-			</Badge>
-			<h2 class="text-3xl md:text-4xl font-bold">
-				Notable Accomplishments
-			</h2>
-			<p class="text-lg text-muted-foreground max-w-3xl mx-auto">
-				Key milestones and achievements that demonstrate my commitment to excellence in both technical and customer-facing roles.
-			</p>
-		</div>
+  <div class="max-w-6xl mx-auto space-y-12">
+    <div class="text-center space-y-4">
+      <Badge variant="outline" className="text-sm"> Achievements </Badge>
+      <h2 class="text-3xl md:text-4xl font-bold">Notable Accomplishments</h2>
+      <p class="text-lg text-muted-foreground max-w-3xl mx-auto">
+        Key milestones and achievements that demonstrate my commitment to excellence in both
+        technical and customer-facing roles.
+      </p>
+    </div>
 
-		<div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-			{achievements.map((achievement, index) => {
-				const Icon = achievement.icon;
-				return (
-					<Card key={index} className="hover:shadow-lg transition-all duration-200 group dark:border-muted dark:hover:border-primary/20 dark:hover:shadow-xl dark:hover:shadow-primary/5" client:load>
-						<CardHeader className="space-y-3">
-							<div class={`w-12 h-12 rounded-lg ${achievement.bgColor} flex items-center justify-center`}>
-								<Icon className={`w-6 h-6 ${achievement.iconColor}`} />
-							</div>
-							<CardTitle className="text-lg group-hover:text-primary transition-colors">
-								{achievement.title}
-							</CardTitle>
-						</CardHeader>
-						<CardContent className="space-y-3">
-							<CardDescription className="text-base">
-								{achievement.description}
-							</CardDescription>
-							{achievement.impact && (
-								<div class="pt-2 border-t">
-									<p class="text-sm text-muted-foreground italic">
-										Impact: {achievement.impact}
-									</p>
-								</div>
-							)}
-						</CardContent>
-					</Card>
-				);
-			})}
-		</div>
-	</div>
+    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {
+        achievements.map((achievement, index) => {
+          const Icon = achievement.icon;
+          return (
+            <Card
+              key={index}
+              className="hover:shadow-lg transition-all duration-200 group dark:border-muted dark:hover:border-primary/20 dark:hover:shadow-xl dark:hover:shadow-primary/5"
+              client:load
+            >
+              <CardHeader className="space-y-3">
+                <div
+                  class={`w-12 h-12 rounded-lg ${achievement.bgColor} flex items-center justify-center`}
+                >
+                  <Icon className={`w-6 h-6 ${achievement.iconColor}`} />
+                </div>
+                <CardTitle className="text-lg group-hover:text-primary transition-colors">
+                  {achievement.title}
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <CardDescription className="text-base">{achievement.description}</CardDescription>
+                {achievement.impact && (
+                  <div class="pt-2 border-t">
+                    <p class="text-sm text-muted-foreground italic">Impact: {achievement.impact}</p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          );
+        })
+      }
+    </div>
+  </div>
 </section>

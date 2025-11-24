@@ -5,6 +5,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Project Overview
 
 This is a professional portfolio website for Frank Palmisano built with Astro, featuring:
+
 - Server-side rendering (SSR) with Vercel adapter
 - Dual portfolio paths (Software Engineer & Customer Service Representative)
 - Dark/light theme support
@@ -15,30 +16,31 @@ This is a professional portfolio website for Frank Palmisano built with Astro, f
 
 ## Development Commands
 
-| Command | Purpose |
-|---------|---------|
-| `npm run dev` | Start development server at `localhost:4321` with hot reloading |
-| `npm run build` | Build production site to `./dist/` directory |
-| `npm run preview` | Preview production build locally |
-| `npm run astro` | Run Astro CLI commands (e.g., `npm run astro add tailwind`) |
+| Command           | Purpose                                                         |
+| ----------------- | --------------------------------------------------------------- |
+| `npm run dev`     | Start development server at `localhost:4321` with hot reloading |
+| `npm run build`   | Build production site to `./dist/` directory                    |
+| `npm run preview` | Preview production build locally                                |
+| `npm run astro`   | Run Astro CLI commands (e.g., `npm run astro add tailwind`)     |
 
 ## Quality Assurance Commands
 
 **IMPORTANT**: Always run these commands after completing any task to ensure code quality:
 
-| Command | Purpose |
-|---------|---------|
-| `npm run lint` | Run ESLint to check code quality |
-| `npm run lint:fix` | Auto-fix ESLint issues where possible |
-| `npm run typecheck` | Run TypeScript type checking with Astro |
-| `npm run format` | Format code with Prettier |
-| `npm run format:check` | Check code formatting without making changes |
-| `npm test` | Run Vitest test suite |
-| `npm run test:watch` | Run tests in watch mode during development |
-| `npm run test:ui` | Launch Vitest UI for interactive test visualization |
-| `npm run test:coverage` | Generate test coverage report |
+| Command                 | Purpose                                             |
+| ----------------------- | --------------------------------------------------- |
+| `npm run lint`          | Run ESLint to check code quality                    |
+| `npm run lint:fix`      | Auto-fix ESLint issues where possible               |
+| `npm run typecheck`     | Run TypeScript type checking with Astro             |
+| `npm run format`        | Format code with Prettier                           |
+| `npm run format:check`  | Check code formatting without making changes        |
+| `npm test`              | Run Vitest test suite                               |
+| `npm run test:watch`    | Run tests in watch mode during development          |
+| `npm run test:ui`       | Launch Vitest UI for interactive test visualization |
+| `npm run test:coverage` | Generate test coverage report                       |
 
 **Post-task checklist**: After completing any feature or fix, run:
+
 1. `npm run typecheck` - Catch type errors
 2. `npm run lint` - Ensure code quality
 3. `npm run format` - Ensure consistent formatting
@@ -53,7 +55,7 @@ This is a professional portfolio website for Frank Palmisano built with Astro, f
 
 1. **Astro CLI** - Use for all Astro integrations:
    - `npx astro add react --yes` - Add React support
-   - `npx astro add tailwind --yes` - Add Tailwind CSS  
+   - `npx astro add tailwind --yes` - Add Tailwind CSS
    - `npx astro add vercel --yes` - Add Vercel adapter
    - `npx astro add mdx --yes` - Add MDX support
    - `npx astro add sitemap --yes` - Add sitemap generation
@@ -70,11 +72,13 @@ This is a professional portfolio website for Frank Palmisano built with Astro, f
    - Custom webpack/vite configurations
 
 ### Other CLI Commands
+
 - `npx astro check` - Check for TypeScript and configuration errors (same as `npm run typecheck`)
 - `npx astro sync` - Generate TypeScript definitions for content collections
 - `npx astro info` - Display project information and environment details
 
 ### When Making Changes
+
 1. **Check for CLI tools first** - Never manually configure what a CLI can handle
 2. **Always test with `npm run dev`** after making changes
 3. **Run quality checks** - Follow the post-task checklist above
@@ -83,12 +87,14 @@ This is a professional portfolio website for Frank Palmisano built with Astro, f
 ## Current Tech Stack
 
 ### Core Technologies
+
 - **Astro 5.x** - Static site generator with SSR support
 - **React 19** - For interactive components
 - **Tailwind CSS v4** - Utility-first CSS framework
 - **TypeScript** - Type safety throughout the project
 
 ### Key Integrations
+
 - **@astrojs/vercel** - SSR adapter with ISR and image optimization
 - **@vercel/analytics** - Web analytics tracking
 - **botid** - Bot protection for API endpoints
@@ -98,6 +104,7 @@ This is a professional portfolio website for Frank Palmisano built with Astro, f
 - **Prettier** - Code formatting with Astro plugin support
 
 ### Project Structure
+
 ```
 src/
 ├── assets/           # Images and static assets
@@ -120,12 +127,14 @@ src/
 ### Architecture Patterns
 
 #### Component Hydration
+
 - Use `client:load` for immediately interactive components
 - Use `client:visible` for components that hydrate when scrolled into view
 - Use `client:idle` for lower-priority interactive components
 - **Note**: Astro's `<Image>` component doesn't need client directives
 
 #### SSR Configuration
+
 ```javascript
 // astro.config.mjs
 export default defineConfig({
@@ -133,12 +142,13 @@ export default defineConfig({
   adapter: vercel({
     isr: { expiration: 60 * 60 }, // 1 hour cache
     imageService: true,
-    webAnalytics: { enabled: true }
-  })
+    webAnalytics: { enabled: true },
+  }),
 });
 ```
 
 #### Theme System
+
 - **ThemeService** (`src/services/theme.ts`) - Centralized theme management class
 - **Theme initialization** - Inline script in `Layout.astro` prevents flash of unstyled content (FOUC)
 - **Priority order**: localStorage → system preference → default light
@@ -146,6 +156,7 @@ export default defineConfig({
 - **Dark mode class**: Applied to `<html>` element, Tailwind CSS responds with `dark:` variants
 
 #### Bot Protection
+
 - **Middleware** (`src/middleware.js`) - Runs `checkBotId()` from `botid/server` on all `/api/*` routes
 - **Chrome DevTools handling** - Returns 204 for `.well-known/appspecific/com.chrome.devtools.json`
 - **vercel.json rewrites** - Proxy BotID challenge requests to Vercel's bot protection API
@@ -153,7 +164,9 @@ export default defineConfig({
 - **Bot check result properties**: `isHuman`, `isBot`, `isGoodBot`, `bypassed`
 
 #### Security Headers
+
 vercel.json configures production security headers:
+
 - **Content-Security-Policy** - Restricts script/style sources, allows Vercel Live and fonts
 - **X-Content-Type-Options: nosniff** - Prevents MIME sniffing
 - **X-Frame-Options: DENY** - Prevents clickjacking
@@ -162,12 +175,14 @@ vercel.json configures production security headers:
 - **Strict-Transport-Security** - Enforces HTTPS for 1 year with subdomains
 
 ### Performance Optimizations
+
 - **Image Optimization**: Vercel automatically optimizes images on-demand
 - **ISR Caching**: Pages cached for 1 hour after first request
 - **Component Code Splitting**: Only loads JavaScript for interactive components
 - **Modern Image Formats**: Automatic AVIF/WebP conversion
 
 ### Testing Infrastructure
+
 - **Framework**: Vitest with React Testing Library
 - **Environment**: jsdom for DOM simulation
 - **Setup file**: `src/test/test-setup.ts` with `@testing-library/jest-dom` matchers
@@ -176,6 +191,7 @@ vercel.json configures production security headers:
 - **Coverage**: Available via `npm run test:coverage`
 
 ### Development Best Practices
+
 1. **Keep components as .astro files** when possible (better performance, no hydration cost)
 2. **Use React only for interactivity** - ThemeToggle, forms, client-side state
 3. **Use shadcn components directly in .astro files** - They work without client directives unless interactive
@@ -184,6 +200,7 @@ vercel.json configures production security headers:
 6. **Theme changes**: Modify ThemeService, not individual components
 
 ### Deployment Notes
+
 - Deploys automatically to Vercel on push to main branch
 - Environment variables managed in Vercel dashboard
 - Analytics enabled in Vercel project settings
@@ -192,6 +209,7 @@ vercel.json configures production security headers:
 ### Common Development Tasks
 
 #### Adding a New shadcn Component
+
 ```bash
 npx shadcn@latest add dialog
 # Then import in .astro file:
@@ -199,6 +217,7 @@ npx shadcn@latest add dialog
 ```
 
 #### Creating a New API Endpoint
+
 ```javascript
 // src/pages/api/endpoint.js
 export async function POST({ request, locals }) {
@@ -211,12 +230,14 @@ export async function POST({ request, locals }) {
 ```
 
 #### Adding a New Portfolio Section
+
 1. Create component in `src/components/SectionName.astro`
 2. Import and use in `software-engineer.astro` or `customer-service.astro`
 3. Style with Tailwind classes (use `dark:` variants for theme support)
 4. Add `client:*` directive only if component needs JavaScript
 
 #### Writing Unit Tests
+
 ```typescript
 // src/lib/example.test.ts
 import { describe, it, expect } from 'vitest';
@@ -230,6 +251,7 @@ describe('myFunction', () => {
 ```
 
 #### Modifying Theme Behavior
+
 1. Update `ThemeService` in `src/services/theme.ts` for logic changes
 2. Update inline script in `Layout.astro` if changing initialization
 3. Ensure `ThemeToggle.astro` uses ThemeService methods

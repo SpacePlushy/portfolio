@@ -1,103 +1,68 @@
 ---
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { RESUME_DATA } from '@/config/resume-data';
 
-const education = [
-  {
-    degree: "B.S. in Computer Science",
-    school: "Arizona State University",
-    period: "2014 - 2018",
-    location: "Tempe, Arizona",
-    highlights: ["Dean's List", "Focus on Software Engineering", "Embedded Systems Research"]
-  }
-];
-
-const certifications = [
-  {
-    name: "HIPAA for Customer Support Personnel",
-    issuer: "LinkedIn Learning",
-    year: "2025"
-  },
-  {
-    name: "Salesforce Service Cloud & Zendesk Refresher",
-    issuer: "Self-Study",
-    year: "2025"
-  }
-];
+const education = RESUME_DATA.education;
 ---
 
 <section class="container mx-auto px-4 py-16" id="education">
-	<div class="max-w-6xl mx-auto space-y-12">
-		<div class="text-center space-y-4">
-			<Badge variant="outline" className="text-sm">
-				Education
-			</Badge>
-			<h2 class="text-3xl md:text-4xl font-bold">
-				Education & Certifications
-			</h2>
-			<p class="text-lg text-muted-foreground max-w-3xl mx-auto">
-				Academic foundation and continuous learning in technology and customer service excellence.
-			</p>
-		</div>
+  <div class="max-w-6xl mx-auto space-y-12">
+    <div class="text-center space-y-4">
+      <Badge variant="outline" className="text-sm"> Education </Badge>
+      <h2 class="text-3xl md:text-4xl font-bold">Education</h2>
+      <p class="text-lg text-muted-foreground max-w-3xl mx-auto">
+        Academic foundation in computer science with focus on software engineering and validation.
+      </p>
+    </div>
 
-		<div class="grid lg:grid-cols-2 gap-8">
-			<!-- Education -->
-			<div class="space-y-6">
-				<h3 class="text-xl font-semibold mb-4">Formal Education</h3>
-				{education.map((edu, index) => (
-					<Card key={index} className="hover:shadow-lg transition-all duration-200 dark:border-muted dark:hover:border-primary/20 dark:hover:shadow-xl dark:hover:shadow-primary/5" client:load>
-						<CardHeader>
-							<div class="flex justify-between items-start gap-4">
-								<div>
-									<CardTitle className="text-lg">{edu.degree}</CardTitle>
-									<CardDescription className="text-base mt-1">
-										{edu.school} • {edu.location}
-									</CardDescription>
-								</div>
-								<Badge variant="secondary" className="whitespace-nowrap">
-									{edu.period}
-								</Badge>
-							</div>
-						</CardHeader>
-						{edu.highlights && (
-							<CardContent>
-								<ul class="space-y-1">
-									{edu.highlights.map((highlight) => (
-										<li class="flex items-start">
-											<span class="text-primary mr-2">•</span>
-											<span class="text-sm text-muted-foreground">{highlight}</span>
-										</li>
-									))}
-								</ul>
-							</CardContent>
-						)}
-					</Card>
-				))}
-			</div>
-
-			<!-- Certifications -->
-			<div class="space-y-6">
-				<h3 class="text-xl font-semibold mb-4">Certifications</h3>
-				<div class="flex flex-col gap-3">
-					{certifications.map((cert, index) => (
-						<Card key={index} className="hover:shadow-lg transition-all duration-200 dark:border-muted dark:hover:border-primary/20 dark:hover:shadow-xl dark:hover:shadow-primary/5" client:load>
-							<CardHeader className="pb-3">
-								<div class="flex justify-between items-start gap-4">
-									<div>
-										<CardTitle className="text-base">{cert.name}</CardTitle>
-										<CardDescription className="text-sm mt-1">
-											{cert.issuer}
-										</CardDescription>
-									</div>
-									<Badge variant="outline" className="text-xs">
-										{cert.year}
-									</Badge>
-								</div>
-							</CardHeader>
-						</Card>
-					))}
-				</div>
-			</div>
-		</div>
-	</div>
+    <div class="space-y-6">
+      {
+        education.map((edu, index) => (
+          <Card
+            key={index}
+            className="hover:shadow-lg transition-all duration-200 dark:border-muted dark:hover:border-primary/20 dark:hover:shadow-xl dark:hover:shadow-primary/5"
+            client:load
+          >
+            <CardHeader>
+              <div class="flex justify-between items-start gap-4">
+                <div>
+                  <CardTitle className="text-lg">
+                    {edu.degree} in {edu.field}
+                  </CardTitle>
+                  <CardDescription className="text-base mt-1">{edu.institution}</CardDescription>
+                </div>
+                <Badge variant="secondary" className="whitespace-nowrap">
+                  {edu.graduationMonth} {edu.graduationYear}
+                </Badge>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div class="space-y-3">
+                <div>
+                  <span class="text-sm font-semibold">GPA:</span>
+                  <span class="text-sm text-muted-foreground ml-2">{edu.gpa}</span>
+                </div>
+                <div>
+                  <span class="text-sm font-semibold">Honors & Awards:</span>
+                  <ul class="space-y-1 mt-2">
+                    {edu.honors.split(';').map((honor) => (
+                      <li class="flex items-start">
+                        <span class="text-primary mr-2">•</span>
+                        <span class="text-sm text-muted-foreground">{honor.trim()}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                <div>
+                  <span class="text-sm font-semibold">Capstone Project:</span>
+                  <p class="text-sm text-muted-foreground mt-1">{edu.additionalDetails}</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        ))
+      }
+    </div>
+  </div>
 </section>
