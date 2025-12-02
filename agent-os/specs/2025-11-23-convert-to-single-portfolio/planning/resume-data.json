@@ -59,10 +59,10 @@
     },
     {
       "company": "Life Jewel Technologies",
-      "position": "Co-founder and Chief Technology Officer",
+      "position": "Founder & iOS Developer",
       "location": "Tempe, Arizona",
-      "startDate": "December 2016",
-      "endDate": "June 2017",
+      "startDate": "January 2017",
+      "endDate": "May 2018",
       "description": "Co-founded language learning technology startup and served as sole engineer, building and shipping production iOS application from concept to App Store deployment.",
       "achievements": [
         "Sole engineer: Developed and shipped production iOS application to App Store using Swift and Objective-C, managing complete technical delivery from concept to deployment",
@@ -85,7 +85,7 @@
       "company": "Performance Software Corporation",
       "position": "Software Engineering Intern",
       "location": "Phoenix, Arizona",
-      "startDate": "July 2016",
+      "startDate": "June 2016",
       "endDate": "October 2016",
       "description": "Software engineering internship focused on test automation and validation for Northrop Grumman aerospace projects.",
       "achievements": [
@@ -105,7 +105,7 @@
       "endDate": "December 2014",
       "description": "Provided technical support and troubleshooting for Apple customers, serving as technical expert for hardware and software issues.",
       "achievements": [
-        "Provided technical support and troubleshooting for customer hardware/software issues, resolving 30+ cases daily",
+        "Provided technical support and troubleshooting for customer hardware/software issues, resolving 110+ cases daily",
         "Received multiple awards for customer service excellence and technical problem resolution",
         "Became go-to resource for complex technical problem-solving among 15-member team"
       ],

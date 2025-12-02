@@ -199,8 +199,8 @@ Estimated Total Tasks: ~40 subtasks
       - `hover:shadow-lg transition-all duration-200 dark:border-muted dark:hover:border-primary/20`
     - Display in chronological order (most recent first):
       1. Honeywell Aerospace (May 2018 - June 2024)
-      2. Life Jewel Technologies (December 2016 - June 2017)
-      3. Performance Software Corporation (July 2016 - October 2016)
+      2. Life Jewel Technologies (January 2017 - May 2018)
+      3. Performance Software Corporation (June 2016 - October 2016)
       4. Apple Inc. (June 2014 - December 2014)
 
 **Acceptance Criteria:**
