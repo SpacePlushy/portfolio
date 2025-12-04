@@ -1,6 +1,7 @@
 ---
 import '../styles/global.css';
 import Analytics from '@/components/Analytics.astro';
+import DownloadCVButton from '@/components/DownloadCVButton.astro';
 import Favicon from '@/components/Favicon.astro';
 import { RESUME_DATA } from '@/config/resume-data';
 
@@ -101,6 +102,7 @@ const personSchema = {
   </head>
   <body>
     <slot />
+    <DownloadCVButton />
     <Analytics />
   </body>
 </html>
